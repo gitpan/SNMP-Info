@@ -1,5 +1,5 @@
 # SNMP::Info -  Makefile.PL
-# $Id: Makefile.PL,v 1.4 2003/04/17 21:21:17 maxbaker Exp $
+# $Id: Makefile.PL,v 1.5 2003/08/14 18:24:56 maxbaker Exp $
 
 use ExtUtils::MakeMaker;
 WriteMakefile(
@@ -21,5 +21,6 @@ WriteMakefile(
 
 sub MY::postamble { "
 .PHONY: readme
-readme:
+readme: README
+README: Info.pm
 	pod2text -l Info.pm > README" }

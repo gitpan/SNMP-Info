@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CiscoStats;
-$VERSION = 0.6;
-# $Id: CiscoStats.pm,v 1.4 2003/06/18 16:26:38 maxbaker Exp $
+$VERSION = 0.7;
+# $Id: CiscoStats.pm,v 1.6 2003/08/14 18:24:56 maxbaker Exp $
 
 use strict;
 
@@ -77,8 +77,9 @@ sub os {
     my $l2 = shift;
     my $descr = $l2->description();
 
-    return 'catalyst' if ($descr =~ /catalyst/i);
+    # order here matters - there are Catalysts that run IOS and have catalyst in their description field.
     return 'ios'      if ($descr =~ /IOS/);
+    return 'catalyst' if ($descr =~ /catalyst/i);
     return undef;
 }
 

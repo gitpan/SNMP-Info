@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2;
-$VERSION = 0.6;
-# $Id: Layer2.pm,v 1.8 2003/06/18 16:26:38 maxbaker Exp $
+$VERSION = 0.7;
+# $Id: Layer2.pm,v 1.10 2003/07/28 16:01:10 maxbaker Exp $
 
 use strict;
 
@@ -55,8 +55,8 @@ $INIT = 0;
           %SNMP::Info::Bridge::MIBS,
           %SNMP::Info::CDP::MIBS,
           %SNMP::Info::CiscoStats::MIBS,
-          'CISCO-PRODUCTS-MIB' => 'sysName',
-          'CISCO-STACK-MIB'    => 'wsc1900sysID',
+          'CISCO-PRODUCTS-MIB' => 'sysName',    # for model()
+          'CISCO-STACK-MIB'    => 'wsc1900sysID',    # some older catalysts live here
         );
 
 %GLOBALS = (
@@ -89,7 +89,7 @@ sub model {
     my $l2 = shift;
     my $id = $l2->id();
     my $model = &SNMP::translateObj($id);
-    
+   
     # HP
     $model =~ s/^hpswitch//i;
 

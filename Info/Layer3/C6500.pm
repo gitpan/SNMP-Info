@@ -1,8 +1,7 @@
-# SNMP::Info::Layer2::Catalyst
+# SNMP::Info::Layer3::C6500
 # Max Baker <max@warped.org>
 #
-# Copyright (c) 2002,2003 Regents of the University of California
-# Copyright (c) 2003      Max Baker
+# Copyright (c) 2003  Max Baker
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -13,7 +12,7 @@
 #     * Redistributions in binary form must reproduce the above copyright notice,
 #       this list of conditions and the following disclaimer in the documentation
 #       and/or other materials provided with the distribution.
-#     * Neither the name of the University of California, Santa Cruz nor the 
+#     * Neither the name of the Author, nor 
 #       names of its contributors may be used to endorse or promote products 
 #       derived from this software without specific prior written permission.
 # 
@@ -28,21 +27,20 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer2::Catalyst;
+package SNMP::Info::Layer3::C6500;
 $VERSION = 0.7;
-# $Id: Catalyst.pm,v 1.10 2003/07/29 18:03:24 maxbaker Exp $
+# $Id: C6500.pm,v 1.1 2003/07/29 19:27:12 maxbaker Exp $
 
 use strict;
 
 use Exporter;
-use SNMP::Info::Layer2;
+use SNMP::Info::Layer3;
 use SNMP::Info::CiscoVTP;
 use SNMP::Info::CiscoStack;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE $INIT/ ;
-@SNMP::Info::Layer2::Catalyst::ISA = qw/SNMP::Info::CiscoStack SNMP::Info::Layer2 
-                                        SNMP::Info::CiscoVTP Exporter/;
-@SNMP::Info::Layer2::Catalyst::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::C6500::ISA = qw/ SNMP::Info::Layer3 SNMP::Info::CiscoStack SNMP::Info::CiscoVTP  Exporter/;
+@SNMP::Info::Layer3::C6500::EXPORT_OK = qw//;
 
 $DEBUG=0;
 
@@ -50,64 +48,49 @@ $DEBUG=0;
 #       the interworkings.
 $INIT = 0;
 
-%MIBS =    ( %SNMP::Info::Layer2::MIBS, 
-             %SNMP::Info::CiscoVTP::MIBS,
-             %SNMP::Info::CiscoStack::MIBS,
-           );
+%MIBS = (
+         %SNMP::Info::Layer3::MIBS,  
+         %SNMP::Info::CiscoVTP::MIBS,
+         %SNMP::Info::CiscoStack::MIBS,
+        );
 
 %GLOBALS = (
-            %SNMP::Info::Layer2::GLOBALS,
+            %SNMP::Info::Layer3::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
             %SNMP::Info::CiscoStack::GLOBALS,
            );
 
-%FUNCS =   (
-            %SNMP::Info::Layer2::FUNCS,
+%FUNCS = (
+            %SNMP::Info::Layer3::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
             %SNMP::Info::CiscoStack::FUNCS,
-           );
+         );
 
-%MUNGE =   (
-            %SNMP::Info::Layer2::MUNGE,
+%MUNGE = (
+            # Inherit all the built in munging
+            %SNMP::Info::Layer3::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
             %SNMP::Info::CiscoStack::MUNGE,
-           );
+         );
 
-# Overidden Methods
+# Pick and choose
 
-# i_physical sets a hash entry as true if the iid is a physical port
-sub i_physical {
-    my $cat = shift;
+*SNMP::Info::Layer3::C6500::serial     = \&SNMP::Info::CiscoStack::serial;
+*SNMP::Info::Layer3::C6500::interfaces = \&SNMP::Info::Layer3::interfaces;
+*SNMP::Info::Layer3::C6500::i_duplex   = \&SNMP::Info::CiscoStack::i_duplex;
+#*SNMP::Info::Layer3::C6500::i_duplex_admin = \&SNMP::Info::Layer3::i_duplex_admin;
+*SNMP::Info::Layer3::C6500::i_name     = \&SNMP::Info::Layer3::i_name;
+*SNMP::Info::Layer3::C6500::i_type     = \&SNMP::Info::CiscoStack::i_type;
 
-    my $p_port = $cat->p_port();
-
-    my %i_physical;
-    foreach my $port (keys %$p_port) {
-        my $iid = $p_port->{$port};
-        $i_physical{$iid} = 1;  
-    }
-    return \%i_physical;
+sub model {
+    my $c6500 = shift;
+    my $model1 = $c6500->model1();
+    return $model1 if defined $model1;
+    return $c6500->SUPER::model();
 }
 
 sub vendor {
     return 'cisco';
-}
-
-sub os {
-    return 'catalyst';
-}
-
-sub os_ver {
-    my $cat = shift;
-    my $os_ver = $cat->SUPER::os_ver();
-    return $os_ver if defined $os_ver;
-
-    my $m_swver = $cat->m_swver();
-    return undef unless defined $m_swver;
-
-    # assume .1 entry is the chassis and the sw version we want.
-    return $m_swver->{1} if defined $m_swver->{1};
-    return undef;
 }
 
 1;
@@ -115,7 +98,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::Catalyst - Perl5 Interface to Cisco Catalyst 5000 series devices.
+SNMP::Info::Layer3::C6500 - Perl5 Interface to Cisco Catalyst 6500 Layer 2/3 Switches running IOS and/or CatOS
 
 =head1 AUTHOR
 
@@ -124,7 +107,7 @@ Max Baker (C<max@warped.org>)
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $cat = new SNMP::Info(
+ my $c6500 = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           # These arguments are passed directly on to SNMP::Session
@@ -134,34 +117,27 @@ Max Baker (C<max@warped.org>)
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $cat->class();
+ my $class      = $c6500->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-SNMP::Info subclass to provide information for Cisco Catalyst 5000 series switches running CatOS.
+Abstraction subclass for Cisco Catalyst 6500 Layer 2/3 Switches.  
 
-This subclass is not for all devices that have the name Catalyst.  Note that some Catalyst
-switches run IOS, like the 2900 and 3550 families.  Cisco Catalyst 1900 switches use their
-own MIB and have a separate subclass.  Use the method above to have SNMP::Info determine the
-appropriate subclass before using this class directly.
-
-This class includes the Catalyst 2950 series devices, which fall under the 
-Catalyst 5000 family.
-
-Note:  Some older Catalyst switches will only talk SNMP version 1.  Some newer ones will not
-return all their data if connected via Version 1.
+These devices run IOS but have some of the same charactersitics as the Catalyst WS-C family (5xxx). 
+For example, forwarding tables are held in VLANs, and extened interface information
+is gleened from CISCO-SWITCH-MIB.
 
 For speed or debugging purposes you can call the subclass directly, but not after determining
 a more specific class using the method above. 
 
- my $cat = new SNMP::Info::Layer2::Catalyst(...);
+ my $c6500 = new SNMP::Info::Layer3::C6500(...);
 
 =head2 Inherited Classes
 
 =over
 
-=item SNMP::Info::Layer2
+=item SNMP::Info::Layer3
 
 =item SNMP::Info::CiscoVTP
 
@@ -175,7 +151,7 @@ a more specific class using the method above.
 
 =item Inherited Classes' MIBs
 
-See SNMP::Info::Layer2 for its own MIB requirements.
+See SNMP::Info::Layer3 for its own MIB requirements.
 
 See SNMP::Info::CiscoVTP for its own MIB requirements.
 
@@ -183,32 +159,21 @@ See SNMP::Info::CiscoStack for its own MIB requirements.
 
 =back
 
-These MIBs are found in the standard v2 MIBs from Cisco.
-
 =head1 GLOBALS
 
 These are methods that return scalar value from SNMP
 
 =over
 
-=item $cat->os()
+=item $c6500->vendor()
 
-Returns 'catalyst'
-
-=item $cat->os_ver()
-
-Tries to use the value from SNMP::Info::CiscoStats->os_ver() and if it fails 
-it grabs $cat->m_swver()->{1} and uses that.
-
-=item $cat->vendor()
-
-Returns 'cisco'
+    Returns 'cisco'
 
 =back
 
-=head2 Globals imported from SNMP::Info::Layer2
+=head2 Globals imported from SNMP::Info::Layer3
 
-See documentation in SNMP::Info::Layer2 for details.
+See documentation in SNMP::Info::Layer3 for details.
 
 =head2 Global Methods imported from SNMP::Info::CiscoVTP
 
@@ -223,16 +188,17 @@ See documentation in SNMP::Info::CiscoStack for details.
 These are methods that return tables of information in the form of a reference
 to a hash.
 
+=head2 Table Methods imported from SNMP::Info::Layer3
+
+See documentation in SNMP::Info::Layer3 for details.
+
 =head2 Table Methods imported from SNMP::Info::CiscoVTP
 
 See documentation in SNMP::Info::CiscoVTP for details.
 
-=head2 Table Methods imported from SNMP::Info::Layer2
+=head2 Table Methods imported from SNMP::Info::CiscoStack
 
-See documentation in SNMP::Info::Layer2 for details.
-
-=head2 Table Methods imported from SNMP::Info::Layer2::CiscoSTack
-
-See documentation in SNMP::Info::Layer2::CiscoStack for details.
+See documentation in SNMP::Info::CiscoStack for details.
 
 =cut
+

@@ -1,13 +1,15 @@
 # SNMP::Info - Max Baker <max@warped.org>
-# $Id: Info.pm,v 1.21 2003/06/18 16:26:38 maxbaker Exp $
+# $Id: Info.pm,v 1.31 2003/08/14 18:24:56 maxbaker Exp $
 #
+# Portions Copyright (c) 2003 Max Baker 
+# All rights reserved.  
 # Copyright (c) 2002-3, Regents of the University of California
 # All rights reserved.  
 #
 # See COPYRIGHT at bottom
 
 package SNMP::Info;
-$VERSION = 0.6;
+$VERSION = 0.7;
 use strict;
 
 use Exporter;
@@ -27,13 +29,14 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 0.6
+SNMP::Info - Version 0.7
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 SNMP::Info was created at UCSC for the netdisco project (www.netdisco.org)
+and is now maintained by Max Baker.
 
 =head1 SYNOPSIS
 
@@ -185,6 +188,28 @@ by running
  mkdir -p /usr/local/share/snmp/mibs
  cd /usr/local/share/snmp/mibs
  tar xvfz /path/to/v1.tar.gz BRIDGE-MIB.my SNMP-REPEATER-MIB.my ESSWITCH-MIB.my
+
+=item Fix CISCO-TC-MIB
+
+There is a problem with the Cisco file F<CISCO-TC.my> which 
+is included from lots of other MIBs.   Make the following changes
+if you run into errors about C<Unsigned32> in this file.
+
+Edit F</usr/local/share/snmp/mibs/CISCO-TC.my>
+
+Comment out line 192 that says C<SMI Unsigned32> with two dashes.
+
+    -- SMI Unsigned32
+
+Add C<Unsigned32> to the imports after line 19:
+
+    IMPORTS
+        MODULE-IDENTITY,
+        Gauge32,
+        Integer32,
+        Counter64,
+        Unsigned32,
+            FROM SNMPv2-SMI
 
 =item More Specific MIBs
 
@@ -371,6 +396,11 @@ Subclass for Cisco Catalyst 3550 2/3 switches running IOS.
 
 =back
 
+=head2 Thanks
+
+Thanks for testing and coding help (in no particular order) to :
+Andy Ford, Brian Wilson, Jean-Philippe Luiggi, Dána Watanabe 
+
 =head1 USAGE
 
 =head2 Constructor
@@ -491,8 +521,8 @@ sub new {
     $new_obj->{store}     = $store;
     $new_obj->{sess}      = $sess;
     $new_obj->{args}      = \%args;
-    $new_obj->{snmp_ver}  = $args{Version};
-    $new_obj->{snmp_comm} = $args{Community};
+    $new_obj->{snmp_ver}  = $args{Version}   || 2;
+    $new_obj->{snmp_comm} = $args{Community} || 'public';
 
     return $auto_specific ?
         $new_obj->specify() : $new_obj;
@@ -574,13 +604,15 @@ Algorithm for Subclass Detection:
         Layer3 Support                     -> SNMP::Info::Layer3
             Aironet (non IOS)              -> SNMP::Info::Layer3::Aironet
             Catalyst 3550                  -> SNMP::Info::Layer3::C3550
+            Catalyst 6500                  -> SNMP::Info::Layer3::C6500
             Foundry                        -> SNMP::Info::Layer3::Foundry
         Elsif Layer2 (no Layer3)           -> SNMP::Info::Layer2 
             Aironet (Cisco) AP1100         -> SNMP::Info::Layer2::Aironet
             Bay Networks                   -> SNMP::Info::Layer2::Bay
             Catalyst 1900                  -> SNMP::Info::Layer2::C1900
-            Catalyst 2900XL (IOS)          -> SNMP::Info::Layer2::C2900
-            Catalyst WS-C (2926,5xxx,6xxx) -> SNMP::Info::Layer2::Catalyst
+            Catalyst 2900XL/2950(IOS)      -> SNMP::Info::Layer2::C2900
+            Catalyst 3550/3548             -> SNMP::Info::Layer3::C3550
+            Catalyst WS-C 2926,5xxx        -> SNMP::Info::Layer2::Catalyst
             HP Procurve                    -> SNMP::Info::Layer2::HP
         Elsif Layer1 Support               -> SNMP::Info::Layer1
             Allied                         -> SNMP::Info::Layer1::Allied
@@ -610,7 +642,9 @@ sub device_type {
 
         $objtype = 'SNMP::Info::Layer3::C3550'   if $desc =~ /C3550/ ;
         $objtype = 'SNMP::Info::Layer3::Foundry' if $desc =~ /foundry/i ;
-        $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /cisco/i and $desc =~ /\D3[45]0\D/) ;
+        # Aironet - older non-IOS
+        $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /Cisco/ and $desc =~ /\D(CAP340|AP340|CAP350|350|1200)\D/) ;
+        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /c6sup2/;
 
     # Layer 2 Supported
     } elsif ($info->has_layer(2)) {
@@ -624,18 +658,21 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer2::C1900' if ($desc =~ /catalyst/i and $desc =~ /\D19\d{2}/);
 
         #   Catalyst 2900 (IOS) series override
-        $objtype = 'SNMP::Info::Layer2::C2900' if ($desc =~ /C2900XL/i );
+        $objtype = 'SNMP::Info::Layer2::C2900' if ($desc =~ /(C2900XL|C2950)/ );
 
-        #   Catalyst WS-C series override (2926,5xxx,6xxx)
+        #   Catalyst WS-C series override 2926,4k,5k,6k in Hybrid
         $objtype = 'SNMP::Info::Layer2::Catalyst' if ($desc =~ /WS-C\d{4}/);
 
+        #   Catalyst 3550 / 3548 Layer2 only switches
+        $objtype = 'SNMP::Info::Layer3::C3550' if ($desc =~ /C3550/);
+
         #   HP
-        $objtype = 'SNMP::Info::Layer2::HP' if ($desc =~ /hp/i); 
+        $objtype = 'SNMP::Info::Layer2::HP' if ($desc =~ /HP.*ProCurve/); 
     
         #  Bay Switch
-        $objtype = 'SNMP::Info::Layer2::Bay' if ($desc =~ /bay/i);
+        $objtype = 'SNMP::Info::Layer2::Bay' if ($desc =~ /BayStack/);
 
-        #  Aironet
+        #  Aironet - IOS
         $objtype = 'SNMP::Info::Layer2::Aironet' if ($desc =~ /C1100/);
     
     } elsif ($info->has_layer(1)) {
@@ -1479,55 +1516,76 @@ $NOSUCH = 1;
 Makes human friendly speed ratings using %SPEED_MAP
 
  %SPEED_MAP = (
+                '56000'      => '56 kbps',
                 '64000'      => '64 kbps',
                 '1500000'    => '1.5 Mbps',
+                '1536000'    => 'T1',      
                 '1544000'    => 'T1',
                 '2000000'    => '2.0 Mbps',
                 '2048000'    => '2.048 Mbps',
+                '3072000'    => 'Dual T1',
+                '3088000'    => 'Dual T1',   
                 '4000000'    => '4.0 Mbps',
                 '10000000'   => '10 Mbps',
                 '11000000'   => '11 Mbps',
                 '20000000'   => '20 Mbps',
                 '16000000'   => '16 Mbps',
-                '45000000'   => 'DS3',
-                '45045000'   => 'DS3',
-                '64000000'   => '64 Mbps',
-                '100000000'  => '100 Mbps',
-                '149760000'  => 'OC-1'
-                '155000000'  => 'OC-1'
-                '400000000'  => '400 Mbps',
-                '622000000'  => 'OC-12',
-                '599040000'  => 'OC-12', 
-                '1000000000' => '1.0 Gbps',
-             );
-
-=cut
-%SPEED_MAP = (
-                '64000'      => '64 kbps',
-                '1500000'    => '1.5 Mbps',
-                '1544000'    => 'T1',
-                '2000000'    => '2.0 Mbps',
-                '2048000'    => '2.048 Mbps',
-                '4000000'    => '4.0 Mbps',
-                '10000000'   => '10 Mbps',
-                '11000000'   => '11 Mbps',
-                '20000000'   => '20 Mbps',
-                '16000000'   => '16 Mbps',
+                '44736000'   => 'T3',
                 '45000000'   => '45 Mbps',
                 '45045000'   => 'DS3',
                 '64000000'   => '64 Mbps',
                 '100000000'  => '100 Mbps',
-                '149760000'  => 'OC-1',
-                '155000000'  => 'OC-1',
+                '149760000'  => 'ATM on OC-3',
+                '155000000'  => 'OC-3',
+                '155519000'  => 'OC-3',
+                '155520000'  => 'OC-3',
                 '400000000'  => '400 Mbps',
+                '599040000'  => 'ATM on OC-12', 
                 '622000000'  => 'OC-12',
-                '599040000'  => 'OC-12', 
+                '622080000'  => 'OC-12',
+                '1000000000' => '1.0 Gbps',
+             )
+
+=cut
+%SPEED_MAP = (
+                '56000'      => '56 kbps',
+                '64000'      => '64 kbps',
+                '115000'     => '115 kpbs',
+                '1500000'    => '1.5 Mbps',
+                '1536000'    => 'T1',      
+                '1544000'    => 'T1',
+                '2000000'    => '2.0 Mbps',
+                '2048000'    => '2.048 Mbps',
+                '3072000'    => 'Dual T1',
+                '3088000'    => 'Dual T1',   
+                '4000000'    => '4.0 Mbps',
+                '10000000'   => '10 Mbps',
+                '11000000'   => '11 Mbps',
+                '20000000'   => '20 Mbps',
+                '16000000'   => '16 Mbps',
+                '44736000'   => 'T3',
+                '45000000'   => '45 Mbps',
+                '45045000'   => 'DS3',
+                '51850000'   => 'OC-1',
+                '64000000'   => '64 Mbps',
+                '100000000'  => '100 Mbps',
+                '149760000'  => 'ATM on OC-3',
+                '155000000'  => 'OC-3',
+                '155519000'  => 'OC-3',
+                '155520000'  => 'OC-3',
+                '400000000'  => '400 Mbps',
+                '599040000'  => 'ATM on OC-12', 
+                '622000000'  => 'OC-12',
+                '622080000'  => 'OC-12',
                 '1000000000' => '1.0 Gbps',
              );
 
 sub munge_speed {
     my $speed = shift;
-    return defined $SPEED_MAP{$speed} ? $SPEED_MAP{$speed} : $speed;
+    my $map   = $SPEED_MAP{$speed};
+
+    #print "  $speed -> $map  " if (defined $map); 
+    return $map || $speed;
 }
 
 =item munge_ip() 
@@ -1680,7 +1738,7 @@ sub error_throw {
     $self->{error} = $error;
 
     if ($self->debug()){
-        $error .= "\n" unless $error =~ /\n$/;
+        $error =~  s/\n+$//;
         carp($error);
     }
 }
@@ -2118,6 +2176,10 @@ sub AUTOLOAD {
 
 =head1 COPYRIGHT AND LICENCE
 
+Portions
+Copyright (c) 2003 Max Baker - All rights reserved.
+
+Original Code
 Copyright (c) 2002-3, Regents of the University of California
 All rights reserved.
 

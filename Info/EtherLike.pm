@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::EtherLike;
-$VERSION = 0.6;
-# $Id: EtherLike.pm,v 1.6 2003/06/18 16:26:38 maxbaker Exp $
+$VERSION = 0.7;
+# $Id: EtherLike.pm,v 1.7 2003/08/14 18:24:56 maxbaker Exp $
 
 use strict;
 

@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Aironet;
-$VERSION = 0.6;
-# $Id: Aironet.pm,v 1.7 2003/06/18 16:26:39 maxbaker Exp $
+$VERSION = 0.7;
+# $Id: Aironet.pm,v 1.9 2003/08/14 18:24:56 maxbaker Exp $
 
 use strict;
 
@@ -135,7 +135,9 @@ sub fw_mac {
     }
 
     foreach my $bs (keys %$bs_mac){
-        $fw_mac->{$bs} = $bs_mac->{$bs};
+        my $entry = $bs;
+        $entry =~ s/\.0$//;
+        $fw_mac->{$entry} = $bs_mac->{$bs};
     }
 
     return $fw_mac;
@@ -149,7 +151,9 @@ sub fw_port {
 
 
     foreach my $bs (keys %$bs_port){
-        $fw_port->{$bs} = $bs_port->{$bs};
+        my $entry = $bs;
+        $entry =~ s/\.0$//;
+        $fw_port->{$entry} = $bs_port->{$bs};
     }
 
     return $fw_port;
