@@ -1,5 +1,5 @@
 # SNMP::Info - Max Baker <max@warped.org>
-# $Id: Info.pm,v 1.16 2003/04/29 18:00:11 maxbaker Exp $
+# $Id: Info.pm,v 1.20 2003/06/10 16:50:42 maxbaker Exp $
 #
 # Copyright (c) 2002-3, Regents of the University of California
 # All rights reserved.  
@@ -7,7 +7,7 @@
 # See COPYRIGHT at bottom
 
 package SNMP::Info;
-$VERSION = 0.4;
+$VERSION = 0.5;
 use strict;
 
 use Exporter;
@@ -27,7 +27,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 0.4
+SNMP::Info - Version 0.5
 
 =head1 AUTHOR
 
@@ -84,6 +84,11 @@ SNMP::Info was created at UCSC for the netdisco project (www.netdisco.org)
     print "\n";
 
  }
+
+=head1 SUPPORT
+
+Please direct all support, help, and bug requests to the snmp-info-users Mailing List
+at L<http://lists.sourceforge.net/lists/listinfo/snmp-info-users>
 
 =head1 DESCRIPTION 
 
@@ -799,6 +804,7 @@ correspond with the number of physical ports
 Each of these methods returns a hash_reference to a hash keyed on the interface index in SNMP.
 
 Example : $info->interfaces() might return  
+
     { '1.12' => 'FastEthernet/0',
       '2.15' => 'FastEthernet/1',
       '9.99' => 'FastEthernet/2'
@@ -806,6 +812,20 @@ Example : $info->interfaces() might return
 
 The key is what you would see if you were to do an snmpwalk, and in some cases changes between reboots of
 the network device.
+
+=head2 Partial Table Fetches
+
+If you want to get only a part of an SNMP table and you know the IID for the part of the table that you
+want, you can specify it in the call:
+
+    $local_routes = $info->ipr_route('192.168.0');
+
+This will only fetch entries in the table that start with C<192.168.0>, which in this case are routes on the local
+network. 
+
+Remember that you must supply the partial IID (a numeric OID).
+
+Partial table results are not cached.
 
 =head3 Interface Information
 
@@ -996,6 +1016,139 @@ Gives broadcast address for IP table entry.
 
 =back
 
+=head3 IP Routing Table
+
+=over
+
+=item $info->ipr_route()
+
+The route in question.  A value of 0.0.0.0 is the default gateway route.
+
+(C<ipRouteDest>)
+
+=item $info->ipr_if()
+
+The interface (IID) that the route is on.  Use interfaces() to map.
+
+(C<ipRouteIfIndex>)
+
+=item $info->ipr_1()
+
+Primary routing metric for this route. 
+
+(C<ipRouteMetric1>)
+
+=item $info->ipr_2()
+
+If metrics are not used, they should be set to -1
+
+(C<ipRouteMetric2>)
+
+=item $info->ipr_3()
+
+(C<ipRouteMetric3>)
+
+=item $info->ipr_4()
+
+(C<ipRouteMetric4>)
+
+=item $info->ipr_5()
+
+(C<ipRouteMetric5>)
+
+=item $info->ipr_dest()
+
+From RFC1213:
+
+  "The IP address of the next hop of this route.
+  (In the case of a route bound to an interface
+  which is realized via a broadcast media, the value
+  of this field is the agent's IP address on that
+  interface.)"
+
+(C<ipRouteNextHop>)
+
+=item $info->ipr_type()
+
+From RFC1213:
+
+    other(1),        -- none of the following
+    invalid(2),      -- an invalidated route
+                     -- route to directly
+    direct(3),       -- connected (sub-)network
+                     -- route to a non-local
+    indirect(4)      -- host/network/sub-network
+
+
+      "The type of route.  Note that the values
+      direct(3) and indirect(4) refer to the notion of
+      direct and indirect routing in the IP
+      architecture.
+
+      Setting this object to the value invalid(2) has
+      the effect of invalidating the corresponding entry
+      in the ipRouteTable object.  That is, it
+      effectively disassociates the destination
+      identified with said entry from the route
+      identified with said entry.  It is an
+      implementation-specific matter as to whether the
+      agent removes an invalidated entry from the table.
+      Accordingly, management stations must be prepared
+      to receive tabular information from agents that
+      corresponds to entries not currently in use.
+      Proper interpretation of such entries requires
+      examination of the relevant ipRouteType object."
+
+(C<ipRouteType>)
+
+=item $info->ipr_proto()
+
+From RFC1213:
+
+    other(1),       -- none of the following
+                    -- non-protocol information,
+                    -- e.g., manually configured
+    local(2),       -- entries
+                    -- set via a network
+    netmgmt(3),     -- management protocol
+                    -- obtained via ICMP,
+    icmp(4),        -- e.g., Redirect
+                    -- the remaining values are
+                    -- all gateway routing
+                    -- protocols
+    egp(5),
+    ggp(6),
+    hello(7),
+    rip(8),
+    is-is(9),
+    es-is(10),
+    ciscoIgrp(11),
+    bbnSpfIgp(12),
+    ospf(13),
+    bgp(14)
+
+(C<ipRouteProto>)
+
+=item $info->ipr_age()
+
+Seconds since route was last updated or validated.
+
+(C<ipRouteAge>)
+
+=item $info->ipr_mask()
+
+Subnet Mask of route. 0.0.0.0 for default gateway.
+
+(C<ipRouteMask>)
+
+=item $info->ipr_info()
+
+Reference to MIB definition specific to routing protocol.
+
+(C<ipRouteInfo>)
+
+=back
+
 =head2 Setting data via SNMP
 
 This section explains how to use SNMP::Info to do SNMP Set operations.
@@ -1126,7 +1279,21 @@ These are table entries, such as the IfIndex
             'i_pkts_multi_out64' => 'ifHCOutMulticastPkts',
             'i_pkts_bcast_in64'  => 'ifHCInBroadcastPkts',
             'i_pkts_bcast_out64' => 'ifHCOutBroadcastPkts',
-            'i_alias'            => 'ifAlias'
+            'i_alias'            => 'ifAlias',
+            # IP Routing Table
+            'ipr_route'=> 'ipRouteDest',
+            'ipr_if'   => 'ipRouteIfIndex',
+            'ipr_1'    => 'ipRouteMetric1',
+            'ipr_2'    => 'ipRouteMetric2',
+            'ipr_3'    => 'ipRouteMetric3',
+            'ipr_4'    => 'ipRouteMetric4',
+            'ipr_5'    => 'ipRouteMetric5',
+            'ipr_dest' => 'ipRouteNextHop',
+            'ipr_type' => 'ipRouteType',
+            'ipr_proto'=> 'ipRouteProto',
+            'ipr_age'  => 'ipRouteAge',
+            'ipr_mask' => 'ipRouteMask',
+            'ipr_info' => 'ipRouteInfo',
            );
 
 =item %MIBS
@@ -1751,20 +1918,37 @@ Called from $info->load_METHOD();
 =cut
 sub _load_attr {
     my $self = shift;
-    my ($attr,$leaf) = @_;
+    my ($attr,$leaf,$partial) = @_;
 
     my $ver    = $self->snmp_ver();
     my $nosuch = $self->nosuch();
     my $sess   = $self->session();
     my $store  = $self->store();
+    my $munge  = $self->munge();
     return undef unless defined $sess;
 
-    # Get the callback hash for data munging
-    my $munge = $self->munge();
+    # Deal with partial entries.
+    my $varleaf = $leaf;
+    if (defined $partial) {
+        # If we aren't supplied an OID translate
+        if ($leaf !~ /^[.\d]*$/) {
+            # VarBind will not resolve mixed OID and leaf entries like
+            #   "ipRouteMask.255.255".  So we convert to full OID
+            my $oid = &SNMP::translateObj($leaf);
+            unless (defined $oid) {
+                $self->error_throw("SNMP::Info::_load_attr: Can't translate $leaf.$partial.  Missing MIB?\n");
+                return undef;
+            }
+            $varleaf = "$oid.$partial";
+        } else {
+            $varleaf = "$leaf.$partial";
+        }
+    }
 
-    $self->debug() and print "SNMP::Info::_load_attr $attr : $leaf\n";
+    $self->debug() and print "SNMP::Info::_load_attr $attr : $leaf", 
+        defined $partial ? "($partial)" : '', "\n";
 
-    my $var = new SNMP::Varbind([$leaf]);
+    my $var = new SNMP::Varbind([$varleaf]);
 
     # So devices speaking SNMP v.1 are not supposed to give out 
     # data from SNMP2, but most do.  Net-SNMP, being very precise 
@@ -1776,11 +1960,13 @@ sub _load_attr {
     if ($ver == 1 and $nosuch and $errornum and $sess->{ErrorStr} =~ /nosuch/i){
         $errornum = 0; 
     }
+    my $localstore = undef;
+
     while (! $errornum ){
         $sess->getnext($var);
         $errornum = $sess->{ErrorNum};
+        #print "$var->[0] $var->[1] $var->[2] $var->[3]\n";
         last if $var->[0] ne $leaf;
-
         my $iid = $var->[1];
         my $val = $var->[2];
 
@@ -1788,6 +1974,13 @@ sub _load_attr {
             $self->error_throw("SNMP::Info::_load_attr: $attr not here");
             next;
         }
+
+        # Check to make sure we are still in partial land
+        if (defined $partial and $iid !~ /^$partial$/ and $iid !~ /^$partial\./){
+            #print "$iid makes us leave partial land.\n";
+            last;
+        }
+
         if ($val eq 'NOSUCHOBJECT'){
             $self->error_throw("SNMP::Info::_load_atr: $attr :  NOSUCHOBJECT");
             next;
@@ -1804,13 +1997,16 @@ sub _load_attr {
             $val = &$subref($val);
         } 
 
-        $store->{$attr}->{$iid}=$val;
+        $localstore->{$iid}=$val;
     } 
 
-    # mark data as loaded
-    $self->{"_${attr}"}++;
+    # Cache data if we are not getting partial data:
+    if (!defined $partial){
+        $self->{"_${attr}"}++;
+        $store->{$attr}=$localstore;
+    } 
 
-    return $store->{$attr};
+    return $localstore;
 }
 
 =item $info->_show_attr()
@@ -1911,9 +2107,9 @@ sub AUTOLOAD {
 
     # Otherwise we must be listed in %FUNCS 
 
-    # Load data if not already cached
-    $self->_load_attr( $attr, $funcs{$attr} )
-        unless defined $self->{"_${attr}"};
+    # Load data if it both not cached and we are not requesting partial info.
+    return $self->_load_attr( $attr, $funcs{$attr},@_ )
+        unless (defined $self->{"_${attr}"} and !scalar(@_));
 
     return $self->_show_attr($attr);
 }

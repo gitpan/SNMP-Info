@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Bay;
-$VERSION = 0.4;
-# $Id: Bay.pm,v 1.6 2003/04/29 16:53:46 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: Bay.pm,v 1.9 2003/06/10 16:50:43 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -80,6 +80,7 @@ sub os {
 sub os_ver {
     my $bay = shift;
     my $descr = $bay->description();
+    return undef unless defined $descr;
 
     # 303 / 304
     if ($descr =~ m/Rev: \d+\.\d+\.\d+\.\d+-(\d+\.\d+\.\d+\.\d+)/){
@@ -96,6 +97,7 @@ sub os_ver {
 sub os_bin {
     my $bay = shift;
     my $descr = $bay->description();
+    return undef unless defined $descr;
 
     # 303 / 304
     if ($descr =~ m/Rev: \d+\.(\d+\.\d+\.\d+)-\d+\.\d+\.\d+\.\d+/){
@@ -152,7 +154,9 @@ sub i_mac {
 sub model {
     my $bay = shift;
     my $id = $bay->id();
+    return undef unless defined $id;
     my $model = &SNMP::translateObj($id);
+    return $id unless defined $model;
     $model =~ s/^sreg-//i;
 
     my $descr = $bay->description();

@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Catalyst;
-$VERSION = 0.4;
-# $Id: Catalyst.pm,v 1.6 2003/04/29 16:54:12 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: Catalyst.pm,v 1.7 2003/06/10 16:50:44 maxbaker Exp $
 
 use strict;
 

@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1::Asante;
-$VERSION = 0.4;
-# $Id: Asante.pm,v 1.4 2003/04/29 02:40:53 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: Asante.pm,v 1.6 2003/06/10 16:50:43 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -208,7 +208,7 @@ Asante device through SNMP.
 
 Download from http://www.mibdepot.com
 
-=items MIBs listed in SNMP::Info::Layer1
+=item MIBs listed in SNMP::Info::Layer1
 
 =back
 

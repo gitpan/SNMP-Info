@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Entity;
-$VERSION = 0.4;
-# $Id: Entity.pm,v 1.2 2003/04/29 18:08:30 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: Entity.pm,v 1.3 2003/06/10 16:50:43 maxbaker Exp $
 
 use strict;
 

@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C1900;
-$VERSION = 0.4;
-# $Id: C1900.pm,v 1.4 2003/04/29 16:18:30 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: C1900.pm,v 1.5 2003/06/10 16:50:43 maxbaker Exp $
 use strict;
 
 use Exporter;

@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::HP;
-$VERSION = 0.4;
-# $Id: HP.pm,v 1.7 2003/04/29 16:56:17 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: HP.pm,v 1.8 2003/06/10 16:50:44 maxbaker Exp $
 
 use strict;
 

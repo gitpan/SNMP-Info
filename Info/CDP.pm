@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CDP;
-$VERSION = 0.4;
-# $Id: CDP.pm,v 1.5 2003/04/29 18:06:55 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: CDP.pm,v 1.6 2003/06/10 16:50:43 maxbaker Exp $
 
 use strict;
 

@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CiscoStats;
-$VERSION = 0.4;
-# $Id: CiscoStats.pm,v 1.2 2003/04/29 18:10:21 maxbaker Exp $
+$VERSION = 0.5;
+# $Id: CiscoStats.pm,v 1.3 2003/06/10 16:50:43 maxbaker Exp $
 
 use strict;
 
