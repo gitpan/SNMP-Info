@@ -1,7 +1,7 @@
 # SNMP::Info::Layer3::C6500
 # Max Baker <max@warped.org>
 #
-# Copyright (c) 2003  Max Baker
+# Copyright (c) 2003,2004 Max Baker
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::C6500;
-$VERSION = 0.7;
-# $Id: C6500.pm,v 1.1 2003/07/29 19:27:12 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: C6500.pm,v 1.3 2004/03/02 05:46:14 maxbaker Exp $
 
 use strict;
 
@@ -92,6 +92,11 @@ sub model {
 sub vendor {
     return 'cisco';
 }
+
+sub cisco_comm_indexing {
+    1;
+}
+
 
 1;
 __END__

@@ -2,7 +2,7 @@
 # Max Baker <max@warped.org>
 #
 # Copyright (c) 2002,2003 Regents of the University of California
-# Copyright (c) 2003      Max Baker
+# Copyright (c) 2003,2004 Max Baker changes from version 0.8 and beyond
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -29,8 +29,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Catalyst;
-$VERSION = 0.7;
-# $Id: Catalyst.pm,v 1.10 2003/07/29 18:03:24 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: Catalyst.pm,v 1.12 2004/03/02 05:46:14 maxbaker Exp $
 
 use strict;
 
@@ -108,6 +108,10 @@ sub os_ver {
     # assume .1 entry is the chassis and the sw version we want.
     return $m_swver->{1} if defined $m_swver->{1};
     return undef;
+}
+
+sub cisco_comm_indexing {
+    1;
 }
 
 1;

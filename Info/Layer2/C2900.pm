@@ -1,6 +1,8 @@
 # SNMP::Info::Layer2::C2900
 # Max Baker <max@warped.org>
 #
+# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+#
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
 # 
@@ -28,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C2900;
-$VERSION = 0.7;
-# $Id: C2900.pm,v 1.8 2003/07/03 17:17:59 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: C2900.pm,v 1.12 2004/03/07 19:53:34 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -49,6 +51,7 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 
 %FUNCS   = (%SNMP::Info::Layer2::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
+            'i_name'               => 'ifAlias',
             # C2900PortEntry
             'c2900_p_index'        => 'c2900PortIfIndex',
             'c2900_p_duplex'       => 'c2900PortDuplexStatus',
@@ -67,6 +70,10 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 
 sub vendor {
     return 'cisco';
+}
+
+sub cisco_comm_indexing {
+    1;
 }
 
 sub i_duplex {

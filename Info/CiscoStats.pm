@@ -1,6 +1,9 @@
 # SNMP::Info::CiscoStats
 # Max Baker <max@warped.org>
 #
+# Changes since Version 0.7 Copyright (c) 2004 Max Baker 
+# All rights reserved.  
+#
 # Copyright (c) 2003 Regents of the University of California
 # All rights reserved.
 # 
@@ -28,8 +31,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CiscoStats;
-$VERSION = 0.7;
-# $Id: CiscoStats.pm,v 1.6 2003/08/14 18:24:56 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: CiscoStats.pm,v 1.8 2004/02/13 06:29:25 maxbaker Exp $
 
 use strict;
 
@@ -89,12 +92,12 @@ sub os_ver {
     my $descr = $l2->description();
     
     # Older Catalysts
-    if ($os eq 'catalyst' and $descr =~ m/V(\d{1}\.\d{2}\.\d{2})/){
+    if (defined $os and $os eq 'catalyst' and defined $descr and $descr =~ m/V(\d{1}\.\d{2}\.\d{2})/){
         return $1;
     }
-
+    
     # Newer Catalysts and IOS devices
-    if ($descr =~ m/Version (\d+\.\d+\([^)]+\)[^,\s]*)(,|\s)+/ ){
+    if (defined $descr and $descr =~ m/Version (\d+\.\d+\([^)]+\)[^,\s]*)(,|\s)+/ ){
         return $1;
     } 
     return undef;

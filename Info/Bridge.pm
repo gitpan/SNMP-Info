@@ -1,8 +1,12 @@
 # SNMP::Info::Bridge
 # Max Baker <max@warped.org>
 #
+# Changes since Version 0.7 Copyright (c) 2004 Max Baker 
+# All rights reserved.  
+#
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
+#
 # 
 # Redistribution and use in source and binary forms, with or without 
 # modification, are permitted provided that the following conditions are met:
@@ -28,8 +32,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Bridge;
-$VERSION = 0.7;
-# $Id: Bridge.pm,v 1.9 2003/08/14 18:24:56 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: Bridge.pm,v 1.12 2004/03/02 04:57:04 maxbaker Exp $
 
 use strict;
 
@@ -45,16 +49,21 @@ $SNMP::debugging=$DEBUG;
 
 $INIT = 0;
 
-%MIBS    = ('BRIDGE-MIB' => 'dot1dBaseBridgeAddress');
+%MIBS    = ('BRIDGE-MIB'   => 'dot1dBaseBridgeAddress',
+            'Q-BRIDGE-MIB' => 'dot1qPvid',
+           );
 
 %GLOBALS = (
-            'b_mac'   => 'dot1dBaseBridgeAddress',
-            'b_ports' => 'dot1dBaseNumPorts',
-            'b_type'  => 'dot1dBaseType',
+            'b_mac'    => 'dot1dBaseBridgeAddress',
+            'b_ports'  => 'dot1dBaseNumPorts',
+            'b_type'   => 'dot1dBaseType',
             # Spanning Tree Protocol
-            'stp_ver' => 'dot1dStpProtocolSpecification',
+            'stp_ver'  => 'dot1dStpProtocolSpecification',
             'stp_time' => 'dot1dStpTimeSinceTopologyChange',
             'stp_root' => 'dot1dStpDesignatedRoot',
+            # Q-BRIDGE-MIB
+            'qb_vlans_max'  => 'dot1qMaxSupportedVlans',
+            'qb_vlans'      => 'dot1qNumVlans',
            );
 
 %FUNCS = (
@@ -78,6 +87,11 @@ $INIT = 0;
           'stp_p_root'     => 'dot1dStpPortDesignatedRoot',
           'stp_p_bridge'   => 'dot1dStpPortDesignatedBridge',
           'stp_p_port'     => 'dot1dStpPortDesignatedPort',
+          # Q-BRIDGE-MIB : 
+          'qb_i_vlan'      => 'dot1qPvid',
+          'qb_i_vlan_type' => 'dot1qPortAcceptableFrameTypes',
+          'qb_v_name'      => 'dot1qVlanStaticName',
+          'qb_v_stat'      => 'dot1qVlanStaticRowStatus',
           );
 
 %MUNGE = (
@@ -156,6 +170,9 @@ Max Baker (C<max@warped.org>)
 
 BRIDGE-MIB is used by most Layer 2 devices, and holds information like the MAC Forwarding Table and Spanning Tree Protocol info.
 
+Q-BRIDGE-MIB holds 802.11q information -- VLANs and Trunking.  Cisco tends not to use this MIB, but some
+proprietary ones.  HP and some nicer vendors use this.  This is from C<RFC2674_q>.  
+
 Create or use a subclass of SNMP::Info that inherits this class.  Do not use directly.
 
 For debugging you can call new() directly as you would in SNMP::Info 
@@ -171,6 +188,10 @@ None.
 =over
 
 =item BRIDGE-MIB
+
+=item Q-BRIDGE-MIB
+
+f<rfc2674_q.mib>
 
 =back
 
@@ -217,6 +238,16 @@ Returns time since last topology change detected. (100ths/second)
 Returns root of STP.
 
 (B<dot1dStpDesignatedRoot>)
+
+=item $bridge->qb_vlans_max()
+
+(B<dot1qMaxSupportedVlans>)
+
+=item $bridge->qb_vlans() 
+
+Number of VLANS on this device.
+
+(B<dot1qNumVlans>)
 
 =back
 
@@ -331,6 +362,37 @@ this port's segment."
 (B<dot1dStpPortDesignatedPort>)
 
 "The Port Identifier of the port on the Designated Bridge for this port's segment."
+
+=back
+
+=head2 Q-BRIDGE Data
+
+=over
+
+=item $bridge->qb_i_vlan()
+
+Gives the vlan used by interfaces
+
+(B<dot1qPvid>)
+
+=item $bridge->qb_i_vlan_type()
+
+Either C<admitAll> or C<admitOnlyVlanTagged>.  This is a good spot to find
+trunk ports.
+
+(B<dot1qPortAcceptableFrameTypes>)
+
+=item $bridge->qb_v_name()
+
+Human-entered name for vlans.
+
+(B<dot1qVlanStaticName>)
+
+=item $bridge->qb_v_stat()
+
+uhh. C<active> !
+
+(B<dot1qVlanStaticRowStatus>)
 
 =back
 

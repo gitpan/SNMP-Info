@@ -1,8 +1,8 @@
 # SNMP::Info::Layer3::C3550
 # Max Baker <max@warped.org>
 #
+# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 # Copyright (c) 2003, Regents of the University of California
-# Copyright (c) 2003  Max Baker
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -29,8 +29,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::C3550;
-$VERSION = 0.7;
-# $Id: C3550.pm,v 1.9 2003/07/29 19:31:03 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: C3550.pm,v 1.11 2004/03/02 05:46:14 maxbaker Exp $
 
 use strict;
 
@@ -113,6 +113,10 @@ sub ports {
         return $1;
     }
     return $ports2;
+}
+
+sub cisco_comm_indexing {
+    1;
 }
 
 

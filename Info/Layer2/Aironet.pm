@@ -1,6 +1,8 @@
 # SNMP::Info::Layer2::Aironet
 # Max Baker <max@warped.org>
 #
+# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+#
 # Copyright (c) 2003 Regents of the University of California
 # All rights reserved.
 # 
@@ -28,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Aironet;
-$VERSION = 0.7;
-# $Id: Aironet.pm,v 1.6 2003/08/14 18:24:56 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: Aironet.pm,v 1.7 2004/02/13 06:29:25 maxbaker Exp $
 use strict;
 
 use Exporter;

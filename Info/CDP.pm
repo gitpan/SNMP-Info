@@ -1,6 +1,9 @@
 # SNMP::Info::CDP
 # Max Baker <max@warped.org>
 #
+# Changes since Version 0.7 Copyright (c) 2004 Max Baker 
+# All rights reserved.  
+#
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
 # 
@@ -28,8 +31,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CDP;
-$VERSION = 0.7;
-# $Id: CDP.pm,v 1.8 2003/08/14 18:24:56 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: CDP.pm,v 1.9 2004/02/13 06:29:25 maxbaker Exp $
 
 use strict;
 

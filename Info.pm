@@ -1,7 +1,7 @@
-# SNMP::Info - Max Baker <max@warped.org>
-# $Id: Info.pm,v 1.31 2003/08/14 18:24:56 maxbaker Exp $
+# SNMP::Info - Max Baker
+# $Id: Info.pm,v 1.43 2004/03/22 04:22:00 maxbaker Exp $
 #
-# Portions Copyright (c) 2003 Max Baker 
+# Portions Copyright (c) 2003,2004 Max Baker 
 # All rights reserved.  
 # Copyright (c) 2002-3, Regents of the University of California
 # All rights reserved.  
@@ -9,7 +9,7 @@
 # See COPYRIGHT at bottom
 
 package SNMP::Info;
-$VERSION = 0.7;
+$VERSION = 0.8;
 use strict;
 
 use Exporter;
@@ -29,14 +29,14 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 0.7
+SNMP::Info - Version 0.8
 
 =head1 AUTHOR
 
 Max Baker
 
 SNMP::Info was created at UCSC for the netdisco project (www.netdisco.org)
-and is now maintained by Max Baker.
+and is written and maintained by Max Baker.
 
 =head1 SYNOPSIS
 
@@ -50,13 +50,13 @@ and is now maintained by Max Baker.
                             DestHost    => 'router',
                             Community   => 'public',
                             Version     => 2 
-                          ) or die "Can't connect to device.\n"
+                          ) or die "Can't connect to device.\n";
 
  my $err = $info->error();
  die "SNMP Community or Version probably wrong connecting to device. $err\n" if defined $err;
 
  $name  = $info->name();
- $class = $info->class()
+ $class = $info->class();
  print "SNMP::Info is using this device class : $class\n";
 
  # Find out the Duplex status for the ports
@@ -138,9 +138,7 @@ of the net-snmp distribution.
 Net-SNMP can be found at http://net-snmp.sourceforge.net
 
 Version 5.0.2 or greater is recommended.  Various version 4's will work, and 5.0.1 is kinda flaky
-on the Perl side.
-
-Note: Net-SNMP was previously called ucd-snmp.
+on the Perl side.  5.1.x isn't tested but should work fine.
 
 =item 2. MIBS
 
@@ -148,7 +146,7 @@ SNMP::Info operates on textual descriptors found in MIBs. MIBs are text database
 are freely and easily obtainable on the Net.
 
 Make sure that your snmp.conf is updated to point to your MIB directory
-and that the MIBs are world-readable.  
+and that the MIBs are world-readable.
 
 Then run C<snmpconf> and setup that directory as default.  Move F<snmp.conf>
 into F</usr/local/share/snmp> when you are done.
@@ -181,13 +179,15 @@ Extract
 
 =item STAND-ALONE-ETHERNET-SWITCH-MIB (ESSWITCH-MIB)
 
+=item TOKEN-RING-RMON-MIB
+
 =back
 
 by running 
 
  mkdir -p /usr/local/share/snmp/mibs
  cd /usr/local/share/snmp/mibs
- tar xvfz /path/to/v1.tar.gz BRIDGE-MIB.my SNMP-REPEATER-MIB.my ESSWITCH-MIB.my
+ tar xvfz /path/to/v1.tar.gz BRIDGE-MIB.my SNMP-REPEATER-MIB.my ESSWITCH-MIB.my TOKEN-RING-RMON-MIB.my
 
 =item Fix CISCO-TC-MIB
 
@@ -251,8 +251,9 @@ Or you can override any existing methods from a parent class by making a short s
 
 See the section EXTENDING SNMP::INFO for more details.
 
-When you make a new subclass for a device, please be sure to send it
-back to the developers at snmp@warped.org for inclusion in the next version.
+When you make a new subclass for a device, please be sure to send it back to
+the developers (via Source Forge or the mailing list) for inclusion in the next
+version.
 
 =back
 
@@ -271,11 +272,15 @@ used directly, but rather inherited from device subclasses.
 
 =item SNMP::Info::Bridge
 
-BRIDGE-MIB (RFC1286).  Inherited by devices with Layer2 service.
+BRIDGE-MIB (RFC1286).  QBRIDGE-MIB. Inherited by devices with Layer2 support.
 
 =item SNMP::Info::CDP
 
 CISCO-CDP-MIB.  Cisco Discovery Protocol (CDP) Support.  Inherited by devices serving Layer2 or Layer3.
+
+=item SNMP::Info::CiscoStack
+
+CISCO-STACK-MIB.
 
 =item SNMP::Info::CiscoStats
 
@@ -333,6 +338,15 @@ Generic Layer2 Device subclass.
 
 =over
 
+=item SNMP::Info::Layer2::Aironet
+
+Class for Cisco Aironet wireless devices that run IOS.  See also
+Layer3::Aironet for Aironet devices that don't run IOS.
+
+=item SNMP::Info::Layer2::Allied
+
+Allied Telesys switches.
+
 =item SNMP::Info::Layer2::Bay
 
 Bay Networks BayStack switch Support.  Provides translation from Bay Network Topology Table
@@ -348,12 +362,12 @@ Subclass for Cisco Catalyst 1900 and 1900c Devices running CatOS.
 
 =item SNMP::Info::Layer2::C2900
 
-Subclass for Cisco Catalyst 2900 devices running IOS.
+Subclass for Cisco Catalyst 2900, 2950, 3500XL, and 3548 devices running IOS.
 
 =item SNMP::Info::Layer2::Catalyst
 
 Subclass for Cisco Catalyst switches running CatOS.  These switches usually
-report a model number that starts with ''wsc''.   Note that this class
+report a model number that starts with C<wsc>.   Note that this class
 does not support everything that has the name Catalyst. 
 
 =item SNMP::Info::Layer2::HP
@@ -363,6 +377,10 @@ Subclass for HP Procurve Swithces
 Requires HP-ICF-OID and ENTITY-MIB downloaded from HP.  
 
 See SNMP::Info::Layer2::HP for more info.
+
+=item SNMP::Info::Layer2::ZyXEL_DSLAM
+
+Zyxel DSLAMs.  Need I say more?
 
 =back
 
@@ -374,15 +392,16 @@ Generic Layer3 and Layer2+3 Device subclass.
 
 =item SNMP::Info::Layer3::Aironet
 
-Subclass for Cisco Aironet wireless access points (AP).
+Subclass for Cisco Aironet wireless access points (AP) not running IOS. These are usually older
+devices.
 
 MIBs for these devices now included in v2.tar.gz available from ftp.cisco.com.
 
+Note Layer2::Aironet 
+
 =item SNMP::Info::Layer3::Foundry
 
-No longer supported.
-
-Subclass for older Foundry Network devices.
+Subclass for older Foundry Network devices.  Outdated, but being updated for newer devices.
 
 Requires FOUNDRY-SN-ROOT-MIB. 
 
@@ -390,7 +409,12 @@ See SNMP::Info::Layer3::Foundry for more info.
 
 =item SNMP::Info::Layer3::C3550
 
-Subclass for Cisco Catalyst 3550 2/3 switches running IOS.
+Subclass for Cisco Catalyst 3550,354 2/3 switches running IOS.
+
+=item SNMP::Info::Layer3::C6500
+
+This class covers Catalyst 6500s in native mode, hybrid mode.  Catalyst 4000's, 3750's, 2970's
+and probably others.
 
 =back
 
@@ -399,7 +423,8 @@ Subclass for Cisco Catalyst 3550 2/3 switches running IOS.
 =head2 Thanks
 
 Thanks for testing and coding help (in no particular order) to :
-Andy Ford, Brian Wilson, Jean-Philippe Luiggi, Dána Watanabe 
+Andy Ford, Brian Wilson, Jean-Philippe Luiggi, Dána Watanabe, Bradley Baetz, and 
+people listed on the Netdisco README!
 
 =head1 USAGE
 
@@ -602,15 +627,17 @@ SNMP::Info is returned.
 Algorithm for Subclass Detection:
 
         Layer3 Support                     -> SNMP::Info::Layer3
-            Aironet (non IOS)              -> SNMP::Info::Layer3::Aironet
-            Catalyst 3550                  -> SNMP::Info::Layer3::C3550
-            Catalyst 6500                  -> SNMP::Info::Layer3::C6500
+            Aironet (BR500,AP340,350,1200) -> SNMP::Info::Layer3::Aironet
+                     AP4800... All Non IOS
+            Catalyst 3550,3548             -> SNMP::Info::Layer3::C3550
+            Catalyst 6500, 4000, 3750      -> SNMP::Info::Layer3::C6500
             Foundry                        -> SNMP::Info::Layer3::Foundry
         Elsif Layer2 (no Layer3)           -> SNMP::Info::Layer2 
-            Aironet (Cisco) AP1100         -> SNMP::Info::Layer2::Aironet
+            Aironet - IOS Devices          -> SNMP::Info::Layer2::Aironet
             Bay Networks                   -> SNMP::Info::Layer2::Bay
             Catalyst 1900                  -> SNMP::Info::Layer2::C1900
-            Catalyst 2900XL/2950(IOS)      -> SNMP::Info::Layer2::C2900
+            Catalyst 2900XL,2950,3500XL    -> SNMP::Info::Layer2::C2900
+            Catalyst 2970                  -> SNMP::Info::Layer3::C6500
             Catalyst 3550/3548             -> SNMP::Info::Layer3::C3550
             Catalyst WS-C 2926,5xxx        -> SNMP::Info::Layer2::Catalyst
             HP Procurve                    -> SNMP::Info::Layer2::HP
@@ -618,6 +645,7 @@ Algorithm for Subclass Detection:
             Allied                         -> SNMP::Info::Layer1::Allied
             Asante                         -> SNMP::Info::Layer1::Asante
         Else                               -> SNMP::Info
+            ZyXEL_DSLAM                    -> SNMP::Info::Layer2::ZyXEL_DSLAM
 
 =cut
 sub device_type {
@@ -629,7 +657,9 @@ sub device_type {
     # if we dont have sysServices, we dont have anything else either probably.
     return undef unless (defined $layers and length($layers));
 
-    my $desc   = $info->description();
+    my $desc   = $info->description() || 'undef';
+    $desc =~ s/[\r\n\l]+/ /g;
+    $info->debug() and print "SNMP::Info::device_type() layers:$layers sysDescr: \"$desc\".\n";
 
     # Layer 3 Supported 
     #   (usually has layer2 as well, so we check for 3 first)
@@ -644,7 +674,15 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Foundry' if $desc =~ /foundry/i ;
         # Aironet - older non-IOS
         $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /Cisco/ and $desc =~ /\D(CAP340|AP340|CAP350|350|1200)\D/) ;
-        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /c6sup2/;
+        $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /Aironet/ and $desc =~ /\D(AP4800)\D/) ;
+        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /(c6sup2|c6sup1)/;
+        # Next two untested. Reported working by DA
+        $objtype = 'SNMP::Info::Layer3::C6500'   if ($desc =~ /cisco/i and $desc =~ /3750/);
+        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /Catalyst 4000/;
+        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /s72033_rp/;
+
+        # Allied Telesyn Layer2 managed switches. They report they have L3 support
+        $objtype = 'SNMP::Info::Layer2::Allied' if ($desc =~ /Allied.*AT-80\d{2}\S*/i);
 
     # Layer 2 Supported
     } elsif ($info->has_layer(2)) {
@@ -657,14 +695,17 @@ sub device_type {
         #   Catalyst 1900 series override
         $objtype = 'SNMP::Info::Layer2::C1900' if ($desc =~ /catalyst/i and $desc =~ /\D19\d{2}/);
 
-        #   Catalyst 2900 (IOS) series override
-        $objtype = 'SNMP::Info::Layer2::C2900' if ($desc =~ /(C2900XL|C2950)/ );
+        #   Catalyst 2900 and 3500XL (IOS) series override
+        $objtype = 'SNMP::Info::Layer2::C2900' if ($desc =~ /(C2900XL|C2950|C3500XL)/i );
 
         #   Catalyst WS-C series override 2926,4k,5k,6k in Hybrid
         $objtype = 'SNMP::Info::Layer2::Catalyst' if ($desc =~ /WS-C\d{4}/);
 
         #   Catalyst 3550 / 3548 Layer2 only switches
         $objtype = 'SNMP::Info::Layer3::C3550' if ($desc =~ /C3550/);
+
+        #   Cisco 2970  
+        $objtype = 'SNMP::Info::Layer3::C6500' if ($desc =~ /C2970/);
 
         #   HP
         $objtype = 'SNMP::Info::Layer2::HP' if ($desc =~ /HP.*ProCurve/); 
@@ -673,14 +714,21 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer2::Bay' if ($desc =~ /BayStack/);
 
         #  Aironet - IOS
-        $objtype = 'SNMP::Info::Layer2::Aironet' if ($desc =~ /C1100/);
-    
+        $objtype = 'SNMP::Info::Layer2::Aironet' if ($desc =~ /(C1100|AP1200)/);
+
+        # Aironet - non IOS
+        $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /Cisco/ and $desc =~ /\D(BR500)\D/) ;
+	
     } elsif ($info->has_layer(1)) {
         $objtype = 'SNMP::Info::Layer1';
         #  Allied crap-o-hub
         $objtype = 'SNMP::Info::Layer1::Allied' if ($desc =~ /allied/i);
         $objtype = 'SNMP::Info::Layer1::Asante' if ($desc =~ /asante/i);
-    }
+
+    # These devices don't claim to have Layer1-3 but we like em anyways.
+    } else {
+        $objtype = 'SNMP::Info::Layer2::ZyXEL_DSLAM' if ($desc =~ /8-port .DSL Module\(Annex .\)/i);
+    }	
 
     return $objtype; 
 }
@@ -720,7 +768,7 @@ sub has_layer {
 
 =item $info->snmp_comm()
 
-Returns SNMP Community string used in conncetion
+Returns SNMP Community string used in connection.
 
 =cut
 sub snmp_comm {
@@ -750,7 +798,6 @@ Usually this method is called internally from new(AutoSpecify => 1)
 
 See device_type() entry for how a subclass is chosen. 
 
-=back
 
 =cut
 sub specify {
@@ -784,6 +831,20 @@ sub specify {
     return $sub_obj;
 }
 
+=item $info->cisco_comm_indexing()
+
+Returns 0.  Is an overridable method used for vlan indexing for
+snmp calls on certain Cisco devices. 
+
+See L<ftp://ftp.cisco.com/pub/mibs/supportlists/wsc5000/wsc5000-communityIndexing.html>
+
+=cut
+sub cisco_comm_indexing{
+    0;
+}
+
+=back
+
 =head2 Globals (Scalar Methods)
 
 These are methods to return scalar data from RFC1213.  
@@ -794,7 +855,7 @@ Some subset of these is probably available for any network device that speaks SN
 
 =item $info->uptime()
 
-Uptime in hundreths of seconds since device became available.
+Uptime in hundredths of seconds since device became available.
 
 (B<sysUpTime>)
 
@@ -1206,17 +1267,17 @@ Table Methods. Set iid of method to value.
 
 Returns undef if failed, or the return value from SNMP::Session::set() (snmp_errno)
 
- # Disable a port administratvely
+ # Disable a port administratively
  my %if_map = reverse %{$info->interfaces()}
  $info->set_i_up_admin('down', $if_map{'FastEthernet0/0') 
     or die "Couldn't disable the port. ",$info->error(1);
 
 =back
 
-NOTE: You must be connected to your device with a ReadWrite community string in order
+NOTE: You must be connected to your device with a C<ReadWrite> community string in order
 for set operations to work.
 
-NOTE: This will only set data listed in %FUNCS and %GLOBALS.  For data aquired from
+NOTE: This will only set data listed in %FUNCS and %GLOBALS.  For data acquired from
 overriden methods (subroutines) specific set_METHOD() subroutines will need to be
 added.
 
@@ -1460,7 +1521,7 @@ Let's make a sample Layer 2 Device subclass :
  1; # don't forget this line
 ----------------------- snip --------------------------------
 
-Be sure and send the debugged version to snmp@warped.org to be 
+Be sure and send the debugged version to snmp-info-users@lists.sourceforge.net to be 
 included in the next version of SNMP::Info.
 
 =head1 SNMP::INFO INTERNALS
@@ -1530,6 +1591,7 @@ Makes human friendly speed ratings using %SPEED_MAP
                 '11000000'   => '11 Mbps',
                 '20000000'   => '20 Mbps',
                 '16000000'   => '16 Mbps',
+                '44210000'   => 'T3',
                 '44736000'   => 'T3',
                 '45000000'   => '45 Mbps',
                 '45045000'   => 'DS3',
@@ -1563,6 +1625,7 @@ Makes human friendly speed ratings using %SPEED_MAP
                 '11000000'   => '11 Mbps',
                 '20000000'   => '20 Mbps',
                 '16000000'   => '16 Mbps',
+                '44210000'   => 'T3',
                 '44736000'   => 'T3',
                 '45000000'   => '45 Mbps',
                 '45045000'   => 'DS3',
@@ -1822,7 +1885,7 @@ sub store {
 
 =item $info->_global()
 
-Used internally by AUTOLOAD to load dynmaic methods from %GLOBALS. 
+Used internally by AUTOLOAD to load dynamic methods from %GLOBALS. 
 
 Example: $info->name() calls autoload which calls $info->_global('name').
 
@@ -2176,10 +2239,10 @@ sub AUTOLOAD {
 
 =head1 COPYRIGHT AND LICENCE
 
-Portions
-Copyright (c) 2003 Max Baker - All rights reserved.
+Changes from SNMP::Info Version 0.7 and on are:
+Copyright (c)2003, 2004 Max Baker - All rights reserved.
 
-Original Code
+Original Code is:
 Copyright (c) 2002-3, Regents of the University of California
 All rights reserved.
 

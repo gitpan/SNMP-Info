@@ -1,6 +1,8 @@
 # SNMP::Info::Layer2::C1900
 # Max Baker <max@warped.org>
 #
+# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+#
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
 # 
@@ -28,14 +30,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C1900;
-$VERSION = 0.7;
-# $Id: C1900.pm,v 1.7 2003/08/14 18:24:56 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: C1900.pm,v 1.10 2004/03/02 05:46:14 maxbaker Exp $
 use strict;
 
 use Exporter;
 use SNMP::Info::Layer2;
+use SNMP::Info::CiscoVTP;
 
-@SNMP::Info::Layer2::C1900::ISA = qw/SNMP::Info::Layer2 Exporter/;
+@SNMP::Info::Layer2::C1900::ISA = qw/SNMP::Info::Layer2 SNMP::Info::CiscoVTP Exporter/;
 @SNMP::Info::Layer2::C1900::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
@@ -43,10 +46,12 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 # Set for No CDP
 %GLOBALS = (
             %SNMP::Info::Layer2::GLOBALS,
+            %SNMP::Info::CiscoVTP::GLOBALS,
             'c1900_flash_status'    => 'upgradeFlashBankStatus',
             );
 
 %FUNCS   = (%SNMP::Info::Layer2::FUNCS,
+            %SNMP::Info::CiscoVTP::FUNCS,
             'i_type2'              => 'ifType',
             'i_name2'              => 'ifName',
             # ESSWITCH-MIB
@@ -62,11 +67,13 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 
 %MIBS    = (
             %SNMP::Info::Layer2::MIBS,
+             %SNMP::Info::CiscoVTP::MIBS,
             # Also known as the ESSWITCH-MIB
             'STAND-ALONE-ETHERNET-SWITCH-MIB' =>  'series2000'
             );
 
 %MUNGE   = (%SNMP::Info::Layer2::MUNGE,
+            %SNMP::Info::CiscoVTP::MUNGE,
             );
 
 sub vendor {
@@ -90,6 +97,10 @@ sub os_ver {
         return $1;
     }  
     return undef;
+}
+
+sub cisco_comm_indexing {
+    1;
 }
 
 sub interfaces {

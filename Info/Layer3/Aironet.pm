@@ -1,6 +1,8 @@
 # SNMP::Info::Layer3::Aironet
 # Max Baker <max@warped.org>
 #
+# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+#
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
 # 
@@ -28,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Aironet;
-$VERSION = 0.7;
-# $Id: Aironet.pm,v 1.9 2003/08/14 18:24:56 maxbaker Exp $
+$VERSION = 0.8;
+# $Id: Aironet.pm,v 1.11 2004/02/13 06:29:25 maxbaker Exp $
 
 use strict;
 
@@ -90,9 +92,9 @@ sub os_ver {
     my $aironet = shift;
     my $descr = $aironet->description();
 
-    # CAP340 11.21
-    if ($descr =~ /AP\d{3}\s+(\d{2}\.\d{2})/){
-        return $1;
+    # CAP340 11.21, AP4800-E 11.21
+    if ($descr =~ /AP\d{3,4}(-\D+)?\s+(\d{2}\.\d{2})/){
+        return $2;
     }
     
     if ($descr =~ /Series\s*AP\s+(\d{2}\.\d{2})/){
