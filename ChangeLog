@@ -1,5 +1,18 @@
 SNMP::Info - Perl5 OO Interface to Network Devices and SNMP MIBs
-ChangeLog $Id: ChangeLog,v 1.2 2003/02/19 17:53:59 maxbaker Exp $
+ChangeLog $Id: ChangeLog,v 1.3 2003/03/06 21:51:24 maxbaker Exp $
+
+version 0.3 (03/06/03)
+    * Fixed HP model() warning
+    * Added error checking for responses of NOSUCHOBJECT and NOSUCHINSTANCE in _global
+      and _load_attr
+    * Added more debugging
+    * Added info and munging for c_capabilities in SNMP::Info::CD
+      Thanks to Martin Lorensen <martin@lorensen.dk>
+    * Removed requirement for SNMP in the Makefile.PL and moved it to t/prereq.t
+      so that the Module will install via CPAN without trying to install the old
+      4.2.0 version of SNMP on CPAN.  Will now fail in the test phase. 
+      Thanks again to Martin Lorensen <martin@lorensen.dk>
+    * Moved tests from test.pl to t/*
 
 version 0.2 (02/19/03)
     * Added put_() methods and support for SNMP put commands

@@ -1,7 +1,7 @@
 # SNMP::Info::Layer1::Allied
 # Max Baker <max@warped.org>
 #
-# Copyright (c) 2002, Regents of the University of California
+# Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1::Allied;
-$VERSION = 0.2;
-# $Id: Allied.pm,v 1.2 2003/02/19 17:50:51 maxbaker Exp $
+$VERSION = 0.3;
+# $Id: Allied.pm,v 1.3 2003/03/06 21:12:46 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -151,17 +151,6 @@ Arguments passed to new() are passed on to SNMP::Session::new()
         Version => 3,...
         ) 
     die "Couldn't connect.\n" unless defined $allied;
-
-=item  $allied->session()
-
-Sets or returns the SNMP::Session object
-
-    # Get
-    my $sess = $allied->session();
-
-    # Set
-    my $newsession = new SNMP::Session(...);
-    $allied->session($newsession);
 
 =back
 

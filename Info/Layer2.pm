@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2;
-$VERSION = 0.2;
-# $Id: Layer2.pm,v 1.4 2003/02/19 17:50:50 maxbaker Exp $
+$VERSION = 0.3;
+# $Id: Layer2.pm,v 1.5 2003/03/06 21:10:26 maxbaker Exp $
 
 use strict;
 
@@ -210,17 +210,6 @@ Arguments passed to new() are passed on to SNMP::Session::new()
         Version => 3,...
         ) 
     die "Couldn't connect.\n" unless defined $l2;
-
-=item  $l2->session()
-
-Sets or returns the SNMP::Session object
-
-    # Get
-    my $sess = $l2->session();
-
-    # Set
-    my $newsession = new SNMP::Session(...);
-    $l2->session($newsession);
 
 =back
 

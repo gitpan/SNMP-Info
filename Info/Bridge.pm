@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Bridge;
-$VERSION = 0.2;
-# $Id: Bridge.pm,v 1.4 2003/02/19 17:50:48 maxbaker Exp $
+$VERSION = 0.3;
+# $Id: Bridge.pm,v 1.5 2003/03/06 21:05:14 maxbaker Exp $
 
 use strict;
 

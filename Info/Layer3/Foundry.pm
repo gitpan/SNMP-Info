@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Foundry;
-$VERSION = 0.2;
-# $Id: Foundry.pm,v 1.2 2003/02/19 17:50:56 maxbaker Exp $
+$VERSION = 0.3;
+# $Id: Foundry.pm,v 1.3 2003/03/06 21:38:51 maxbaker Exp $
 
 use strict;
 
@@ -242,6 +242,8 @@ Max Baker (C<max@warped.org>)
  my $foundry = new SNMP::Info::Layer3::Foundry(DestHost  => 'switch' , 
                               Community => 'public' ); 
 
+See L<SNMP::Info> and L<SNMP::Info::Layer3> for all inherited methods.
+
 =head1 CREATING AN OBJECT
 
 =over
@@ -257,17 +259,6 @@ Arguments passed to new() are passed on to SNMP::Session::new()
         Version => 3,...
         ) 
     die "Couldn't connect.\n" unless defined $foundry;
-
-=item  $foundry->session()
-
-Sets or returns the SNMP::Session object
-
-    # Get
-    my $sess = $foundry->session();
-
-    # Set
-    my $newsession = new SNMP::Session(...);
-    $foundry->session($newsession);
 
 =back
 

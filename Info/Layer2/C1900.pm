@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C1900;
-$VERSION = 0.2;
-# $Id: C1900.pm,v 1.2 2003/02/19 17:50:53 maxbaker Exp $
+$VERSION = 0.3;
+# $Id: C1900.pm,v 1.3 2003/03/06 21:36:17 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -191,17 +191,6 @@ Arguments passed to new() are passed on to SNMP::Session::new()
         Version => 3,...
         ) 
     die "Couldn't connect.\n" unless defined $c1900;
-
-=item  $c1900->session()
-
-Sets or returns the SNMP::Session object
-
-    # Get
-    my $sess = $c1900->session();
-
-    # Set
-    my $newsession = new SNMP::Session(...);
-    $c1900->session($newsession);
 
 =back
 

@@ -1,5 +1,5 @@
 # SNMP::Info - Max Baker <max@warped.org>
-# $Id: Info.pm,v 1.6 2003/02/19 17:50:46 maxbaker Exp $
+# $Id: Info.pm,v 1.9 2003/03/06 21:56:22 maxbaker Exp $
 #
 # Copyright (c) 2002-3, Regents of the University of California
 # All rights reserved.  
@@ -7,7 +7,7 @@
 # See COPYRIGHT below 
 
 package SNMP::Info;
-$VERSION = 0.2;
+$VERSION = 0.3;
 use strict;
 
 use Exporter;
@@ -27,7 +27,7 @@ SNMP::Info - Perl5 Interface to Network devices through SNMP.
 
 =head1 VERSION
 
-SNMP::Info - Version 0.1
+SNMP::Info - Version 0.3
 
 =head1 AUTHOR
 
@@ -82,7 +82,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  # Find out the Duplex status for the ports
  my $interfaces = $more_specific_device->interfaces();
  my $i_duplex   = $more_specific_device->i_duplex();
- 
+
+ # Get CDP Neighbor info
+ my $c_ip       = $more_specific_device->c_ip();
+ my $c_port     = $more_specific_device->c_port();
+
  foreach my $iid (keys %$interfaces){
  
     my $duplex = $i_duplex->{$iid};
@@ -90,8 +94,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     # Print out physical port name, not snmp iid
     my $port  = $interfaces->{$iid};
  
-    print "$port : $duplex\n";
- 
+    my $neighbor_ip   = $c_ip->{$iid};
+    my $neighbor_port = $c_port->{$iid};
+
+    print "$port: Duplex $duplex\n";
+    print "       Neighbor : $neighbor_ip \@ $neighbor_port\n";
+
  }
 
 =head1 REQUIREMENTS
@@ -209,6 +217,8 @@ back to the developers at snmp@warped.org for inclusion in the next version.
 
 =item SNMP::Info::Layer3::Foundry
 
+=item SNMP::Info::Layer3::C3550
+
 =back
 
 =head2 Details
@@ -314,6 +324,9 @@ Required MIBs:
  AWCVX-MIB        - Aironet Specific MIB values
  IEEE802dot11-MIB - IEEE 802.11 Specific MIB (currently draft)
 
+
+=item * SNMP::Info::Layer3::C3550 - Cisco Catalyst 3550 Layer2/3 Switch
+
 =item * SNMP::Info::Layer3::Foundry - Older Foundry Networks Devices Support
 
 Inherits SNMP::Info::Bridge
@@ -377,6 +390,8 @@ sub new {
     unless (defined $sess){
         # How do i get error messages back from SNMP?
         #print $SNMP::ErrorStr;
+        print "SNMP::Info::new() $sess->{ErrorStr}\n" 
+            if ($DEBUG and $sess->{ErrorStr});
         return undef;
     }
 
@@ -444,10 +459,10 @@ sub device_type {
     my $objtype = "SNMP::Info";
 
     my $layers = $info->layers();
-    my $desc   = $info->description();
-
     # if we dont have sysServices, we dont have anything else either probably.
     return undef unless (defined $layers and length($layers));
+
+    my $desc   = $info->description();
 
     # Layer 3 Supported 
     #   (usually has layer2 as well, so we check for 3 first)
@@ -1140,6 +1155,20 @@ sub _global{
     $DEBUG and print "SNMP::Info::_global $attr : $oid\n";
     my $val = $sess->get($oid); 
 
+    if ($sess->{ErrorStr} ){
+        $DEBUG and print "SNMP::Info::_global($attr) $sess->{ErrorStr}\n";
+        return undef;
+    }
+
+    if (defined $val and $val eq 'NOSUCHOBJECT'){
+        $DEBUG and print "SNMP::Info::_global($attr) NOSUCHOBJECT\n";
+        return undef;
+    }
+
+    if (defined $val and $val eq 'NOSUCHINSTANCE'){
+        $DEBUG and print "SNMP::Info::_global($attr) NOSUCHINSTANCE\n";
+        return undef;
+    }
     # Get the callback hash for data munging
     my $munge = $self->munge();
 
@@ -1189,6 +1218,9 @@ sub _set {
     print "SNMP::Info::_set $attr$iid ($oid) = $val\n" if $DEBUG;
 
     my $rv = $sess->set($oid,$val);
+
+    print "SNMP::Info::_set $attr$iid $sess->{ErrorStr}\n"
+        if ($DEBUG and $sess->{ErrorStr});
 
     return $rv;
 }
@@ -1272,6 +1304,15 @@ sub _load_attr {
 
         unless (defined $iid){
             $DEBUG and print "SNMP::Info::_load_attr: $attr not here\n";
+            next;
+        }
+
+        if ($val eq 'NOSUCHOBJECT'){
+            $DEBUG and print "SNMP::Info::_load_atr: $attr :  NOSUCHOBJECT\n" ;
+            next;
+        }
+        if ($val eq 'NOSUCHINSTANCE'){
+            $DEBUG and print "SNMP::Info::_load_atr: $attr :  NOSUCHINSTANCE\n" ;
             next;
         }
 

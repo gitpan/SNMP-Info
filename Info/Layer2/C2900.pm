@@ -1,7 +1,7 @@
 # SNMP::Info::Layer2::C2900
 # Max Baker <max@warped.org>
 #
-# Copyright (c) 2002, Regents of the University of California
+# Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C2900;
-$VERSION = 0.2;
-# $Id: C2900.pm,v 1.2 2003/02/19 17:50:53 maxbaker Exp $
+$VERSION = 0.3;
+# $Id: C2900.pm,v 1.3 2003/03/06 21:36:17 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -173,17 +173,6 @@ Arguments passed to new() are passed on to SNMP::Session::new()
         Version => 3,...
         ) 
     die "Couldn't connect.\n" unless defined $c2900;
-
-=item  $c2900->session()
-
-Sets or returns the SNMP::Session object
-
-    # Get
-    my $sess = $c2900->session();
-
-    # Set
-    my $newsession = new SNMP::Session(...);
-    $c2900->session($newsession);
 
 =back
 

@@ -1,11 +1,12 @@
 # SNMP::Info -  Makefile.PL
-# $Id: Makefile.PL,v 1.2 2003/02/19 17:38:30 maxbaker Exp $
+# $Id: Makefile.PL,v 1.3 2003/03/06 21:02:56 maxbaker Exp $
 
 use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'               => 'SNMP::Info',
     'VERSION_FROM'       => 'Info.pm',
-    'PREREQ_PM'          => {'SNMP' => '4'},
+# SNMP not available on CPAN -- not installable by CPAN
+#    'PREREQ_PM'          => {'SNMP' => '4'},
     ($] >= 5.005 ?    
           (ABSTRACT_FROM => 'Info.pm', 
            AUTHOR        => 'Max Baker <max@warped.org>')

@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1;
-$VERSION = 0.2;
-# $Id: Layer1.pm,v 1.2 2003/02/19 17:50:49 maxbaker Exp $
+$VERSION = 0.3;
+# $Id: Layer1.pm,v 1.3 2003/03/06 21:08:32 maxbaker Exp $
 
 use strict;
 
@@ -170,8 +170,6 @@ SNMP::Info::Layer1 - Perl5 Interface to Layer1 network devices.
 Provides abstraction to the configuration information obtainable from a 
 Layer1 device through SNMP.  Information is stored in a number of MIBs.
 
-See super classes for descriptions of other available methods.
-
 Inherits from: 
 
  SNMP::Info
@@ -206,17 +204,6 @@ Arguments passed to new() are passed on to SNMP::Session::new()
         Version => 3,...
         ) 
     die "Couldn't connect.\n" unless defined $l1;
-
-=item  $l1->session()
-
-Sets or returns the SNMP::Session object
-
-    # Get
-    my $sess = $l1->session();
-
-    # Set
-    my $newsession = new SNMP::Session(...);
-    $l1->session($newsession);
 
 =back
 
