@@ -28,76 +28,61 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::HP;
-$VERSION = 0.3;
-# $Id: HP.pm,v 1.5 2003/03/06 21:36:17 maxbaker Exp $
+$VERSION = 0.4;
+# $Id: HP.pm,v 1.7 2003/04/29 16:56:17 maxbaker Exp $
 
 use strict;
 
 use Exporter;
 use SNMP::Info::Layer2;
 use SNMP::Info::MAU;
+use SNMP::Info::Entity;
 
-use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %PORTSTAT %MODEL_MAP 
-            %MYGLOBALS %MYMIBS %MYFUNCS %MYMUNGE %MUNGE $INIT/ ;
-@SNMP::Info::Layer2::HP::ISA = qw/SNMP::Info::Layer2 SNMP::Info::MAU Exporter/;
+use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %PORTSTAT %MODEL_MAP %MUNGE $INIT/ ;
+
+@SNMP::Info::Layer2::HP::ISA = qw/SNMP::Info::Layer2 SNMP::Info::MAU SNMP::Info::Entity Exporter/;
 @SNMP::Info::Layer2::HP::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-# See SNMP::Info for the details of these data structures and 
-#       the interworkings.
+# See SNMP::Info for the details of these data structures and interworkings.
 $INIT = 0;
-
-%MYMIBS = ( 'ENTITY-MIB'  => 'entPhysicalSerialNum',
-            'RFC1271-MIB' => 'logDescription',
-            'HP-ICF-OID'  => 'hpSwitch4000',
-          );
 
 %MIBS = ( %SNMP::Info::Layer2::MIBS,
           %SNMP::Info::MAU::MIBS,
-          %MYMIBS );
+          %SNMP::Info::Entity::MIBS,
+          'RFC1271-MIB' => 'logDescription',
+          'HP-ICF-OID'  => 'hpSwitch4000',
+          'STATISTICS-MIB' => 'hpSwitchCpuStat',
+          'NETSWITCH-MIB'  => 'hpMsgBufFree'
+        );
 
-%MYGLOBALS = ('serial1' => 'entPhysicalSerialNum.1',
-#              'model'  => 'entPhysicalModelName.1',
-             );
 %GLOBALS = (
             %SNMP::Info::Layer2::GLOBALS,
             %SNMP::Info::MAU::GLOBALS,
-            %MYGLOBALS
-            );
-
-%MYFUNCS = (
-            'i_type2'   => 'ifType',
-            'e_class'   => 'entPhysicalClass',
-            'e_descr'   => 'entPhysicalDescr',
-            'e_fwver'   => 'entPhysicalFirmwareRev',
-            'e_hwver'   => 'entPhysicalHardwareRev',
-            'e_map'     => 'entAliasMappingIdentifier',
-            'e_model'   => 'entPhysicalModelName',
-            'e_name'    => 'entPhysicalName',
-            'e_parent'  => 'entPhysicalContainedIn',
-            'e_serial'  => 'entPhysicalSerialNum',
-            'e_swver'   => 'entPhysicalSoftwareRev',
-            'e_type'    => 'entPhysicalVendorType',
-            # RFC1271
-            'l_descr'   => 'logDescription'
-
+            %SNMP::Info::Entity::GLOBALS,
+            'serial1'   => 'entPhysicalSerialNum.1',
+            'hp_cpu'    => 'hpSwitchCpuStat.0',
+            'hp_mem_total' => 'hpGlobalMemTotalBytes.1',
+            'mem_free'  => 'hpGlobalMemFreeBytes.1',
+            'mem_used'  => 'hpGlobalMemAllocBytes.1',
+            'os_version' => 'hpSwitchOsVersion.0',
+            'os_bin'    => 'hpSwitchRomVersion.0',
+            'mac'       => 'hpSwitchBaseMACAddress.0'
            );
+
 %FUNCS   = (
             %SNMP::Info::Layer2::FUNCS,
             %SNMP::Info::MAU::FUNCS,
-            %MYFUNCS
-        );
-
-%MYMUNGE = (
+            %SNMP::Info::Entity::FUNCS,
+            'i_type2'   => 'ifType',
+            # RFC1271
+            'l_descr'   => 'logDescription'
            );
 
 %MUNGE = (
             # Inherit all the built in munging
             %SNMP::Info::Layer2::MUNGE,
             %SNMP::Info::MAU::MUNGE,
-            %MYMUNGE
+            %SNMP::Info::Entity::MUNGE
          );
 
 %MODEL_MAP = ( 
@@ -112,6 +97,31 @@ $INIT = 0;
              );
 
 # Method Overrides
+
+sub cpu {
+    my $hp = shift;
+    return $hp->hp_cpu();
+}
+
+sub mem_total {
+    my $hp = shift;
+    return $hp->hp_mem_total();
+}
+
+sub os {
+    return 'hp';
+}
+sub os_ver {
+    my $hp = shift;
+    my $os_version = $hp->os_version();
+    return $os_version if defined $os_version;
+    # Some older ones don't have this value,so we cull it from the description
+    my $descr = $hp->description();
+    if ($descr =~ m/revision ([A-Z]{1}\.\d{2}\.\d{2})/) {
+        return $1;
+    }
+    return undef;
+}
 
 # Lookup model number, and translate the part number to the common number
 sub model {
@@ -147,32 +157,11 @@ sub interfaces {
     foreach my $iid (keys %$interfaces){
         my $descr = $i_descr->{$iid};
         next unless defined $descr;
-        #$if{$iid} = $iid;
         $if{$iid} = $descr if (defined $descr and length $descr);
     }
 
     return \%if
 
-}
-
-# e_port maps EntityTable entries to IfTable
-sub e_port {
-    my $hp = shift;
-    my $e_map = $hp->e_map();
-
-    my %e_port;
-
-    foreach my $e_id (keys %$e_map) {
-        my $id = $e_id;
-        $id =~ s/\.0$//;
-
-        my $iid = $e_map->{$e_id};
-        $iid =~ s/.*\.//;
-
-        $e_port{$id} = $iid;
-    }
-
-    return \%e_port;
 }
 
 sub i_type {
@@ -344,60 +333,99 @@ __END__
 
 SNMP::Info::Layer2::HP - SNMP Interface to HP Procurve Switches
 
-=head1 DESCRIPTION
-
-Provides abstraction to the configuration information obtainable from a 
-HP device through SNMP.  Information is stored in a number of 
-MIB's such as IF-MIB, ENTITY-MIB, RFC1271-MIB, HP-ICF-OID, MAU-MIB
-
-MIBs required:
-
-=over
-
-=item RFC1271-MIB
-
-=item HP-ICF-OID
-
-=back
-
-HP MIBs can be found at http://www.hp.com/rnd/software
-
 =head1 AUTHOR
 
 Max Baker (C<max@warped.org>)
 
 =head1 SYNOPSIS
 
- my $hp = new SNMP::Info::Layer2::HP(DestHost  => 'router' , 
-                              Community => 'public' ); 
+ # Let SNMP::Info determine the correct subclass for you. 
+ my $hp = new SNMP::Info(
+                          AutoSpecify => 1,
+                          Debug       => 1,
+                          # These arguments are passed directly on to SNMP::Session
+                          DestHost    => 'myswitch',
+                          Community   => 'public',
+                          Version     => 2
+                        ) 
+    or die "Can't connect to DestHost.\n";
 
- See SNMP::Info and SNMP::Info::Layer2 for all the inherited methods.
+ my $class      = $hp->class();
+ print "SNMP::Info determined this device to fall under subclass : $class\n";
 
-=head1 CREATING AN OBJECT
+=head1 DESCRIPTION
+
+Provides abstraction to the configuration information obtainable from a 
+HP ProCurve Switch via SNMP. 
+
+Note:  Some HP Switches will connect via SNMP version 1, but a lot of config data will 
+not be available.  Make sure you try and connect with Version 2 first, and then fail back
+to version 1.
+
+For speed or debugging purposes you can call the subclass directly, but not after determining
+a more specific class using the method above. 
+
+ my $hp = new SNMP::Info::Layer2::HP(...);
+
+=head2 Inherited Classes
 
 =over
 
-=item  new SNMP::Info::Layer2::HP()
+=item SNMP::Info::Layer2
 
-Arguments passed to new() are passed on to SNMP::Session::new()
-    
+=item SNMP::Info::Entity
 
-    my $hp = new SNMP::Info::Layer2::HP(
-        DestHost => $host,
-        Community => 'public',
-        Version => 3,...
-        ) 
-    die "Couldn't connect.\n" unless defined $hp;
+=item SNMP::Info::MAU
 
 =back
 
-=head1 HP Global Configuration Values
+=head2 Required MIBs
 
 =over
+
+=item RFC1271-MIB
+
+Included in V2 mibs from Cisco
+
+=item HP-ICF-OID
+
+=item STATISTICS-MIB
+
+=item NETSWITCH-MIB
+
+=back
+
+The last three MIBs listed are from HP and can be found at http://www.hp.com/rnd/software
+
+=head1 ChangeLog
+
+Version 0.4 - Removed ENTITY-MIB e_*() methods to separate sub-class - SNMP::Info::Entity
+
+=head1 GLOBALS
+
+These are methods that return scalar value from SNMP
+
+=over
+
+=item $hp->cpu()
+
+Returns CPU Utilization in percentage.
 
 =item $hp->log()
 
 Returns all the log entries from the switch's log that are not Link up or down messages.
+
+=item $hp->mem_free()
+
+Returns bytes of free memory
+
+=item $hp->mem_total()
+
+Return bytes of total memory
+
+=item $hp->mem_used()
+
+Returns bytes of used memory
 
 =item $hp->model()
 
@@ -415,6 +443,23 @@ the common model number with this map :
                'J4874A' => '9315',
               );
 
+=item $hp->os()
+
+Returns hp
+
+=item $hp->os_bin()
+
+B<hpSwitchRomVersion.0>
+
+=item $hp->os_ver()
+
+Tries to use os_version() and if that fails will try and cull the version from
+the description field.
+
+=item $hp->os_version()
+
+B<hpSwitchOsVersion.0>
+
 =item $hp->serial()
 
 Returns serial number if available through SNMP
@@ -429,68 +474,30 @@ hp
 
 =back
 
-=head1 HP Table Values
+=head2 Globals imported from SNMP::Info::Layer2
 
-=head2 Entity Table
+See documentation in SNMP::Info::Layer2 for details.
 
-=over
+=head2 Globals imported from SNMP::Info::Entity
 
-=item $hp->e_class()
+See documentation in SNMP::Info::Entity for details.
 
-(C<entPhysicalClass>)
+=head2 Globals imported from SNMP::Info::MAU
 
-=item $hp->e_descr()
+See documentation in SNMP::Info::MAU for details.
 
-(C<entPhysicalClass>)
+=head1 TABLE METHODS
 
-=item $hp->e_fwver()
+These are methods that return tables of information in the form of a reference
+to a hash.
 
-(C<entPhysicalFirmwareRev>)
-
-=item $hp->e_hwver()
-
-(C<entPhysicalHardwareRev>)
-
-=item $hp->e_map()
-
-(C<entAliasMappingIdentifier>)
-
-=item $hp->e_model()
-
-(C<entPhysicalModelName>)
-
-=item $hp->e_name()
-
-(C<entPhysicalName>)
-
-=item $hp->e_parent()
-
-(C<entPhysicalContainedIn>)
-
-=item $hp->e_port()
-
-Maps EntityTable entries to the Interface Table (IfTable) using
-$hp->e_map()
-
-=item $hp->e_serial()
-
-(C<entPhysicalSerialNum>)
-
-=item $hp->e_swver()
-
-(C<entPhysicalSoftwareRev>)
-
-=item $hp->e_type()
-
-(C<entPhysicalVendorType>)
-
-=back
-
-=head2 Overriden Methods from SNMP::Info::Layer2
+=head2 Overrides
 
 =over
 
 =item $hp->interfaces() 
+
+Uses $hp->i_description()
 
 =item $hp->i_duplex()
 
@@ -512,3 +519,17 @@ Crosses i_name() with $hp->e_name() using $hp->e_port() and i_alias()
 Crosses i_type() with $hp->e_descr() using $hp->e_port()
 
 =back
+
+=head2 Table Methods imported from SNMP::Info::Layer2
+
+See documentation in SNMP::Info::Layer2 for details.
+
+=head2 Table Methods imported from SNMP::Info::Entity
+
+See documentation in SNMP::Info::Entity for details.
+
+=head2 Table Methods imported from SNMP::Info::MAU
+
+See documentation in SNMP::Info::MAU for details.
+
+=cut

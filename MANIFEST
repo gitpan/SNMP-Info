@@ -3,6 +3,8 @@ ChangeLog
 Info.pm
 Info/Bridge.pm
 Info/CDP.pm
+Info/CiscoStats.pm
+Info/Entity.pm
 Info/EtherLike.pm
 Info/Layer1.pm
 Info/Layer1/Allied.pm
