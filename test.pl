@@ -1,4 +1,5 @@
 # SNMP::Info - test.pl
+# $Id: test.pl,v 1.2 2003/02/19 17:38:30 maxbaker Exp $
 #
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'

@@ -1,4 +1,6 @@
 # SNMP::Info -  Makefile.PL
+# $Id: Makefile.PL,v 1.2 2003/02/19 17:38:30 maxbaker Exp $
+
 use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'               => 'SNMP::Info',

@@ -28,7 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1::Asante;
-$VERSION = 0.1;
+$VERSION = 0.2;
+# $Id: Asante.pm,v 1.2 2003/02/19 17:50:52 maxbaker Exp $
 use strict;
 
 use Exporter;
