@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::C3550;
-$VERSION = 0.5;
-# $Id: C3550.pm,v 1.5 2003/06/10 16:50:44 maxbaker Exp $
+$VERSION = 0.6;
+# $Id: C3550.pm,v 1.6 2003/06/18 16:26:39 maxbaker Exp $
 
 use strict;
 

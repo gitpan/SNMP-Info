@@ -1,5 +1,5 @@
 # SNMP::Info - Max Baker <max@warped.org>
-# $Id: Info.pm,v 1.20 2003/06/10 16:50:42 maxbaker Exp $
+# $Id: Info.pm,v 1.21 2003/06/18 16:26:38 maxbaker Exp $
 #
 # Copyright (c) 2002-3, Regents of the University of California
 # All rights reserved.  
@@ -7,7 +7,7 @@
 # See COPYRIGHT at bottom
 
 package SNMP::Info;
-$VERSION = 0.5;
+$VERSION = 0.6;
 use strict;
 
 use Exporter;
@@ -27,7 +27,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 0.5
+SNMP::Info - Version 0.6
 
 =head1 AUTHOR
 
@@ -1420,6 +1420,7 @@ Let's make a sample Layer 2 Device subclass :
  =head2 Overrides
  =cut
 
+ 1; # don't forget this line
 ----------------------- snip --------------------------------
 
 Be sure and send the debugged version to snmp@warped.org to be 

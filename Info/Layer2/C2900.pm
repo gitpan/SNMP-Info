@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C2900;
-$VERSION = 0.5;
-# $Id: C2900.pm,v 1.5 2003/06/10 16:50:43 maxbaker Exp $
+$VERSION = 0.6;
+# $Id: C2900.pm,v 1.6 2003/06/18 16:26:39 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -134,6 +134,7 @@ sub interfaces {
     return \%if
 }
 
+1;
 __END__
 
 =head1 NAME

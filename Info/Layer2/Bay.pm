@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Bay;
-$VERSION = 0.5;
-# $Id: Bay.pm,v 1.9 2003/06/10 16:50:43 maxbaker Exp $
+$VERSION = 0.6;
+# $Id: Bay.pm,v 1.10 2003/06/18 16:25:08 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -261,7 +261,7 @@ sub c_platform {
     return \%c_platform;
 }
 
-
+1;
 __END__
 
 =head1 NAME
