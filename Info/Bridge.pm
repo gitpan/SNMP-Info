@@ -32,8 +32,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Bridge;
-$VERSION = 0.8;
-# $Id: Bridge.pm,v 1.12 2004/03/02 04:57:04 maxbaker Exp $
+$VERSION = 0.9;
+# $Id: Bridge.pm,v 1.14 2004/10/28 21:53:14 maxbaker Exp $
 
 use strict;
 
@@ -159,7 +159,7 @@ Max Baker (C<max@warped.org>)
 
  foreach my $fw_index (keys %$fw_mac){
     my $mac   = $fw_mac->{$fw_index};
-    my $bp_id = $fw_mac->{$fw_index};
+    my $bp_id = $fw_port->{$fw_index};
     my $iid   = $bp_index->{$bp_id};
     my $port  = $interfaces->{$iid};
 

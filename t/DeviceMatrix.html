@@ -1,0 +1,2426 @@
+<HTML>
+<HEAD>
+<TITLE>SNMP::Info - Device Compatibility Matrix</TITLE>
+<STYLE TYPE="text/css" MEDIA="screen">
+<!--
+    BODY    { font-family:arial,helvetica,sans-serif; font-size:12pt; }
+    TD      { font-family:arial,helvetica,sans-serif; font-size:10pt; }
+    TH      { font-family:arial,helvetica,sans-serif; font-size:10pt; background:#F0F0F0; }
+    H1      { font-family:arial,helvetica,sans-serif; font-size:14pt; }
+    .vendor { font-size:12pt; color:#777777; }
+    .family { font-size:12pt; color:blue; }
+    .model  { font-size:12pt; color:red; }
+    .note   { color:red; } 
+//-->
+</STYLE>
+</HEAD>
+<BODY>
+<h1>SNMP::Info - Device Compatibility Matrix</h1>
+<P>
+<h1>Device Vendors</h1>
+[<A HREF="#Allied Telesyn">Allied Telesyn</A>]
+[<A HREF="#Asante">Asante</A>]
+[<A HREF="#Bay">Bay</A>]
+[<A HREF="#Cisco">Cisco</A>]
+[<A HREF="#Foundry Networks">Foundry Networks</A>]
+[<A HREF="#HP">HP</A>]
+[<A HREF="#Nortel Networks">Nortel Networks</A>]
+[<A HREF="#Proxim">Proxim</A>]
+[<A HREF="#Zyxel">Zyxel</A>]
+<HR>
+<A NAME="Allied Telesyn"><SPAN CLASS="vendor"><B>Allied Telesyn</B></SPAN></A>
+<DL>
+<DT>Allied Hubs Family
+<DD>AT-3624T
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='vendor'>no</TD>
+  <TD CLASS='family'>Layer1::Allied</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DT>AT-8000 Switches Family
+</DL>
+<A NAME="Asante"><SPAN CLASS="vendor"><B>Asante</B></SPAN></A>
+<DL>
+<DT>Asante Hubs Family
+<DD>1012
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>Layer1::Asante</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+</DL>
+<A NAME="Bay"><SPAN CLASS="vendor"><B>Bay</B></SPAN></A>
+<DL>
+<DT>
+<UL TYPE='square'><LI>See Nortel</UL>
+</DL>
+<A NAME="Cisco"><SPAN CLASS="vendor"><B>Cisco</B></SPAN></A>
+<DL>
+<DT>
+<UL TYPE='square'><LI>Error in CISCO-TC-MIB. See README for how to patch.</UL>
+<DT>1000 Family
+<DD>1003
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DT>1700 Family
+<DD>1710
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='model'>link</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>2500 Family
+<DD>2501
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>2503
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>2511
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>2514
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>AS2509RJ
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>AS2511RJ
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DT>2600 Family
+<DD>2610,2610XM,2611,2620,2620XM,2621
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>link</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>2621XM
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>link</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>2651XM
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>link</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>2691
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>link</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>3600 Family
+<DD>3620
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>3640
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='model'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>7500 Family
+<DD>7507
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Duplex settings are falsely reported in older IOS versions</SPAN></UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='model'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Aironet Family
+<DT>
+<UL TYPE='square'><LI>IOS and Aironet OS versions</UL>
+<DD>AIRAP1100, AP1200, C1100
+<DL>
+<DT>
+<UL TYPE='square'><LI>IOS based device</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='model'>Layer2::Aironet</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>AP350, AP340, CAP350, CAP340, 1200, AP4800
+<DL>
+<DT>
+<UL TYPE='square'><LI>Aironet based device</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::Aironet</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>BR500
+<DL>
+<DT>
+<UL TYPE='square'><LI>Aironet based device</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::Aironet</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>AS5000 Family
+<DD>AS5300
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 1900 Family
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Upgrade older (pre 9.0) versions of CatOS</SPAN>
+<LI><SPAN CLASS="note">CatOS ver 9.00.03 through 9.00.06 have problems when trunking. Upgrade to 9.00.07 or higher.</SPAN></UL>
+<DD>wsc1900
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::C1900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc1900c
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::C1900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 2900 Family
+<DT>
+<UL TYPE='square'><LI>IOS
+<LI><SPAN CLASS="note">Pre IOS 11.2 (8) SA3 - PortMAC shows up in CAM table.</SPAN></UL>
+<DD>2908xl
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Pre IOS 11.2 (8.6) some features (duplex...) aren't present.</SPAN></UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>2912MfXL
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>2924CXL
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>2924CXLv
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>2924MXL
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='model'>yes</TD>
+  <TD CLASS='model'>1</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 2950 Family
+<DD>2950-t24
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 2970 Family
+<DT>
+<UL TYPE='square'><LI>Acts just like IOS Catalyst 6500 series</UL>
+<DD>2970G-24T-E
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C6500</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 3500 XL Family
+<DT>
+<UL TYPE='square'><LI>L2 only IOS devices - Just like Catalyst 2900 series from SNMP
+<LI>IOS Version 12.0(5)XP is buggy and doesn't do VLAN Community indexing correctly.</UL>
+<DD>3508GXL
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>3524XL
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>3548XL
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::C2900</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 3550 Family
+<DT>
+<UL TYPE='square'><LI>Run IOS
+<LI>Has VLANs that don't accept SNMP connections.  Don't know if they are standard (by name or number).
+<LI>Uses CISCO-STACK-MIB like Catalyst 5000 series for serial,duplex,type but not name
+<LI>Comes in flavors that support L2, L3 or combo.</UL>
+<DD>3550
+<DL>
+<DT>
+<UL TYPE='square'><LI>L2/L3 Switch</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='model'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C3550</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>3550-12T
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C3550</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>3550-24, 3550-48
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C3550</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='model'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 3750 Family
+<DT>Catalyst 4000 Family
+<DT>
+<UL TYPE='square'><LI>Comes in IOS and CatOS versions like the 6k series.
+<LI>CatOS versions like L2::Catalyst just fine.
+<LI><SPAN CLASS="note">Reported problems with SNMP taking up all the CPU.  Requests take significantly longer.</SPAN>
+<LI><SPAN CLASS="note">IOS Version 12.1.8a reported not to respond to BRIDGE-MIB calls.</SPAN></UL>
+<DD>4507
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Has serious slowdown/timeout problems with SNMP</SPAN></UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='model'>Layer3::C6500</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc4006
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C6500</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc4912g
+<DL>
+<DT>
+<UL TYPE='square'><LI>Dedicated 12 port gig-e switch</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C6500</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 5000 Family
+<DT>
+<UL TYPE='square'><LI>Port info in CISCO-STACK-MIB</UL>
+<DD>wsc2926
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Can give false information over SNMP at times.</SPAN></UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::Catalyst</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc2948g
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::Catalyst</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc2980g
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Macsuck not working?</SPAN></UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::Catalyst</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc5000
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Has nasty tendency to not give you all SNMP data ,flaky for some older Catalyst versions.</SPAN></UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::Catalyst</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc5500
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::Catalyst</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc5505
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::Catalyst</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc5509
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer2::Catalyst</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsx5302
+<DL>
+<DT>
+<UL TYPE='square'><LI>Router blade that runs IOS</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='model'>yes</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='model'>Layer3</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catalyst 6500 Family
+<DT>
+<UL TYPE='square'><LI>Runs in two possible modes, native (IOS) and hybrid (IOS with CatOS on top).
+<LI>Switch running Hybrid has WS-C in description field and loves L2::Catalyst class
+<LI>Native Mode (IOS) versions seem to have SNMP problems with L2 data.
+<LI><SPAN CLASS="note">Problem with IOS 12.2.17d-SXB ... upgrade to -SXB1 or higher.</SPAN></UL>
+<DD>6503
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Macsuck failing even under vlan mode</SPAN>
+<LI>Native mode (IOS) reports L2+L3</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C6500</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='model'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>6509
+<DL>
+<DT>
+<UL TYPE='square'><LI>Native mode (IOS) reports L2+L3
+<LI><SPAN CLASS="note">Macsuck failing even under vlan mode</SPAN></UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3::C6500</TD>
+  <TD CLASS='model'>link</TD>
+  <TD CLASS='model'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>6kMsfc
+<DL>
+<DT>
+<UL TYPE='square'><LI>IOS portion of Hybrid mode.  VLAN and other L3 Services.</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='model'>Layer3</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>6kMsfc2
+<DL>
+<DT>
+<UL TYPE='square'><LI>IOS portion of Hybrid mode.  VLAN and other L3 Services.</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='model'>Layer3</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>wsc6509
+<DL>
+<DT>
+<UL TYPE='square'><LI>Hybrid Mode (Catalyst) reports L2 only</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='model'>Layer2::Catalyst</TD>
+  <TD CLASS='model'>both</TD>
+  <TD CLASS='family'>vlan</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Catlayst 2940 Family
+<DD>2940-8TT
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DT>Voice Gateway Family
+<DD>VG200
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>yes</TD>
+  <TD CLASS='family'>Layer3</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+</DL>
+<A NAME="Foundry Networks"><SPAN CLASS="vendor"><B>Foundry Networks</B></SPAN></A>
+<DL>
+<DT>FastIron Family
+</DL>
+<A NAME="HP"><SPAN CLASS="vendor"><B>HP</B></SPAN></A>
+<DL>
+<DT>HP ProCurve Family
+<DT>
+<UL TYPE='square'><LI>CDP only available with newer ROM versions.</UL>
+<DD>2512
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>Layer2::HP</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='model'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>2524
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>Layer2::HP</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='model'>1</TD>
+</TR></TABLE>
+</DL>
+<DD>4000
+<DL>
+<DT>
+<UL TYPE='square'><LI>duplex issues?</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>Layer2::HP</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>4104GL
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>Layer2::HP</TD>
+  <TD CLASS='model'>link</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+<DD>4108GL,8000,2626,2650,8000
+<DL>
+<DT>
+<UL TYPE='square'><LI>VLAN info in Q-BRIDGE-MIB</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='vendor'>Layer2::HP</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>2</TD>
+</TR></TABLE>
+</DL>
+</DL>
+<A NAME="Nortel Networks"><SPAN CLASS="vendor"><B>Nortel Networks</B></SPAN></A>
+<DL>
+<DT>Alteon AD Family
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Some versions have issues with continuous SNMP polling. Upgrade to 10.0.30.7 or higher.</SPAN></UL>
+<DD>180
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::AlteonAD</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>183
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::AlteonAD</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>184
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::AlteonAD</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>AD2
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::AlteonAD</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>AD3
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::AlteonAD</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>AD4
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::AlteonAD</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DT>AP222x Family
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Upgrade to version 1.3 or higher.</SPAN>
+<LI>Sends out topology packets if enabled but does not build neighbor table.</UL>
+<DD>AP-2220
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::NAP222x</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>AP-2221
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::NAP222x</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>AP-2225
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::NAP222x</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DT>BayRS Family
+<DD>AN
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::BayRS</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>ARN
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::BayRS</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>ASN
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::BayRS</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>BLN
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::BayRS</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>Passport 2430
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::BayRS</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>Passport 5430
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::BayRS</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DT>BayStack Hub Family
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Uses proprietary MIBs to provide MAC to port mapping.</SPAN></UL>
+<DD>102
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer1::Bayhub</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>1</TD>
+</TR></TABLE>
+</DL>
+<DT>Baystack Switch Family
+<DD>303,304
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>350
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>380
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>410
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>420
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>450
+<DL>
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Some versions > 4.X in stacked configuration have SNMP timeout issues.</SPAN>
+<LI>Labels full duplex as 20Mbit connection.</UL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>460,470
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>5510,5520
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>BPS
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Baystack</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DT>Centillion Family
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Must be on version 4.x or 5.x (VLAN based) software.</SPAN></UL>
+<DD>5000BH
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Centillion</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>5005BH
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Centillion</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>C100
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Centillion</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>C50
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer2::Centillion</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DT>Contivity Family
+<DD>100,400,600
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::Contivity</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>1000,1010,1050
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::Contivity</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>1500,1600,1700,1740
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::Contivity</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>2500,2600,2700
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::Contivity</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>4500,4600,5000
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer3::Contivity</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DT>Passport LAN Family
+<DT>
+<UL TYPE='square'><LI><SPAN CLASS="note">Code versions < 3.2 vlan based mac-suck and are unsupported.  Upgrade code.</SPAN>
+<LI><SPAN CLASS="note">3.2 code versions < 3.2.2.2 have Bridge MIB loop.  Upgrade code.</SPAN></UL>
+<DD>8603,8606,8610
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer3::Passport</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>8610co
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>proprietary</TD>
+  <TD CLASS='family'>Layer3::Passport</TD>
+  <TD CLASS='family'>both</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+</DL>
+<A NAME="Proxim"><SPAN CLASS="vendor"><B>Proxim</B></SPAN></A>
+<DL>
+<DT>Orinoco Family
+<DD>AP-1000
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer2::Orinoco</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>AP-2000
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer2::Orinoco</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+<DD>WavePOINT-II
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>Layer2::Orinoco</TD>
+  <TD CLASS='family'>no</TD>
+  <TD CLASS='family'>yes</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+</DL>
+<A NAME="Zyxel"><SPAN CLASS="vendor"><B>Zyxel</B></SPAN></A>
+<DL>
+<DT>
+<UL TYPE='square'><LI>Doesn't report sysServices (layers)</UL>
+<DT>Zyxel DSLAM Family
+<DD>AAM10008-61, AAM1008-63
+<DL>
+<DT><DD><TABLE BORDER=1>
+<TR>
+  <TH>arpnip</TH>
+  <TH>cdp</TH>
+  <TH>class</TH>
+  <TH>duplex</TH>
+  <TH>macsuck</TH>
+  <TH>portmac</TH>
+  <TH>ver</TH>
+</TR>
+<TR>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='vendor'>Layer2::ZyXEL_DSLAM</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+  <TD CLASS='none'>-</TD>
+</TR></TABLE>
+</DL>
+</DL>
+<HR>
+<h1>Color Key</h1>
+[<SPAN CLASS="model">Model Attribute</SPAN>]
+[<SPAN CLASS="family">Family Attribute</SPAN>]
+[<SPAN CLASS="vendor">Vendor Attribute</SPAN>]
+<h1>Attribute Key</h1>
+A value of <B>-</B> signifies the information is not specified and can
+be assumed working.
+<TABLE BORDER=1>
+<TR>
+    <TD>Arpnip</TD>
+    <TD>Ability to collect ARP tables for MAC to IP translation.</TD>
+</TR>
+<TR>
+    <TD>CDP</TD>
+    <TD>Cisco Discovery Protocol usable.
+        <UL>
+            <LI><tt>Yes</tt> - Has CDP information through CISCO-CDP-MIB
+            <LI><tt>Proprietary</tt> means the device has its own L2 Discovery Protocol.
+        </UL>
+    </TD>
+</TR>
+<TR>
+    <TD>Class</TD>
+    <TD>SNMP::Info Class the the device currently uses.  Devices using more generic
+        interfaces like <tt>Layer2</tt> or <tt>Layer3</tt> may eventually get their
+        own subclass.
+    </TD>
+</TR>
+<TR>
+    <TD>Duplex</TD>
+    <TD>Ability to cull duplex settings from device.<BR>
+        <UL>
+            <LI><tt>no</tt> - Can't recover current or admin setting.
+            <LI><tt>link</tt> - Can get current setting only.
+            <LI><tt>both</tt> - Can get admin and link setting.
+        </UL>
+    </TD>
+</TR>
+<TR>
+    <TD>Macsuck</TD>
+    <TD>Ability to get CAM tables for MAC to switch port mapping.<BR>
+        <UL>
+            <LI><TT>no</TT> - Have not found an SNMP method to get data yet.
+            <LI><TT>yes</TT> - Can get through normal SWITCH-MIB method.
+            <LI><TT>vlan</TT> - Have to re-connect to each VLAN and then fetch with normal
+        method.
+        </UL>
+    </TD>
+</TR>
+<TR>
+    <TD>Portmac</TD>
+    <TD>Whether the device will list the MAC address of the switch port on each
+        switch port when doing a Macsuck.
+    </TD>
+</TR>
+<TR>
+    <TD>Ver</TD>
+    <TD>SNMP Protocol Version the device has to use.</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

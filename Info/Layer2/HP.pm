@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::HP;
-$VERSION = 0.8;
-# $Id: HP.pm,v 1.14 2004/03/02 05:15:40 maxbaker Exp $
+$VERSION = 0.9;
+# $Id: HP.pm,v 1.17 2004/11/01 20:33:33 maxbaker Exp $
 
 use strict;
 
@@ -157,7 +157,9 @@ sub os_ver {
 sub model {
     my $hp = shift;
     my $id = $hp->id();
+    return undef unless defined $id;
     my $model = &SNMP::translateObj($id);
+    return $id unless defined $model;
     
     $model =~ s/^hpswitch//i;
 
@@ -356,14 +358,6 @@ sub i_duplex_admin {
     return \%i_duplex_admin;
 }
 
-
-=item $hp->i_vlan()
-
-Looks in Q-BRIDGE-MIB -- see SNMP::Info::Bridge
-
-and for older devices looks in HP-VLAN.
-
-=cut
 sub i_vlan {
     my $hp = shift;
 
@@ -603,6 +597,12 @@ Crosses i_name() with $hp->e_name() using $hp->e_port() and i_alias()
 =item $hp->i_type()
 
 Crosses i_type() with $hp->e_descr() using $hp->e_port()
+
+=item $hp->i_vlan()
+
+Looks in Q-BRIDGE-MIB -- see SNMP::Info::Bridge
+
+and for older devices looks in HP-VLAN.
 
 =back
 

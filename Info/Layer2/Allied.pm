@@ -1,7 +1,7 @@
-# SNMP::Info::Layer2::ZyXEL_DSLAM
-# Dmitry Sergienko <dmitry@trifle.net>
+# SNMP::Info::Layer2::Allied
+# Max Baker <max@warped.org>, Dmitry Sergienko <dmitry@trifle.net>
 #
-# Copyright (c) 2004 Max Baker <max@warped.org>
+# Copyright (c) 2004 Max Baker
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -27,104 +27,123 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer2::ZyXEL_DSLAM;
+package SNMP::Info::Layer2::Allied;
 $VERSION = 0.9;
-# $Id: ZyXEL_DSLAM.pm,v 1.3 2004/10/28 21:53:14 maxbaker Exp $
+# $Id: Allied.pm,v 1.2 2004/10/28 21:53:14 maxbaker Exp $
 use strict;
 
 use Exporter;
 use SNMP::Info::Layer2;
+use SNMP::Info::Layer1;
 
-@SNMP::Info::Layer2::ZyXEL_DSLAM::ISA = qw/SNMP::Info::Layer2 Exporter/;
-@SNMP::Info::Layer2::ZyXEL_DSLAM::EXPORT_OK = qw//;
+@SNMP::Info::Layer2::Allied::ISA = qw/SNMP::Info::Layer2 Exporter/;
+@SNMP::Info::Layer2::Allied::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 
-# Set for No CDP
 %GLOBALS = (
             %SNMP::Info::Layer2::GLOBALS
-            );
+           );
 
 %FUNCS   = (%SNMP::Info::Layer2::FUNCS,
-            'ip_adresses' => 'ipAdEntAddr',
-            'i_name'	  => 'ifDescr',
-            'i_description' => 'adslLineConfProfile',
+            'ip_adresses'=> 'atNetAddress',
+            'ip_mac'     => 'atPhysAddress',
+            'i_name'     => 'ifName',
+            'i_up2'	     => 'ifOperStatus',
            );
 
 %MIBS    = (
             %SNMP::Info::Layer2::MIBS,
-            'ADSL-LINE-MIB' => 'adslLineConfProfile'
+            'AtiSwitch-MIB'    => 'atiswitchProductType',
+            'AtiStackInfo-MIB' => 'atiswitchEnhancedStacking',
            );
 
-%MUNGE   = (%SNMP::Info::Layer2::MUNGE
+%MUNGE   = (%SNMP::Info::Layer2::MUNGE,
            );
-
-
-sub layers {
-    my $zyxel = shift;
-    my $layers = $zyxel->layers();
-    return $layers if defined $layers;
-
-    # If these don't claim to have any layers, so we'll give them 1+2
-    return '00000011';
-}
 
 sub vendor {
-    return 'zyxel';
+    return 'allied';
 }
 
 sub os {
-    return 'zyxel';
+    return 'allied';
 }
 
 sub os_ver {
-    my $zyxel = shift;
-    my $descr = $zyxel->description();
+    my $allied = shift;
+    my $descr = $allied->description();
     
-    if ($descr =~ m/version (\S+) /){
+    if ($descr =~ m/version (\d+\.\d+)/){
+        return $1;
+    }
+}
+
+sub model {
+    my $allied = shift;
+
+    my $desc = $allied->description();
+
+    if ($desc =~ /(AT-80\d{2}\S*)/){
         return $1;
     }
     return undef;
 }
 
-sub model {
-    my $zyxel = shift;
-
-    my $desc = $zyxel->description();
-
-    if ($desc =~ /8-port ADSL Module\(Annex A\)/){
-        return "AAM1008-61";
-    } elsif ($desc =~ /8-port ADSL Module\(Annex B\)/){
-        return "AAM1008-63";
+sub ip {
+    my $allied = shift;
+    my $ip_hash = $allied->ip_addresses();
+    my $ip;
+    my $found_ip;
+    
+    foreach $ip (values %{$ip_hash}) {
+        my $found_ip = SNMP::Info::munge_ip($ip) if (defined $ip);
+        last; # this is only one IP address
     }
-    return undef;
+    return $found_ip;
 }
 
-sub ip{
-    my $zyxel = shift;
-    my $ip_hash = $zyxel->ip_addresses();
-    my $ip;
+sub mac{
+    my $allied = shift;
+    my $mac_hash = $allied->ip_mac();
+    my $mac;
+    my $found_mac;
     
-    foreach $ip (keys %{$ip_hash}) {
-        my $found_ip = $ip if (defined $ip and $ip =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
+    foreach $mac (values %{$mac_hash}) {
+        $found_mac = SNMP::Info::munge_mac($mac);
+        last; # this is only one MAC address
     }
-    return $ip;
+    return $found_mac;
+}
+
+sub i_up {
+    my $allied = shift;
+
+    my $i_up  = SNMP::Info::Layer1::i_up($allied);
+    my $i_up2 = $allied->i_up2();
+
+    foreach my $port (keys %$ati_up){
+        my $up = $ati_up->{$port};
+        $i_up->{$port} = 'down' if $up eq 'linktesterror';
+        $i_up->{$port} = 'up' if $up eq 'nolinktesterror';
+    }
+    
+    return $i_up;
 }
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::ZyXEL_DSLAM - SNMP Interface to ZyXEL DSLAM
+SNMP::Info::Layer2::Allied - SNMP Interface to Allied Telesyn switches
 
 =head1 AUTHOR
 
-Dmitry Sergienko (C<dmitry@trifle.net>)
+Max Baker (C<max@warped.org>)
 
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $zyxel = new SNMP::Info(
+ my $allied = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           # These arguments are passed directly on to SNMP::Session
@@ -134,20 +153,20 @@ Dmitry Sergienko (C<dmitry@trifle.net>)
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $l2->class();
+ my $class      = $l1->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
 Provides abstraction to the configuration information obtainable from a 
-ZyXEL device through SNMP. See inherited classes' documentation for 
+Allied device through SNMP. See inherited classes' documentation for 
 inherited methods.
 
 =head2 Inherited Classes
 
 =over
 
-=item SNMP::Info::Layer2
+=item SNMP::Info::Layer1
 
 =back
 
@@ -155,13 +174,13 @@ inherited methods.
 
 =over
 
-=item ADSL-LINE-MIB
+=item ATI-MIB 
 
-This MIB assumedly obtainable through ZyXEL or possibly included with your device.
+Download for your device from http://www.allied-telesyn.com/allied/support/
 
 =item Inherited Classes
 
-MIBs listed in SNMP::Info::Layer2 and their inherited classes.
+MIBs listed in SNMP::Info::Layer1 and its inherited classes.
 
 =back
 
@@ -173,33 +192,33 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $zyxel->vendor()
+=item $allied->vendor()
 
-Returns 'ZyXEL' :)
+Returns 'allied' :)
 
-=item $zyxel->os()
+=item $allied->os()
 
-Returns 'ZyXEL' 
+Returns 'allied' 
 
-=item $zyxel->os_ver()
+=item $allied->os_ver()
 
 Culls Version from description()
 
-=item $zyxel->ip()
+=item $allied->root_ip()
 
-Returns IP Address of DSLAM.
+Returns IP Address of Managed Hub.
 
-(B<ipAdEntAddr>)
+(B<actualIpAddr>)
 
-=item $zyxel->model()
+=item $allied->model()
 
-Trys to cull out model out of the description field.
+Trys to cull out AT-nnnnX out of the description field.
 
 =back
 
-=head2 Global Methods imported from SNMP::Info::Layer2
+=head2 Global Methods imported from SNMP::Info::Layer1
 
-See documentation in SNMP::Info::Layer2 for details.
+See documentation in SNMP::Info::Layer1 for details.
 
 =head1 TABLE ENTRIES
 
@@ -207,18 +226,21 @@ See documentation in SNMP::Info::Layer2 for details.
 
 =over
 
-=item $zyxel->i_name()
+=item $allied->i_name()
 
-Returns reference to map of IIDs to port name (B<ifDescr>).
+Returns reference to map of IIDs to human-set port name.
 
-=item $zyxel->i_description()
+=item $allied->i_up()
 
-Returns reference to map of IIDs to human-set port description (profile name).
+Returns reference to map of IIDs to link status.  Changes
+the values of ati_up() to 'up' and 'down'.
 
 =back
 
-=head2 Table Methods imported from SNMP::Info::Layer2
+=head2 Allied MIB
 
-See documentation in SNMP::Info::Layer2 for details.
+=over
+
+=back
 
 =cut

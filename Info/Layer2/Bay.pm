@@ -1,5 +1,6 @@
 # SNMP::Info::Layer2::Bay
 # Max Baker <max@warped.org>
+# This module depricated.  See Layer2::BayStack
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +31,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Bay;
-$VERSION = 0.8;
-# $Id: Bay.pm,v 1.13 2004/02/13 06:29:25 maxbaker Exp $
+$VERSION = 0.9;
+# $Id: Bay.pm,v 1.16 2004/10/28 21:53:14 maxbaker Exp $
 use strict;
 
 use Exporter;
@@ -249,7 +250,7 @@ sub c_platform {
 
     my %c_platform;
     foreach my $entry (keys %$bay_topo_platform){
-        my $port = $bay_topo_port->{$entry};
+        my $port = $bay_topo_port->{$entry} || 0;
         next if $port == 0;
 
         # For fake remotes (multiple IPs for a c_ip), use first found
@@ -276,19 +277,7 @@ Max Baker (C<max@warped.org>)
 
 =head1 SYNOPSIS
 
- # Let SNMP::Info determine the correct subclass for you. 
- my $bay = new SNMP::Info(
-                          AutoSpecify => 1,
-                          Debug       => 1,
-                          # These arguments are passed directly on to SNMP::Session
-                          DestHost    => 'myswitch',
-                          Community   => 'public',
-                          Version     => 2
-                        ) 
-    or die "Can't connect to DestHost.\n";
-
- my $class      = $bay->class();
- print "SNMP::Info determined this device to fall under subclass : $class\n";
+This module is Depricated.  Please use Layer2::BayStack instead.
 
 =head1 DESCRIPTION
 

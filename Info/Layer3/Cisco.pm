@@ -1,9 +1,7 @@
-# SNMP::Info::Layer3::C3550
+# SNMP::Info::Layer3::Cisco
 # Max Baker <max@warped.org>
 #
-# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
-# Copyright (c) 2003, Regents of the University of California
-# All rights reserved.
+# Copyright (c) 2004 Max Baker
 # 
 # Redistribution and use in source and binary forms, with or without 
 # modification, are permitted provided that the following conditions are met:
@@ -28,20 +26,19 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::C3550;
+package SNMP::Info::Layer3::Cisco;
 $VERSION = 0.9;
-# $Id: C3550.pm,v 1.12 2004/10/28 21:53:15 maxbaker Exp $
+# $Id: Cisco.pm,v 1.1 2004/11/15 23:28:00 maxbaker Exp $
 
 use strict;
 
 use Exporter;
 use SNMP::Info::Layer3;
 use SNMP::Info::CiscoVTP;
-use SNMP::Info::CiscoStack;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE $INIT/ ;
-@SNMP::Info::Layer3::C3550::ISA = qw/ SNMP::Info::Layer3 SNMP::Info::CiscoStack SNMP::Info::CiscoVTP  Exporter/;
-@SNMP::Info::Layer3::C3550::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::Cisco::ISA = qw/SNMP::Info::Layer3 SNMP::Info::CiscoVTP Exporter/;
+@SNMP::Info::Layer3::Cisco::EXPORT_OK = qw//;
 
 $DEBUG=0;
 
@@ -52,72 +49,23 @@ $INIT = 0;
 %MIBS = (
          %SNMP::Info::Layer3::MIBS,  
          %SNMP::Info::CiscoVTP::MIBS,
-         %SNMP::Info::CiscoStack::MIBS,
         );
 
 %GLOBALS = (
             %SNMP::Info::Layer3::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
-            %SNMP::Info::CiscoStack::GLOBALS,
-            'ports2'      => 'ifNumber',
            );
 
 %FUNCS = (
             %SNMP::Info::Layer3::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
-            %SNMP::Info::CiscoStack::FUNCS,
          );
 
 %MUNGE = (
             # Inherit all the built in munging
             %SNMP::Info::Layer3::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
-            %SNMP::Info::CiscoStack::MUNGE,
          );
-
-# Pick and choose
-
-*SNMP::Info::Layer3::C3550::serial     = \&SNMP::Info::CiscoStack::serial;
-*SNMP::Info::Layer3::C3550::interfaces = \&SNMP::Info::Layer3::interfaces;
-*SNMP::Info::Layer3::C3550::i_duplex   = \&SNMP::Info::CiscoStack::i_duplex;
-*SNMP::Info::Layer3::C3550::i_duplex_admin = \&SNMP::Info::CiscoStack::i_duplex_admin;
-*SNMP::Info::Layer3::C3550::i_name     = \&SNMP::Info::Layer3::i_name;
-*SNMP::Info::Layer3::C3550::i_type     = \&SNMP::Info::CiscoStack::i_type;
-
-sub vendor {
-    return 'cisco';
-}
-
-sub model {
-    my $c3550 = shift;
-    my $id = $c3550->id();
-    my $model = &SNMP::translateObj($id) || $id;
-    $model =~ s/^catalyst//;
-
-    # turn 355048 into 3550-48
-    if ($model =~ /^(35\d\d)(\d\d[T]?)$/) {
-        $model = "$1-$2";
-    }
-    return $model;
-}
-
-# Ports is encoded into the model number
-sub ports {
-    my $c3550 = shift;
-
-    my $ports2 = $c3550->ports2();    
-
-    my $id = $c3550->id();
-    my $model = &SNMP::translateObj($id);
-    if ($model =~ /(12|24|48)[T]?$/) {
-        return $1;
-    }
-    return $ports2;
-}
-
-sub cisco_comm_indexing {
-    1;
-}
 
 
 1;
@@ -125,7 +73,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::C3550 - Perl5 Interface to Cisco Catalyst 3550 Layer 2/3 Switches running IOS
+SNMP::Info::Layer3::Cisco - Perl5 Interface to Generic L3 Cisco Device
 
 =head1 AUTHOR
 
@@ -134,7 +82,7 @@ Max Baker (C<max@warped.org>)
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $c3550 = new SNMP::Info(
+ my $cisco = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           # These arguments are passed directly on to SNMP::Session
@@ -144,21 +92,12 @@ Max Baker (C<max@warped.org>)
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $c3550->class();
+ my $class      = $cisco->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Abstraction subclass for Cisco Catalyst 3550 Layer 2/3 Switches.  
-
-These devices run IOS but have some of the same charactersitics as the Catalyst WS-C family (5xxx,6xxx). 
-For example, forwarding tables are held in VLANs, and extened interface information
-is gleened from CISCO-SWITCH-MIB.
-
-For speed or debugging purposes you can call the subclass directly, but not after determining
-a more specific class using the method above. 
-
- my $c3550 = new SNMP::Info::Layer3::C3550(...);
+Subclass for Generic Cisco Routers running IOS
 
 =head2 Inherited Classes
 
@@ -167,8 +106,6 @@ a more specific class using the method above.
 =item SNMP::Info::Layer3
 
 =item SNMP::Info::CiscoVTP
-
-=item SNMP::Info::CiscoStack
 
 =back
 
@@ -182,8 +119,6 @@ See SNMP::Info::Layer3 for its own MIB requirements.
 
 See SNMP::Info::CiscoVTP for its own MIB requirements.
 
-See SNMP::Info::CiscoStack for its own MIB requirements.
-
 =back
 
 =head1 GLOBALS
@@ -192,7 +127,7 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $c3550->vendor()
+=item $cisco->vendor()
 
     Returns 'cisco'
 
@@ -206,9 +141,6 @@ See documentation in SNMP::Info::Layer3 for details.
 
 See documentation in SNMP::Info::CiscoVTP for details.
 
-=head2 Global Methods imported from SNMP::Info::CiscoStack
-
-See documentation in SNMP::Info::CiscoStack for details.
 
 =head1 TABLE ENTRIES
 
@@ -222,9 +154,5 @@ See documentation in SNMP::Info::Layer3 for details.
 =head2 Table Methods imported from SNMP::Info::CiscoVTP
 
 See documentation in SNMP::Info::CiscoVTP for details.
-
-=head2 Table Methods imported from SNMP::Info::CiscoStack
-
-See documentation in SNMP::Info::CiscoStack for details.
 
 =cut

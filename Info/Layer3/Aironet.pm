@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Aironet;
-$VERSION = 0.8;
-# $Id: Aironet.pm,v 1.11 2004/02/13 06:29:25 maxbaker Exp $
+$VERSION = 0.9;
+# $Id: Aironet.pm,v 1.12 2004/10/28 21:53:15 maxbaker Exp $
 
 use strict;
 

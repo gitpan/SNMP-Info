@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::MAU;
-$VERSION = 0.8;
-# $Id: MAU.pm,v 1.8 2004/02/13 06:29:25 maxbaker Exp $
+$VERSION = 0.9;
+# $Id: MAU.pm,v 1.9 2004/10/28 21:53:14 maxbaker Exp $
 
 use strict;
 

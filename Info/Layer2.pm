@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2;
-$VERSION = 0.8;
-# $Id: Layer2.pm,v 1.12 2004/02/13 06:18:57 maxbaker Exp $
+$VERSION = 0.9;
+# $Id: Layer2.pm,v 1.13 2004/10/28 21:53:14 maxbaker Exp $
 
 use strict;
 
