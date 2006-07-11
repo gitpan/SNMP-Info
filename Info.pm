@@ -6,10 +6,10 @@
 # All rights reserved.  
 #
 # See COPYRIGHT at bottom
-# $Id: Info.pm,v 1.52 2004/11/16 01:40:56 maxbaker Exp $
+# $Id: Info.pm,v 1.93 2006/07/08 02:01:22 jeneric Exp $
 
 package SNMP::Info;
-$VERSION = 0.9;
+$VERSION = '1.04';
 use strict;
 
 use Exporter;
@@ -21,7 +21,7 @@ use Math::BigInt;
 @SNMP::Info::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP 
-            $NOSUCH $BIGINT/;
+            $NOSUCH $BIGINT $REPEATERS/;
 
 =head1 NAME
 
@@ -29,12 +29,15 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 0.9
+SNMP::Info - Version 1.04
 
 =head1 AUTHOR
 
 SNMP::Info was created at UCSC for the netdisco project (www.netdisco.org)
-and is written and maintained by Max Baker.
+and was orginally written by Max Baker.
+
+Currently being maintained by team of Open Source authors headed by Eric Miller
+and Bill Fenner. 
 
 =head1 SYNOPSIS
 
@@ -72,16 +75,22 @@ and is written and maintained by Max Baker.
     # Print out physical port name, not snmp iid
     my $port  = $interfaces->{$iid};
 
+    print "$port: ";
+    print "$duplex duplex" if defined $duplex;
+
     # The CDP Table has table entries different than the interface tables.
     # So we use c_if to get the map from cdp table to interface table.
 
     my %c_map = reverse %$c_if; 
     my $c_key = $c_map{$iid};
+    unless (defined $c_key) {
+         print "\n\n";
+         next;
+     }
     my $neighbor_ip   = $c_ip->{$c_key};
     my $neighbor_port = $c_port->{$c_key};
 
-    print "$port: $duplex duplex";
-    print " connected to $neighbor_ip / $neighbor_port\n" if defined $remote_ip;
+    print " connected to $neighbor_ip / $neighbor_port\n" if defined $neighbor_ip;
     print "\n";
 
  }
@@ -155,57 +164,6 @@ download the Netdisco-MIB package at
 Make sure that your snmp.conf is updated to point to your MIB directory
 and that the MIBs are world-readable.
 
-B<To do it by hand>:
-
-Then run C<snmpconf> and setup that directory as default.  Move F<snmp.conf>
-into F</usr/local/share/snmp> when you are done.
-
-=over
-
-=item Basic MIBs
-
-A minimum amount of MIBs to have are the Version 2 MIBs from Cisco, found at
-
-ftp://ftp.cisco.com/pub/mibs/v2/v2.tar.gz
-
-To install them : 
-
- mkdir -p /usr/local/share/snmp/mibs && cd /usr/local/share/snmp/mibs && tar xvfz /path/to/v2.tar.gz 
-
-=item Version 1 MIBs
-
-You will also need to install some of the version one MIBs from Cisco :
-
-ftp://ftp.cisco.com/pub/mibs/v1/v1.tar.gz
-
-Extract 
-
-=over
-
-=item BRIDGE-MIB
-
-=item SNMP-REPEATER-MIB
-
-=item STAND-ALONE-ETHERNET-SWITCH-MIB (ESSWITCH-MIB)
-
-=item TOKEN-RING-RMON-MIB
-
-=back
-
-by running 
-
- mkdir -p /usr/local/share/snmp/mibs
- cd /usr/local/share/snmp/mibs
- tar xvfz /path/to/v1.tar.gz BRIDGE-MIB.my SNMP-REPEATER-MIB.my ESSWITCH-MIB.my TOKEN-RING-RMON-MIB.my
-
-=item More Specific MIBs
-
-Some non-cisco subclasses will need MIBs other than the basic one available from Cisco.
-
-Check below under each subclass for requirements.
-
-=back
-
 =back
 
 =head1 DESIGN GOALS
@@ -259,13 +217,30 @@ For more info run C<perldoc> on any of the following module names.
 
 =over
 
+=item SNMP::Info::Airespace
+
+AIRESPACE-WIRELESS-MIB and AIRESPACE-SWITCHING-MIB.  Inherited by devices based
+on the Airespace wireless platform.
+
 =item SNMP::Info::Bridge
 
 BRIDGE-MIB (RFC1286).  QBRIDGE-MIB. Inherited by devices with Layer2 support.
 
 =item SNMP::Info::CDP
 
-CISCO-CDP-MIB.  Cisco Discovery Protocol (CDP) Support.  Inherited by devices serving Layer2 or Layer3.
+CISCO-CDP-MIB.  Cisco Discovery Protocol (CDP) Support.  Inherited by Cisco and HP devices.
+
+=item SNMP::Info::CiscoImage
+
+CISCO-IMAGE-MIB. A collection of OIDs providing IOS image characteristics.
+
+=item SNMP::Info::CiscoQOS
+
+CISCO-CLASS-BASED-QOS-MIB. A collection of OIDs providing information about a Cisco device's QOS config.
+
+=item SNMP::Info::CiscoRTT
+
+CISCO-RTTMON-MIB. A collection of OIDs providing information about a Cisco device's RTT values.
 
 =item SNMP::Info::CiscoStack
 
@@ -302,12 +277,12 @@ S5-AGENT-MIB, S5-CHASSIS-MIB.
 
 =item SNMP::Info::RapidCity
 
-RAPID-CITY.  Inhertited by Nortel Networks switches for duplex and VLAN information.
+RAPID-CITY.  Inhertited by Nortel switches for duplex and VLAN information.
 
 =item SNMP::Info::SONMP
 
-SYNOPTICS-ROOT-MIB, S5-ETH-MULTISEG-TOPOLOGY-MIB.  Provides translation from Nortel Networks Topology
-Table information to CDP.  Inherited by Nortel/Bay switches and hubs.
+SYNOPTICS-ROOT-MIB, S5-ETH-MULTISEG-TOPOLOGY-MIB.  Provides translation from Nortel Topology
+Table information to CDP.  Inherited by Nortel/Bay/Synoptics switches and hubs.
 
 =back
 
@@ -332,22 +307,21 @@ Subclass for Allied Telesys Repeaters / Hubs.
 
 Requires ATI-MIB
 
-See SNMP::Info::Layer1::Allied for where to get MIBs required.
-
 =item SNMP::Info::Layer1::Asante
 
 Subclass for Asante 1012 Hubs. 
 
 Requires ASANTE-HUB1012-MIB
 
-See SNMP::Info::Layer1::Asante for where to get MIBs required.
-
 =item SNMP::Info::Layer1::Bayhub
 
 Subclass for Nortel/Bay hubs.  This includes System 5000, 100 series,
 200 series, and probably more.
 
-See SNMP::Info::Layer1::Bayhub for where to get MIBs required.
+=item SNMP::Info::Layer1::S3000
+
+Subclass for Bay/Synoptics hubs.  This includes System 3000, 281X, and
+probably more.
 
 =back
 
@@ -366,17 +340,19 @@ Layer3::Aironet for Aironet devices that don't run IOS.
 
 Allied Telesys switches.
 
+=item SNMP::Info::Layer2::Aruba
+
+Subclass for Aruba wireless switches.
+
 =item SNMP::Info::Layer2::Bay
 
-Depricated.  Use BayStack.
+Depreciated.  Use BayStack.
 
 =item SNMP::Info::Layer2::Baystack
 
-Subclass for Nortel/Bay Baystack switches.  This includes 303, 304, 350, 380,
-410, 420, 425, 450, 460, 470, 5510, 5520, Business Policy Switch (BPS) and
-probably others.
-
-See SNMP::Info::Layer2::Baystack for where to get MIBs required.
+Subclass for Nortel/Bay Ethernet Switch/Baystack switches.  This includes 303,
+304, 350, 380, 410, 420, 425, 450, 460, 470, 5510, 5520, 5530, Business Policy
+Switch (BPS) and probably others.
 
 =item SNMP::Info::Layer2::C1900
 
@@ -396,7 +372,14 @@ does not support everything that has the name Catalyst.
 
 Subclass for Nortel/Bay Centillion and 5000BH ATM switches.
 
-See SNMP::Info::Layer2::Centillion for where to get MIBs required.
+=item SNMP::Info::Layer2::Cisco
+
+Generic Cisco subclass for layer2 devices that are not yet supported
+in more specific subclasses.
+
+=item SNMP::Info::Layer2::Foundry
+
+Subclass for Foundry Switches.  Tested on EdgeIron 24G.
 
 =item SNMP::Info::Layer2::HP
 
@@ -406,15 +389,17 @@ Requires HP-ICF-OID and ENTITY-MIB downloaded from HP.
 
 See SNMP::Info::Layer2::HP for more info.
 
+=item SNMP::Info::Layer2::N2270
+
+Subclass for Nortel 2270 wireless switches.
+
 =item SNMP::Info::Layer2::NAP222x
 
-Subclass for Nortel Networks' 222x series wireless access points.
-
-See SNMP::Info::Layer2::NAP222x for where to get MIBs required.
+Subclass for Nortel 222x series wireless access points.
 
 =item SNMP::Info::Layer2::Orinoco
 
-Subclass for Orinoco wireless access points.
+Subclass for Orinoco/Proxim wireless access points.
 
 =item SNMP::Info::Layer2::ZyXEL_DSLAM
 
@@ -439,20 +424,20 @@ Note Layer2::Aironet
 
 =item SNMP::Info::Layer3::AlteonAD
 
-Subclass for Nortel Networks' Alteon Ace Director series L2-7 switches.
-
-See SNMP::Info::Layer3::AlteonAD for where to get MIBs required.
+Subclass for Nortel Alteon Ace Director series L2-7 switches.
 
 =item SNMP::Info::Layer3::BayRS
 
-Subclass for Nortel Networks' BayRS routers.  This includes BCN, BLN, ASN, ARN,
-and AN routers.
-
-See SNMP::Info::Layer3::BayRS for where to get MIBs required.
+Subclass for Nortel Multiprotocol/BayRS routers.  This includes BCN, BLN, ASN,
+ARN, AN, 2430, and 5430 routers.
 
 =item SNMP::Info::Layer3::C3550
 
 Subclass for Cisco Catalyst 3550,3540,3560 2/3 switches running IOS.
+
+=item SNMP::Info::Layer3::C4000
+
+This class covers Catalyst 4000s and 4500s.
 
 =item SNMP::Info::Layer3::C6500
 
@@ -465,9 +450,13 @@ This is a simple wrapper around Layer3 for IOS devices.  It adds on CiscoVTP.
 
 =item SNMP::Info::Layer3::Contivity
 
-Subclass for Nortel Networks' Contivity VPN concentrators.  
+Subclass for Nortel Contivity/VPN Routers.  
 
-See SNMP::Info::Layer3::Contivity for where to get MIBs required.
+=item SNMP::Info::Layer3::Extreme
+
+Subclass for Extreme Networks switches.
+
+See SNMP::Info::Layer3::Extreme for more info.
 
 =item SNMP::Info::Layer3::Foundry
 
@@ -477,11 +466,18 @@ Requires FOUNDRY-SN-ROOT-MIB.
 
 See SNMP::Info::Layer3::Foundry for more info.
 
+=item SNMP::Info::Layer3::Juniper
+
+Subclass for Juniper devices.
+
+=item SNMP::Info::Layer3::N1600
+
+Subclass for Nortel Ethernet Routing Switch 1600 series.
+
 =item SNMP::Info::Layer3::Passport
 
-Subclass for Nortel Networks' Passport 8600 series switches.
-
-See SNMP::Info::Layer3::Passport for where to get MIBs required.
+Subclass for Nortel Ethernet Routing Switch/Passport 8000 series and Accelar
+series switches.
 
 =back
 
@@ -491,7 +487,7 @@ See SNMP::Info::Layer3::Passport for where to get MIBs required.
 
 Thanks for testing and coding help (in no particular order) to :
 Andy Ford, Brian Wilson, Jean-Philippe Luiggi, Dána Watanabe, Bradley Baetz,
-Eric Miller, and people listed on the Netdisco README!
+Mike Hunter, Justin Hunter, Brian Chow and people listed on the Netdisco README!
 
 =head1 USAGE
 
@@ -505,7 +501,9 @@ Creates a new object and connects via SNMP::Session.
 
  my $info = new SNMP::Info( 'Debug'       => 1,
                             'AutoSpecify' => 1,
-                            'BigInt'      => 1
+                            'BigInt'      => 1,
+                            'BulkWalk'    => 1,
+                            'BulkRepeaters'=> 20,
                             'DestHost'    => 'myrouter',
                             'Community'   => 'public',
                             'Version'     => 2,
@@ -514,28 +512,82 @@ Creates a new object and connects via SNMP::Session.
 
 SNMP::Info Specific Arguments :
 
- AutoSpecify = Returns an object of a more specific device class
-               *See specify() entry*
- BigInt      = Return Math::BigInt objects for 64 bit counters.  Sets on a global scope, not object.
- Debug       = Prints Lots of debugging messages
- MibDirs     = Array ref to list of directories in which to look for MIBs.  Note this will
-               be in addition to the ones setup in snmp.conf at the system level.
- RetryNoSuch = When using SNMP Version 1, try reading values even if they come back
-               as "no such variable in this MIB".  Defaults to true, set to false if
-               so desired.  This feature lets you read SNMPv2 data from an SNMP version
-               1 connection, and should probably be left on.
- Session     = SNMP::Session object to use instead of connecting on own.
+=over
+
+=item AutoSpecify
+
+Returns an object of a more specific device class
+
+(default on)
+
+=item BigInt
+
+Return Math::BigInt objects for 64 bit counters.  Sets on a global scope, not object.
+
+(default off)
+
+=item BulkWalk
+
+Set to C<0> to turn off BULKWALK commands for SNMPv2 connections.
+
+Note that BULKWALK is turned off for Net-SNMP versions 5.1.x because of a bug.
+
+(default on)
+
+=item BulkRepeaters
+
+Set number of MaxRepeaters for BULKWALK operation.  See C<perldoc SNMP> -> bulkwalk() for more info.
+
+(default 20)
+
+=item Debug
+
+Prints Lots of debugging messages
+
+(default off)
+
+=item DebugSNMP
+
+Set $SNMP::debugging  level for Net-SNMP.
+
+See L<SNMP> for more details.
+
+=item MibDirs
+
+Array ref to list of directories in which to look for MIBs.  Note this will
+be in addition to the ones setup in snmp.conf at the system level.
+
+(default use net-snmp settings only)
+
+=item RetryNoSuch
+
+When using SNMP Version 1, try reading values even if they come back as "no
+such variable in this MIB".  Set to false if so desired.  This feature lets you
+read SNMPv2 data from an SNMP version 1 connection, and should probably be left
+on.
+
+(default true)
+
+=item Session
+
+SNMP::Session object to use instead of connecting on own.
+
+(default creates session automatically)
+
+=item OTHER
 
 All other arguments are passed to SNMP::Session.
 
 See SNMP::Session for a list of other possible arguments.
 
-A Note about the wrong Community string or wrong SNMP Version :
+=back
+
+A Note about the wrong Community string or wrong SNMP Version:
 
 If a connection is using the wrong community string or the wrong SNMP version,
-the creation of the object will not fail.  The device still answers the call on the
-SNMP port, but will not return information.  Check the error() method after you create
-the device object to see if there was a problem in connecting.
+the creation of the object will not fail.  The device still answers the call on
+the SNMP port, but will not return information.  Check the error() method after
+you create the device object to see if there was a problem in connecting.
 
 A note about SNMP Versions :
 
@@ -546,13 +598,15 @@ Some newer devices will support Version 1, but will not return all the data they
 if you had connected under Version 1 
 
 When trying to get info from a new device, you may have to try version 2 and then fallback to 
-version 1.  
+version 1.
 
 =cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my %args = @_;
+    my %sess_args = %args;
     my $new_obj = {};
     bless $new_obj,$class;
 
@@ -569,47 +623,71 @@ sub new {
     }
 
     # SNMP::Info specific args :
+    if (defined $args{Debug}){
+        $new_obj->debug($args{Debug});
+        delete $sess_args{Debug};
+    } else {
+        $new_obj->debug(defined $DEBUG ? $DEBUG : 0);
+    }
+
+    if (defined $args{DebugSNMP}){
+        $SNMP::debugging = $args{DebugSNMP};
+        delete $sess_args{DebugSNMP};
+    }
+
     my $auto_specific = 0;
     if (defined $args{AutoSpecify}){
         $auto_specific = $args{AutoSpecify} || 0;
-        delete $args{AutoSpecify};
+        delete $sess_args{AutoSpecify};
     }
-    if (defined $args{Debug}){
-        $new_obj->debug($args{Debug});
-        delete $args{Debug};
-    } else {
-        $new_obj->debug($DEBUG);
+
+    if (defined $args{BulkRepeaters}){
+        $new_obj->{BulkRepeaters} = $args{BulkRepeaters};
+        delete $sess_args{BulkRepeaters};
     }
+
+    if (defined $args{BulkWalk}){
+        $new_obj->{BulkWalk} = $args{BulkWalk};
+        delete $sess_args{BulkWalk};
+    }
+
     my $sess = undef;
     if (defined $args{Session}){
         $sess = $args{Session};
-        delete $args{Session};
+        delete $sess_args{Session};
     }
     if (defined $args{BigInt}){
         $BIGINT = $args{BigInt};
-        delete $args{BigInt};
+        delete $sess_args{BigInt};
     }
     if (defined $args{MibDirs}){
         $new_obj->{mibdirs} = $args{MibDirs};
-        delete $args{MibDirs};
-    }
-
-    # Initialize mibs if not done
-    my $init_ref = $new_obj->{init};
-    unless ( $$init_ref ) {
-        $new_obj->init();
-        $$init_ref=1;    
+        delete $sess_args{MibDirs};
     }
 
     $new_obj->{nosuch} = $args{RetryNoSuch} || $NOSUCH;
 
+    # Initialize mibs if not done
+    my $init_ref = $new_obj->{init};
+    unless ( defined $$init_ref and $$init_ref ) {
+        $new_obj->init();
+        $$init_ref=1;    
+    }
+
     # Connects to device unless open session is provided.  
-    $sess = new SNMP::Session( 'UseEnums' => 1, %args , 'RetryNoSuch' => $new_obj->{nosuch}) 
+    $sess = new SNMP::Session( 'UseEnums' => 1, %sess_args , 'RetryNoSuch' => $new_obj->{nosuch}) 
         unless defined $sess;
 
+    # No session object created
     unless (defined $sess){
-        my $sess_err = $sess->{ErrorStr} || '';
-        $new_obj->error_throw("SNMP::Info::new() Failed to Create Session. $sess_err");
+        $new_obj->error_throw("SNMP::Info::new() Failed to Create Session. ");
+        return undef;
+    }
+    
+    # Session object created but SNMP connection failed.
+    my $sess_err = $sess->{ErrorStr} || '';
+    if ($sess_err){
+        $new_obj->error_throw("SNMP::Info::new() Net-SNMP session creation failed. $sess_err");
         return undef;
     }
 
@@ -651,6 +729,7 @@ from SNMP.
 Clears the cached data.  This includes GLOBALS data and TABLE METHOD data.
 
 =cut
+
 sub clear_cache {
     my $self = shift;
 
@@ -672,17 +751,36 @@ sub clear_cache {
 Returns current debug status, and optionally toggles debugging info for this object.
 
 =cut
+
 sub debug {
     my $self = shift;
     my $debug = shift;
 
     if (defined $debug){
         $self->{debug} = $debug;
-#        $SNMP::debugging=$debug;
     }
     
     return $self->{debug};
 }
+
+=item $info->bulkwalk([1|0])
+
+Returns if bulkwalk is currently turned on for this object.
+
+Optionally sets the bulkwalk parameter.
+
+=cut
+
+sub bulkwalk {
+    my $self = shift;
+    my $bw   = shift;
+
+    if (defined $bw){
+        $self->{BulkWalk} = $bw;
+    }   
+    return $self->{BulkWalk};
+}
+    
 
 =item $info->device_type()
 
@@ -704,33 +802,47 @@ Algorithm for Subclass Detection:
             Aironet (BR500,AP340,350,1200) -> SNMP::Info::Layer3::Aironet
                      AP4800... All Non IOS
             Catalyst 3550,3548,3560        -> SNMP::Info::Layer3::C3550
-            Catalyst 6500, 4000, 3750      -> SNMP::Info::Layer3::C6500
+            Catalyst 4000,4500             -> SNMP::Info::Layer3::C4000
+            Catalyst 6500, 3750            -> SNMP::Info::Layer3::C6500
             Cisco Generic L3 IOS device    -> SNMP::Info::Layer3::Cisco
+            Extreme                        -> SNMP::Info::Layer3::Extreme
             Foundry                        -> SNMP::Info::Layer3::Foundry
-            Nortel Passport LAN            -> SNMP::Info::Layer3::Passport
+            Juniper                        -> SNMP::Info::Layer3::Juniper
+            Nortel Passport/Accelar LAN    -> SNMP::Info::Layer3::Passport
+            Nortel/Bay Baystack            -> SNMP::Info::Layer2::Baystack
             Alteon Ace Director            -> SNMP::Info::Layer3::AlteonAD
             Nortel Contivity               -> SNMP::Info::Layer3::Contivity
             Nortel BayRS Router            -> SNMP::Info::Layer3::BayRS
-        Elsif Layer2 (no Layer3)           -> SNMP::Info::Layer2
+         Elsif Layer2 (no Layer3)           -> SNMP::Info::Layer2
             Aironet - IOS Devices          -> SNMP::Info::Layer2::Aironet
             Catalyst 1900                  -> SNMP::Info::Layer2::C1900
-            Catalyst 2900XL,2950,3500XL    -> SNMP::Info::Layer2::C2900
-            Catalyst 2970                  -> SNMP::Info::Layer3::C6500
+            Catalyst 2900XL,2940,2950,
+                     3500XL                -> SNMP::Info::Layer2::C2900
+            Catalyst 2960, 2970            -> SNMP::Info::Layer3::C6500
             Catalyst 3550/3548             -> SNMP::Info::Layer3::C3550
+            Cisco 3400 w/ MetroBase        -> SNMP::Info::Layer3::C3550
             Catalyst WS-C 2926,5xxx        -> SNMP::Info::Layer2::Catalyst
+            Cisco (not covered by above)   -> SNMP::Info::Layer2::Cisco
+            Extreme                        -> SNMP::Info::Layer3::Extreme
+            Foundry (EdgeIron,????)        -> SNMP::Info::Layer2::Foundry
             HP Procurve                    -> SNMP::Info::Layer2::HP
             Nortel/Bay Centillion ATM      -> SNMP::Info::Layer2::Centillion
             Nortel/Bay Baystack            -> SNMP::Info::Layer2::Baystack
+            Nortel Passport/Accelar 8100   -> SNMP::Info::Layer3::Passport
             Nortel AP 222x                 -> SNMP::Info::Layer2::NAP222x
             Orinco AP                      -> SNMP::Info::Layer2::Orinoco
+            Nortel 2270 WSS                -> SNMP::Info::Layer2::N2270
         Elsif Layer1 Support               -> SNMP::Info::Layer1
             Allied                         -> SNMP::Info::Layer1::Allied
             Asante                         -> SNMP::Info::Layer1::Asante
             Nortel/Bay Hub                 -> SNMP::Info::Layer1::Bayhub
+            Bay/Synoptics Hub              -> SNMP::Info::Layer1::S3000
         Else                               -> SNMP::Info
             ZyXEL_DSLAM                    -> SNMP::Info::Layer2::ZyXEL_DSLAM
+            Aruba wireless                 -> SNMP::Info::Layer2::Aruba
 
 =cut
+
 sub device_type {
     my $info = shift;
 
@@ -742,7 +854,9 @@ sub device_type {
 
     my $desc   = $info->description() || 'undef';
     $desc =~ s/[\r\n\l]+/ /g;
-    $info->debug() and print "SNMP::Info::device_type() layers:$layers sysDescr: \"$desc\".\n";
+    my $id     = $info->id() || 'undef';
+
+    $info->debug() and print "SNMP::Info::device_type() layers:$layers id:$id sysDescr:\"$desc\"\n";
 
     # Layer 3 Supported 
     #   (usually has layer2 as well, so we check for 3 first)
@@ -754,29 +868,40 @@ sub device_type {
         return $objtype unless (defined $desc and length($desc));
 
         $objtype = 'SNMP::Info::Layer3::C3550'   if $desc =~ /(C3550|C3560)/ ;
+        $objtype = 'SNMP::Info::Layer3::C4000'   if $desc =~ /Catalyst 4[05]00/;
         $objtype = 'SNMP::Info::Layer3::Foundry' if $desc =~ /foundry/i ;
         # Aironet - older non-IOS
         $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /Cisco/ and $desc =~ /\D(CAP340|AP340|CAP350|350|1200)\D/) ;
         $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /Aironet/ and $desc =~ /\D(AP4800)\D/) ;
         $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /(c6sup2|c6sup1)/;
-        # Next two untested. Reported working by DA
+        # Next one untested. Reported working by DA
         $objtype = 'SNMP::Info::Layer3::C6500'   if ($desc =~ /cisco/i and $desc =~ /3750/);
-        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /Catalyst 4000/;
-        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /s72033_rp/;
-        # Nortel Passport 8600
-        $objtype = 'SNMP::Info::Layer3::Passport'  if $desc =~ /Passport/;
+        $objtype = 'SNMP::Info::Layer3::C6500'   if $desc =~ /(s72033_rp|s3223_rp|s222_rp)/;
+        # Extreme Networks
+        $objtype = 'SNMP::Info::Layer3::Extreme'  if $desc =~ /Alpine38/;
+        $objtype = 'SNMP::Info::Layer3::Extreme'  if $desc =~ /Summit\s*\d/;
+        # Nortel Passport 8600, 1600, 1100, 1200 Series
+        $objtype = 'SNMP::Info::Layer3::Passport'  if $desc =~ /(Passport|Ethernet\s+Routing\s+Switch)-86/i;
+        $objtype = 'SNMP::Info::Layer3::Passport'  if $desc =~ /Passport-[1][012]/;
+        $objtype = 'SNMP::Info::Layer3::Passport'  if $desc =~ /Accelar-1/;
+        $objtype = 'SNMP::Info::Layer3::N1600'  if $desc =~ /(Passport|Ethernet\s+Routing\s+Switch)-16/i;
+        #  ERS - BayStack Numbered 
+        $objtype = 'SNMP::Info::Layer2::Baystack' if ($desc =~ /(BayStack|Ethernet\s+Routing\s+Switch)\s[345]\d/i);
         # Nortel Alteon AD Series
         $objtype = 'SNMP::Info::Layer3::AlteonAD' if $desc =~ /Alteon\s[1A][8D]/;
         # Nortel Contivity
         $objtype = 'SNMP::Info::Layer3::Contivity' if $desc =~ /\bCES\b/;
         # Nortel BayRS
-        $objtype = 'SNMP::Info::Layer3::BayRS'   if $desc =~ /^\s*Image:\s+rel\//;
+        $objtype = 'SNMP::Info::Layer3::BayRS'   if $desc =~ /^\s*Image:\s+re[lv]\/(\d+\.){1,3}\d+\//;
 
         # Allied Telesyn Layer2 managed switches. They report they have L3 support
         $objtype = 'SNMP::Info::Layer2::Allied' if ($desc =~ /Allied.*AT-80\d{2}\S*/i);
 
         # Default generic cisco
         $objtype = 'SNMP::Info::Layer3::Cisco' if ($objtype eq 'SNMP::Info::Layer3' and $desc =~ /\bIOS\b/);
+
+        # Default generic Juniper
+        $objtype = 'SNMP::Info::Layer3::Juniper' if ($objtype eq 'SNMP::Info::Layer3' and $desc =~ /\bJUNOS\b/);
 
     # Layer 2 Supported
     } elsif ($info->has_layer(2)) {
@@ -785,46 +910,64 @@ sub device_type {
         return $objtype unless (defined $desc and $desc !~ /^\s*$/);
 
         # Device Type Overrides
+
+        # Foundry EdgeIron,?
+        $objtype = 'SNMP::Info::Layer2::Foundry' if ($desc =~ /foundry/i);
         
         #   Catalyst 1900 series override
         $objtype = 'SNMP::Info::Layer2::C1900' if ($desc =~ /catalyst/i and $desc =~ /\D19\d{2}/);
 
         #   Catalyst 2900 and 3500XL (IOS) series override
-        $objtype = 'SNMP::Info::Layer2::C2900' if ($desc =~ /(C2900XL|C2950|C3500XL)/i );
+        $objtype = 'SNMP::Info::Layer2::C2900' if ($desc =~ /(C2900XL|C2950|C3500XL|C2940)/i );
 
         #   Catalyst WS-C series override 2926,4k,5k,6k in Hybrid
         $objtype = 'SNMP::Info::Layer2::Catalyst' if ($desc =~ /WS-C\d{4}/);
 
         #   Catalyst 3550 / 3548 Layer2 only switches
-        $objtype = 'SNMP::Info::Layer3::C3550' if ($desc =~ /C3550/);
+        #   Cisco 3400 w/ MetroBase Image
+        $objtype = 'SNMP::Info::Layer3::C3550' if ($desc =~ /(C3550|ME340x)/);
 
         #   Cisco 2970  
-        $objtype = 'SNMP::Info::Layer3::C6500' if ($desc =~ /C2970/);
+        $objtype = 'SNMP::Info::Layer3::C6500' if ($desc =~ /(C2970|C2960)/);
+
+        # Extreme Networks
+        $objtype = 'SNMP::Info::Layer3::Extreme'  if $desc =~ /Alpine38/;
+        $objtype = 'SNMP::Info::Layer3::Extreme'  if $desc =~ /Summit\s*\d/;
 
         #   HP
-        $objtype = 'SNMP::Info::Layer2::HP' if ($desc =~ /HP.*ProCurve/); 
+        $objtype = 'SNMP::Info::Layer2::HP' if ($desc =~ /\bProCurve\b/); 
     
         #  Centillion ATM
         $objtype = 'SNMP::Info::Layer2::Centillion' if ($desc =~ /MCP/);
   
         #  BPS
         $objtype = 'SNMP::Info::Layer2::Baystack' if ($desc =~ /Business\sPolicy\sSwitch/i);
-        
+
         #  BayStack Numbered
-        $objtype = 'SNMP::Info::Layer2::Baystack' if ($desc =~ /BayStack\s[345]\d/);
-        
+        $objtype = 'SNMP::Info::Layer2::Baystack' if ($desc =~ /(BayStack|Ethernet\s+(Routing\s+)??Switch)\s[345]\d/i);
+
+        # Accelar/Passport 8100
+        $objtype = 'SNMP::Info::Layer3::Passport'  if $desc =~ /Passport-81/;
+        $objtype = 'SNMP::Info::Layer3::Passport'  if $desc =~ /Accelar-81/;
+
         #  Nortel AP 222X
         $objtype = 'SNMP::Info::Layer2::NAP222x' if ($desc =~ /Access\s+Point\s+222/);
 
         #  Orinco
-        $objtype = 'SNMP::Info::Layer2::Orinoco' if ($desc =~ /AP-\d{3}|WavePOINT/);
+        $objtype = 'SNMP::Info::Layer2::Orinoco' if ($desc =~ /(AP-\d{3}|WavePOINT)/);
 
         #  Aironet - IOS
-        $objtype = 'SNMP::Info::Layer2::Aironet' if ($desc =~ /(C1100|AP1200)/);
+        $objtype = 'SNMP::Info::Layer2::Aironet' if ($desc =~ /\b(C1100|C1130|AP1200|C350|C1200|C1240)\b/  and $desc =~ /\bIOS\b/);
 
         # Aironet - non IOS
         $objtype = 'SNMP::Info::Layer3::Aironet' if ($desc =~ /Cisco/ and $desc =~ /\D(BR500)\D/) ;
-   
+
+        #Nortel 2270
+        $objtype = 'SNMP::Info::Layer2::N2270' if ($desc =~ /Nortel\s+(Networks\s+)??WLAN\s+-\s+Security\s+Switch/) ;
+
+        # Default generic cisco
+        $objtype = 'SNMP::Info::Layer2::Cisco' if ($objtype eq 'SNMP::Info::Layer2' and $desc =~ /\bCisco\b/);
+
     } elsif ($info->has_layer(1)) {
         $objtype = 'SNMP::Info::Layer1';
         #  Allied crap-o-hub
@@ -832,11 +975,17 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer1::Asante' if ($desc =~ /asante/i);
 
         #  Bay Hub
-        $objtype = 'SNMP::Info::Layer1::Bayhub' if ($desc =~ /NMM.*Agent/);
+        $objtype = 'SNMP::Info::Layer1::Bayhub' if ($desc =~ /\bNMM.*Agent/);
+
+        #  Synoptics Hub
+        #  This will override Bay Hub only for specific devices supported by this class
+        $objtype = 'SNMP::Info::Layer1::S3000' if ($desc =~ /\bNMM\s+(281|3000|3030)/i);
 
     # These devices don't claim to have Layer1-3 but we like em anyways.
     } else {
         $objtype = 'SNMP::Info::Layer2::ZyXEL_DSLAM' if ($desc =~ /8-port .DSL Module\(Annex .\)/i);
+        # Aruba wireless switches
+        $objtype = 'SNMP::Info::Layer2::Aruba' if ($desc =~ /(ArubaOS|AirOS)/);
     }   
 
     return $objtype; 
@@ -849,6 +998,7 @@ Returns Error message if there is an error, or undef if there is not.
 Reading the error will clear the error unless you set the no_clear flag.
 
 =cut
+
 sub error {
     my $self     = shift;
     my $no_clear = shift;
@@ -865,6 +1015,7 @@ Returns non-zero if the device has the supplied layer in the OSI Model
 Returns C<undef> if the device doesn't support the layers() call.
 
 =cut
+
 sub has_layer {
     my $self = shift;
     my $check_for = shift;
@@ -880,6 +1031,7 @@ sub has_layer {
 Returns SNMP Community string used in connection.
 
 =cut
+
 sub snmp_comm {
     my $self = shift;
     return $self->{snmp_comm};
@@ -890,6 +1042,7 @@ sub snmp_comm {
 Returns SNMP Version used for this connection
 
 =cut
+
 sub snmp_ver {
     my $self = shift;
     return $self->{snmp_ver};
@@ -909,6 +1062,7 @@ See device_type() entry for how a subclass is chosen.
 
 
 =cut
+
 sub specify {
     my $self = shift;
 
@@ -928,8 +1082,7 @@ sub specify {
 
     my $args    = $self->args();
     my $session = $self->session();
-    my $sub_obj = $device_type->new(%$args,'Session'=>$session);
-    $sub_obj->debug($self->debug());
+    my $sub_obj = $device_type->new(%$args,'Session'=>$session,'AutoSpecify' => 0);
 
     unless (defined $sub_obj) {
         $self->error_throw("SNMP::Info::specify() - Could not connect with new class ($device_type)");
@@ -948,6 +1101,7 @@ snmp calls on certain Cisco devices.
 See L<ftp://ftp.cisco.com/pub/mibs/supportlists/wsc5000/wsc5000-communityIndexing.html>
 
 =cut
+
 sub cisco_comm_indexing{
     0;
 }
@@ -1004,6 +1158,14 @@ correspond with the number of physical ports
 
 (B<ifNumber>)
 
+=item $info->ipforwarding()
+
+The indication of whether the entity is acting as an IP gateway
+
+Returns either forwarding or not-forwarding
+
+(B<ipForwarding>)
+
 =back
 
 =head2 Table Methods
@@ -1052,6 +1214,7 @@ Ignored interfaces are ones that are usually not physical ports or Virtual Lans 
 or the CPU interface. 
 
 =cut
+
 sub if_ignore {
     my %nothing;
     return \%nothing;
@@ -1086,7 +1249,30 @@ INTEGER. Interface MTU value.
 
 Speed of the link, human format.  See munge_speed() later in document for details.
 
-(B<ifSpeed>)
+(B<ifSpeed>, B<ifHighSpeed> if necessary)
+
+=cut
+
+sub i_speed {
+    my $l3 = shift;
+    my $i_speed = $l3->orig_i_speed();
+    my $i_speed_high = undef;
+    foreach my $i (keys %$i_speed) {
+	if ($i_speed->{$i} eq "4294967295") {
+	    $i_speed_high = $l3->i_speed_high() unless defined($i_speed_high);
+	    $i_speed->{$i} = $i_speed_high->{$i} if ($i_speed_high->{$i});
+	}
+    }
+    return $i_speed;
+}
+
+=item $info->i_speed_high()
+
+Speed of a high-speed link, human format.  See munge_highspeed() later in
+document for details.  You should not need to call this directly, as
+i_speed() will call it if it needs to.
+
+(B<ifHighSpeed>)
 
 =item $info->i_mac() 
 
@@ -1110,7 +1296,7 @@ Administrative status of the port.  Typical values are 'enabled' and 'disabled'.
 
 The value of sysUpTime when this port last changed states (up,down).
 
-(B<IfLastChange>)
+(B<ifLastChange>)
 
 =item $info->i_name()
 
@@ -1423,6 +1609,7 @@ structures :
 Used to flag if the MIBs have been loaded yet.
 
 =cut
+
 $INIT    = 0;
 
 =item %GLOBALS
@@ -1436,16 +1623,18 @@ choose a prefix for methods that will give it's own name space inside
 the SNMP::Info methods.
 
 =cut
+
 %GLOBALS = (
             # from SNMPv2-MIB
-            'id'          => 'sysObjectID',
-            'description' => 'sysDescr',
-            'uptime'      => 'sysUpTime',
-            'contact'     => 'sysContact',
-            'name'        => 'sysName',
-            'location'    => 'sysLocation',
-            'layers'      => 'sysServices',
-            'ports'       => 'ifNumber',
+            'id'           => 'sysObjectID',
+            'description'  => 'sysDescr',
+            'uptime'       => 'sysUpTime',
+            'contact'      => 'sysContact',
+            'name'         => 'sysName',
+            'location'     => 'sysLocation',
+            'layers'       => 'sysServices',
+            'ports'        => 'ifNumber',
+            'ipforwarding' => 'ipForwarding',
             );
 
 =item %FUNCS
@@ -1454,6 +1643,7 @@ Contains a hash in the form ( method_name => SNMP iid)
 These are table entries, such as the IfIndex
 
 =cut
+
 %FUNCS   = (
             'interfaces'         => 'ifIndex',
             # from SNMPv2-MIB
@@ -1481,6 +1671,7 @@ These are table entries, such as the IfIndex
             'ip_netmask'         => 'ipAdEntNetMask',
             'ip_broadcast'       => 'ipAdEntBcastAddr',
             # ifXTable - Extension Table
+            'i_speed_high'       => 'ifHighSpeed',
             'i_pkts_multi_in'    => 'ifInMulticastPkts',
             'i_pkts_multi_out'   => 'ifOutMulticastPkts',
             'i_pkts_bcast_in'    => 'ifInBroadcastPkts',
@@ -1522,7 +1713,10 @@ that the MIB is present and has loaded correctly.
 $info->init() will throw an exception if a MIB does not load. 
 
 =cut
-%MIBS    = ('RFC1213-MIB' => 'sysName');
+
+%MIBS    = (
+            # The "main" MIBs are automagically loaded in Net-SNMP now.
+           );
 
 =item %MUNGE
 
@@ -1538,11 +1732,13 @@ Sample %MUNGE:
  )
 
 =cut
+
 %MUNGE   = ('ip'                 => \&munge_ip,
             'mac'                => \&munge_mac,
             'i_mac'              => \&munge_mac,
             'layers'             => \&munge_dec2bin,
             'i_speed'            => \&munge_speed,
+            'i_speed_high'       => \&munge_highspeed,
             'i_octet_in64'       => \&munge_counter64,
             'i_octet_out64'      => \&munge_counter64,
             'i_pkts_ucast_in64'  => \&munge_counter64,
@@ -1551,6 +1747,7 @@ Sample %MUNGE:
             'i_pkts_multi_out64' => \&munge_counter64,
             'i_pkts_bcast_in64'  => \&munge_counter64,
             'i_pkts_bcast_out64' => \&munge_counter64,
+            'i_up'               => \&munge_i_up,
             );
 
 =back
@@ -1671,6 +1868,7 @@ in new() unless 'Debug' argument passed in new().  Change objects' debug status 
 $info->debug().
 
 =cut
+
 $DEBUG = 0;
 
 =item $BIGINT
@@ -1679,6 +1877,7 @@ Default 0.   Set to true to have 64 bit counters return Math::BigInt objects ins
 string values.  See note under Interface Statistics about 64 bit values.
 
 =cut
+
 $BIGINT = 0; 
 
 =item $NOSUCH
@@ -1687,7 +1886,17 @@ Default 1.  Set to false to disable RetryNoSuch option for SNMP::Session.  Or se
 to do it on an object scope.
 
 =cut
+
 $NOSUCH = 1;
+
+=item $REPEATERS
+
+Default 20.  MaxRepeaters for BULKWALK operations.  See C<perldoc SNMP> for more info.  Can change
+by passing L<BulkRepeaters> option in new()
+
+=cut
+
+$REPEATERS = 20;
 
 =back
 
@@ -1702,6 +1911,7 @@ Makes human friendly speed ratings using %SPEED_MAP
  %SPEED_MAP = (
                 '56000'      => '56 kbps',
                 '64000'      => '64 kbps',
+                '115000'     => '115 kpbs',
                 '1500000'    => '1.5 Mbps',
                 '1536000'    => 'T1',      
                 '1544000'    => 'T1',
@@ -1720,6 +1930,8 @@ Makes human friendly speed ratings using %SPEED_MAP
                 '45000000'   => '45 Mbps',
                 '45045000'   => 'DS3',
                 '46359642'   => 'DS3',
+                '51850000'   => 'OC-1',
+                '54000000'   => '54 Mbps',
                 '64000000'   => '64 Mbps',
                 '100000000'  => '100 Mbps',
                 '149760000'  => 'ATM on OC-3',
@@ -1734,6 +1946,7 @@ Makes human friendly speed ratings using %SPEED_MAP
              )
 
 =cut
+
 %SPEED_MAP = (
                 '56000'      => '56 kbps',
                 '64000'      => '64 kbps',
@@ -1757,6 +1970,7 @@ Makes human friendly speed ratings using %SPEED_MAP
                 '45045000'   => 'DS3',
                 '46359642'   => 'DS3',
                 '51850000'   => 'OC-1',
+                '54000000'   => '54 Mbps',
                 '64000000'   => '64 Mbps',
                 '100000000'  => '100 Mbps',
                 '149760000'  => 'ATM on OC-3',
@@ -1778,11 +1992,38 @@ sub munge_speed {
     return $map || $speed;
 }
 
+=item munge_highspeed()
+
+Makes human friendly speed ratings for ifHighSpeed
+
+=cut
+
+sub munge_highspeed {
+    my $speed = shift;
+    my $fmt = "%d Mbps";
+
+    if ($speed > 9999999) {
+        $fmt = "%d Tbps";
+	$speed /= 1000000;
+    } elsif ($speed > 999999) {
+        $fmt = "%.1f Tbps";
+        $speed /= 1000000.0;
+    } elsif ($speed > 9999) {
+        $fmt = "%d Gbps";
+	$speed /= 1000;
+    } elsif ($speed > 999) {
+	$fmt = "%.1f Gbps";
+	$speed /= 1000.0;
+    }
+    return sprintf($fmt, $speed);
+}
+
 =item munge_ip() 
 
 Takes a binary IP and makes it dotted ASCII
 
 =cut
+
 sub munge_ip {
     my $ip = shift;
     return join('.',unpack('C4',$ip));
@@ -1793,6 +2034,7 @@ sub munge_ip {
 Takes an octet stream (HEX-STRING) and returns a colon separated ASCII hex string.
 
 =cut
+
 sub munge_mac {
     my $mac = shift;
     return undef unless defined $mac;
@@ -1805,6 +2047,7 @@ sub munge_mac {
 Takes a binary octet stream and returns an ASCII hex string
 
 =cut
+
 sub munge_octet2hex {
     my $oct = shift;
     return join('',map {sprintf "%x",$_} unpack('C*',$oct));
@@ -1815,6 +2058,7 @@ sub munge_octet2hex {
 Takes a binary char and returns its ASCII binary representation
 
 =cut
+
 sub munge_dec2bin {
     my $num = shift;
     return undef unless defined $num;
@@ -1831,6 +2075,7 @@ sub munge_dec2bin {
 Takes a SNMP2 'BITS' field and returns the ASCII bit string
 
 =cut
+
 sub munge_bits {
     my $bits = shift;
     return undef unless defined $bits;
@@ -1838,19 +2083,40 @@ sub munge_bits {
     return unpack("b*",$bits);
 }
 
-
 =item munge_counter64
 
 If $BIGINT is set to true, then a Math::BigInt object is returned.
 See Math::BigInt for details.
 
 =cut
+
 sub munge_counter64 {
     my $counter = shift;
     return unless defined $counter;
     return $counter unless $BIGINT;
     my $bigint = Math::BigInt->new($counter);
     return $bigint;
+}
+
+=item munge_i_up
+
+There is a collision between data in IF-MIB and RFC-1213. 
+For devices that fully implement IF-MIB it might return 7 for 
+a port that is down.  This munges the data against the IF-MIB 
+by hand.
+
+TODO: Get the precidence of MIBs and overriding of MIB data in Net-SNMP
+figured out.  Heirarchy/precendence of MIBS in SNMP::Info.
+
+=cut
+
+sub munge_i_up {
+    my $i_up = shift;
+    return unless defined $i_up;
+
+    $i_up = 'down' if $i_up eq '7';
+
+    return $i_up;
 }
 
 =back
@@ -1864,6 +2130,7 @@ sub munge_counter64 {
 Used internally.  Loads all entries in %MIBS.
 
 =cut
+
 sub init {
     my $self = shift;
 
@@ -1893,6 +2160,7 @@ sub init {
     my $mibs = $self->mibs();
     
     foreach my $mib (keys %$mibs){
+        #print "SNMP::Info::init() - Loading mib:$mib\n" if $self->debug(); 
         &SNMP::loadModules("$mib");
 
         unless (defined $SNMP::MIB{$mibs->{$mib}}){
@@ -1906,6 +2174,7 @@ sub init {
 Returns a reference to the argument hash supplied to SNMP::Session
 
 =cut
+
 sub args {
     my $self = shift;
     return $self->{args};
@@ -1916,11 +2185,11 @@ sub args {
 Returns the class name of the object.
 
 =cut
+
 sub class {
     my $self=shift;
     return $self->{class};
 }
-
 
 =item $info->error_throw(error message)
 
@@ -1929,6 +2198,7 @@ Stores the error message for use by $info->error()
 If $info->debug() is true, then the error message is carped too.
 
 =cut
+
 sub error_throw {
     my $self = shift;
     my $error = shift;
@@ -1947,6 +2217,7 @@ sub error_throw {
 Returns a reference to the %FUNCS hash.
 
 =cut
+
 sub funcs {
     my $self=shift;
     return $self->{funcs};
@@ -1957,6 +2228,7 @@ sub funcs {
 Returns a reference to the %GLOBALS hash.
 
 =cut
+
 sub globals {
     my $self=shift;
     return $self->{globals};
@@ -1967,6 +2239,7 @@ sub globals {
 Returns a reference to the %MIBS hash.
 
 =cut
+
 sub mibs {
     my $self=shift;
     return $self->{mibs};
@@ -1977,6 +2250,7 @@ sub mibs {
 Returns a reference ot the %MUNGE hash.
 
 =cut
+
 sub munge {
     my $self=shift;
     return $self->{munge};
@@ -1987,6 +2261,7 @@ sub munge {
 Returns NoSuch value set or not in new()
 
 =cut
+
 sub nosuch {
     my $self = shift;
     return $self->{nosuch};
@@ -1997,6 +2272,7 @@ sub nosuch {
 Gets or Sets the SNMP::Session object.
 
 =cut
+
 sub session {
     my $self = shift;
     $self->{sess} = $_[0] if @_;
@@ -2012,12 +2288,12 @@ Store is a hash reference in this format :
 $info->store = { attribute => { iid => value , iid2 => value2, ... } };
 
 =cut
+
 sub store {
     my $self = shift;
     $self->{store} = $_[0] if @_;
     return $self->{store};
 }
-
 
 =item $info->_global()
 
@@ -2026,6 +2302,7 @@ Used internally by AUTOLOAD to load dynamic methods from %GLOBALS.
 Example: $info->name() calls autoload which calls $info->_global('name').
 
 =cut
+
 sub _global{
     my $self = shift;
     my $attr = shift;
@@ -2084,6 +2361,7 @@ either %GLOBALS or %FUNCS.
 Example:  $info->set_name('dog',3) uses autoload to resolve to $info->_set('name','dog',3);
 
 =cut
+
 sub _set {
     my ($self,$attr,$val,$iid) = @_;
 
@@ -2115,7 +2393,8 @@ sub _set {
     }
 
     $oid .= $iid;
-    
+    $oid = &SNMP::translateObj($oid);
+
     $self->debug() and print "SNMP::Info::_set $attr$iid ($oid) = $val\n";
 
     my $rv = $sess->set($oid,$val);
@@ -2140,6 +2419,7 @@ Returns $info->store() -- See store() entry.
 Note return value has changed since version 0.3
 
 =cut
+
 sub load_all {
     my $self = shift;
     my $sess = $self->session();
@@ -2166,6 +2446,7 @@ Use $info->load_all() to reload the data.
 Note return value has changed since version 0.3
 
 =cut
+
 sub all {
     my $self = shift;
     my $sess = $self->session();
@@ -2176,7 +2457,6 @@ sub all {
     return $self->store();    
 }
 
-
 =item $info->_load_attr()
 
 Used internally by AUTOLOAD to fetch data called from methods listed in %FUNCS.
@@ -2184,6 +2464,7 @@ Used internally by AUTOLOAD to fetch data called from methods listed in %FUNCS.
 Called from $info->load_METHOD();
 
 =cut
+
 sub _load_attr {
     my $self = shift;
     my ($attr,$leaf,$partial) = @_;
@@ -2227,24 +2508,35 @@ sub _load_attr {
     my $errornum = $sess->{ErrorNum};
     if ($ver == 1 and $nosuch and $errornum and $sess->{ErrorStr} =~ /nosuch/i){
         $errornum = 0; 
+    } elsif ($errornum){
+        $self->error_throw("SNMP::Info::_load_attr: Varbind $varleaf ".$sess->{ErrorStr}."\n");
+        return undef;
     }
     my $localstore = undef;
 
+    my $vars = [];
+    my $bulkwalk_no  = $self->can('bulkwalk_no') ? $self->bulkwalk_no() : 0;
+    my $bulkwalk_on  = defined $self->{BulkWalk} ? $self->{BulkWalk} : 1;
+    my $can_bulkwalk = $bulkwalk_on && !$bulkwalk_no;
+    my $repeaters    = $self->{BulkRepeaters} || $REPEATERS;
+    my $bulkwalk     = $can_bulkwalk && $ver != 1;
+
     # Use BULKWALK if we can because its faster
-    my $vars;
-    if ($ver != 1 && !$errornum) {
-        ($vars) = $sess->bulkwalk(0, 20, $var);
-        $errornum = $sess->{ErrorNum};
+    if ($bulkwalk){
+        ($vars) = $sess->bulkwalk(0, $repeaters, $var);
+        if($sess->{ErrorNum}) {
+            $self->error_throw("SNMP::Info::_load_atrr: BULKWALK ".$sess->{ErrorStr},"\n");
+            return undef;
+        }
     }
 
     while (! $errornum ){
-        # SNMP v1 use GETNEXT instead of BULKWALK
-        if ($ver == 1) {
+        if ($bulkwalk){
+            $var = shift @$vars or last;
+        } else {
+            # GETNEXT instead of BULKWALK
             $sess->getnext($var);
             $errornum = $sess->{ErrorNum};
-        } else {
-            $var = shift @$vars;
-            last unless $var;
         }
 
         # Check if we've left the requested subtree
@@ -2263,12 +2555,18 @@ sub _load_attr {
             last;
         }
 
+        # Check if last element, V2 devices may report ENDOFMIBVIEW even if
+        # instance or object doesn't exist.
+        if ($val eq 'ENDOFMIBVIEW'){
+            last;
+        }
+
         if ($val eq 'NOSUCHOBJECT'){
-            $self->error_throw("SNMP::Info::_load_atr: $attr :  NOSUCHOBJECT");
+            $self->error_throw("SNMP::Info::_load_attr: $attr :  NOSUCHOBJECT");
             next;
         }
         if ($val eq 'NOSUCHINSTANCE'){
-            $self->error_throw("SNMP::Info::_load_atr: $attr :  NOSUCHINSTANCE");
+            $self->error_throw("SNMP::Info::_load_attr: $attr :  NOSUCHINSTANCE");
             next;
         }
 
@@ -2301,6 +2599,7 @@ The first time ran, it will call $info->load_METHOD().
 Every time after it will return cached data.
 
 =cut
+
 sub _show_attr {
     my $self = shift;
     my $attr = shift;
@@ -2308,6 +2607,46 @@ sub _show_attr {
     my $store = $self->store();
     
     return $store->{$attr};
+}
+
+=item $info->snmp_connect_ip() 
+
+Returns true or false based upon snmp connectivity to an IP.
+
+=cut
+
+sub snmp_connect_ip {
+    my $self = shift;
+    my $ip = shift;
+    my $ver = $self->snmp_ver();
+    my $comm = $self->snmp_comm();
+    
+    return undef if ($ip eq '0.0.0.0') or ($ip =~ /^127\./);
+    
+    # Create session object
+    my $snmp_test = new SNMP::Session( 'DestHost' => $ip, 'Community' => $comm, 'Version' => $ver);
+
+    # No session object created
+    unless (defined $snmp_test){
+        return undef;
+    }
+    
+    # Session object created but SNMP connection failed.
+    my $sess_err = $snmp_test->{ErrorStr} || '';
+    if ($sess_err){
+        return undef;
+    }
+    
+    # Try to get some data from IP
+    my $layers = $snmp_test->get('sysServices.0');
+    
+    $sess_err = $snmp_test->{ErrorStr} || '';
+    if ($sess_err){
+        return undef;
+    }    
+
+    return 1;
+
 }
 
 =back
@@ -2340,6 +2679,7 @@ the same name.
 For example to override $info->name() create `` sub name {...}'' in your subclass.
 
 =cut
+
 sub AUTOLOAD {
     my $self = shift;
     my $sub_name = $AUTOLOAD;
@@ -2353,6 +2693,7 @@ sub AUTOLOAD {
 
     my $attr = $sub_name;
     $attr =~ s/^(load|set)_//;
+    $attr =~ s/^orig_//;
     
     # Let's use the %GLOBALS and %FUNCS from the class that 
     #   inherited us.

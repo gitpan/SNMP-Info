@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Aironet
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Aironet;
-$VERSION = 0.9;
-# $Id: Aironet.pm,v 1.12 2004/10/28 21:53:15 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Aironet.pm,v 1.17 2006/06/30 21:32:49 jeneric Exp $
 
 use strict;
 
@@ -42,10 +42,6 @@ use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 @SNMP::Info::Layer3::Aironet::ISA = qw/SNMP::Info::Layer3 Exporter/;
 @SNMP::Info::Layer3::Aironet::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT = 0;
 %MIBS =    (
             %SNMP::Info::Layer3::MIBS,
             'AWCVX-MIB'        => 'awcIfTable',
@@ -90,7 +86,7 @@ sub os {
 
 sub os_ver {
     my $aironet = shift;
-    my $descr = $aironet->description();
+    my $descr = $aironet->description() || '';
 
     # CAP340 11.21, AP4800-E 11.21
     if ($descr =~ /AP\d{3,4}(-\D+)?\s+(\d{2}\.\d{2})/){
@@ -220,7 +216,7 @@ SNMP::Info::Layer3::Aironet - Perl5 Interface to Cisco Aironet Wireless Devices 
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 

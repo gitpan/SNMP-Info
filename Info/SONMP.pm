@@ -1,8 +1,8 @@
 # SNMP::Info::SONMP
-# Eric Miller <eric@jeneric.org>
-# $Id: SONMP.pm,v 1.2 2004/10/28 21:53:14 maxbaker Exp $
+# Eric Miller
+# $Id: SONMP.pm,v 1.8 2006/06/30 21:33:47 jeneric Exp $
 #
-# Copyright (c) 2004 Max Baker
+# Copyright (c) 2004 Eric Miller, Max Baker
 #
 # Redistribution and use in source and binary forms, with or without 
 # modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::SONMP;
-$VERSION = 0.9;
+$VERSION = '1.04';
 
 use strict;
 
@@ -40,12 +40,6 @@ use Carp;
 @SNMP::Info::SONMP::EXPORT_OK = qw//;
 
 use vars qw/$VERSION $DEBUG %FUNCS %GLOBALS %MIBS %MUNGE $INIT/;
-# Debug
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-# Five data structures required by SNMP::Info
-$INIT = 0;
 
 %MIBS    = (
             'SYNOPTICS-ROOT-MIB' => 'synoptics',
@@ -229,7 +223,7 @@ sub c_port {
         else {
             # Segment id is (256 * remote slot_num) + (remote_port)
             my $remote_port = $seg % 256;
-	    my $remote_slot = int($seg / 256);
+            my $remote_slot = int($seg / 256);
     
            $c_port{"$index.1"} = "$remote_slot.$remote_port";
         }
@@ -288,8 +282,10 @@ sub mac {
         my $port = $sonmp_topo_port->{$entry};
         next unless $port == 0;
         my $mac = $sonmp_topo_mac->{$entry};
-	return $mac;
+        return $mac;
     }
+    # Topology turned off, not supported.
+    return undef;
 }
 
 1;
@@ -301,8 +297,7 @@ SNMP::Info::SONMP - Perl5 Interface to SynOptics Network Management Protocol (SO
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>),  
-Eric Miller (C<eric@jeneric.org>)
+Eric Miller
 
 =head1 SYNOPSIS
 

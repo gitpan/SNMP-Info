@@ -1,6 +1,6 @@
 # SNMP::Info::FDP
 # Bruce Rodger
-# $Id: FDP.pm,v 1.1 2004/11/01 19:19:37 maxbaker Exp $
+# $Id: FDP.pm,v 1.6 2006/06/30 21:33:47 jeneric Exp $
 #
 # (c) 2004 Bruce Rodger, Max Baker 
 # All rights reserved.  
@@ -32,31 +32,22 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::FDP;
-$VERSION = 0.9;
 
 use strict;
 
 use Exporter;
 use SNMP::Info;
-use Carp;
 
 @SNMP::Info::FDP::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::FDP::EXPORT_OK = qw//;
 
 use vars qw/$VERSION $DEBUG %FUNCS %GLOBALS %MIBS %MUNGE $INIT/;
-# Debug
-$DEBUG=1;
-$SNMP::debugging=$DEBUG;
+$VERSION = '1.04';
 
-# Five data structures required by SNMP::Info
-$INIT = 0;
 %MIBS 	= ( 'FOUNDRY-SN-SWITCH-GROUP-MIB' => 'snFdpGlobalRun' );
 
-# Notice we dont inherit the default GLOBALS and FUNCS
-# only the default MUNGE.
 %GLOBALS = (
             # CDP-Compatibility
-            'cdp_run'      => 'snFdpGlobalRun',
             'cdp_interval' => 'snFdpGlobalMessageInterval',
             'cdp_holdtime' => 'snFdpGlobalHoldTime',
             'cdp_id'       => 'snFdpGlobalDeviceId',
@@ -78,7 +69,7 @@ $INIT = 0;
             'c_capabilities' => 'snFdpCacheCapabilities',
             'c_domain'       => 'snFdpCacheVTPMgmtDomain',
             'c_vlan'         => 'snFdpCacheNativeVLAN',
-            'c_duplex'       => 'snFdpCacheDuplex'
+            'c_duplex'       => 'snFdpCacheDuplex',
           );
 
 %MUNGE = (
@@ -96,6 +87,16 @@ sub munge_caps {
     
     
 }
+
+sub cdp_run {
+    my $fdp = shift;
+    my $fdp_run = $fdp->fdp_run();
+
+    # if fdp_run isn't implemented on device, assume FDP is on
+    return $fdp_run if defined $fdp_run;
+    return 1;
+}
+
 sub hasFDP {
     my $fdp = shift;
 
@@ -118,8 +119,6 @@ sub hasFDP {
 sub c_if {
     my $fdp  = shift;
 
-
-
     # See if by some miracle Cisco implemented the fdpCacheIfIndex entry
     my $fdp_index     = $fdp->fdp_index();
     return $fdp_index if defined $fdp_index;
@@ -127,8 +126,7 @@ sub c_if {
     # Nope, didn't think so. Now we fake it.
     my $fdp_ip = $fdp->c_ip();
     unless (defined $fdp_ip){
-        $fdp->{error} = "SNMP::Info::FDP:fdp_if() - Device doesn't have fdp_ip() data.  Can't fake fdp_index()";
-        $DEBUG and carp($fdp->error(1));
+        $fdp->error_throw("SNMP::Info::FDP:fdp_if() - Device doesn't have fdp_ip() data.  Can't fake fdp_index()");
         return undef;
     }
 
@@ -153,7 +151,7 @@ SNMP::Info::FDP - Perl5 Interface to Foundry Discovery Protocol (FDP) using SNMP
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Bruce Rodger, Max Baker
 
 =head1 SYNOPSIS
 

@@ -4,16 +4,16 @@
 #
 #   Test a device class in SNMP::Info against a device.
 #
-# Max Baker <max@warped.org>
+# Max Baker
 #
-# $Id: test_class.pl,v 1.4 2004/09/27 14:48:42 maxbaker Exp $
+# $Id: test_class.pl,v 1.7 2006/04/15 01:20:40 fenner Exp $
 #
 
 use lib '/usr/local/netdisco';
 use SNMP::Info;
 use Getopt::Long;
 use strict;
-use vars qw/$Class $Dev $Comm $Ver @Dump/;
+use vars qw/$Class $Dev $Comm $Ver @Dump %Dumped $Debug/;
 
 # Default Values
 $Class = '';
@@ -21,6 +21,7 @@ $Dev   = '';
 $Comm  = '';
 $Ver   = 2;
 @Dump  = ();
+$Debug = 0;
 
 GetOptions ('c|class=s' => \$Class,
             'd|dev=s'   => \$Dev,
@@ -28,6 +29,7 @@ GetOptions ('c|class=s' => \$Class,
             'v|ver=i'   => \$Ver,
             'h|help'    => \&usage,
             'p|print=s'   => \@Dump,
+            'x|debug'   => \$Debug,
            );
 
 &usage unless ($Dev and $Comm);
@@ -45,12 +47,13 @@ print "Dumping : ",join(',',@Dump),"\n"  if scalar @Dump;
 my $dev = new $Class( 'AutoSpecify' => 0,
                       'AutoVerBack' => 0,
                       'Version'     => $Ver,
-                      'Debug'       => 0,
+                      'Debug'       => $Debug,
                       'DestHost'    => $Dev,
                       'Community'   => $Comm
                     ) or die "\n"; 
 
 print "Connected to $Dev.\n";
+print "It's a ", $dev->device_type(), ".\n";
     
 my $layers = $dev->layers();
 
@@ -81,6 +84,10 @@ print "\nTesting Misc...\n\n";
 my @misc = qw/v_name v_port/;
 foreach my $fn (@misc){
     test_fn($dev,$fn);
+}
+
+foreach my $fn (@Dump) {
+    test_fn($dev,$fn) unless $Dumped{$fn};
 }
 
 #--------------------------------
@@ -137,6 +144,7 @@ sub test_fn {
 
     printf "%-20s %d rows.\n",$method, scalar(keys %$results);
     if (grep(/^$method$/,@Dump)) {
+        $Dumped{$method} = 1;
         foreach my $iid (keys %$results){
             print "  $iid : $results->{$iid}\n";
         }

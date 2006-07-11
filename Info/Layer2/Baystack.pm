@@ -1,8 +1,8 @@
 # SNMP::Info::Layer2::Baystack
-# Eric Miller <eric@jeneric.org>
-# $Id: Baystack.pm,v 1.2 2004/10/28 21:53:14 maxbaker Exp $
+# Eric Miller
+# $Id: Baystack.pm,v 1.10 2006/06/30 21:31:30 jeneric Exp $
 #
-# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+# Copyright (c) 2004-6 Max Baker changes from version 0.8 and beyond.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -29,17 +29,17 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Baystack;
-$VERSION = 0.9;
+$VERSION = '1.04';
 use strict;
 
 use Exporter;
 use SNMP::Info;
 use SNMP::Info::Bridge;
-use SNMP::Info::NortelStack;
 use SNMP::Info::SONMP;
 use SNMP::Info::RapidCity;
+use SNMP::Info::NortelStack;
 
-@SNMP::Info::Layer2::Baystack::ISA = qw/SNMP::Info SNMP::Info::Bridge SNMP::Info::NortelStack SNMP::Info::SONMP SNMP::Info::RapidCity Exporter/;
+@SNMP::Info::Layer2::Baystack::ISA = qw/SNMP::Info SNMP::Info::Bridge SNMP::Info::SONMP SNMP::Info::RapidCity SNMP::Info::NortelStack Exporter/;
 @SNMP::Info::Layer2::Baystack::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
@@ -47,27 +47,31 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 %MIBS    = (
             %SNMP::Info::MIBS,
             %SNMP::Info::Bridge::MIBS,
-            %SNMP::Info::NortelStack::MIBS,
             %SNMP::Info::SONMP::MIBS,
             %SNMP::Info::RapidCity::MIBS,
+            %SNMP::Info::NortelStack::MIBS,
            );
 
 %GLOBALS = ( 
             %SNMP::Info::GLOBALS,
             %SNMP::Info::Bridge::GLOBALS,
-            %SNMP::Info::NortelStack::GLOBALS,            
             %SNMP::Info::SONMP::GLOBALS,
             %SNMP::Info::RapidCity::GLOBALS,
+            %SNMP::Info::NortelStack::GLOBALS,
            );
 
 %FUNCS   = (
             %SNMP::Info::FUNCS,
             %SNMP::Info::Bridge::FUNCS,
-            %SNMP::Info::NortelStack::FUNCS,            
             %SNMP::Info::SONMP::FUNCS,
             %SNMP::Info::RapidCity::FUNCS,
+            %SNMP::Info::NortelStack::FUNCS,
             'i_name2'    => 'ifName',
             'i_mac2'      => 'ifPhysAddress',
+            # From RFC1213-MIB
+            'at_index'    => 'ipNetToMediaIfIndex',
+            'at_paddr'    => 'ipNetToMediaPhysAddress',
+            'at_netaddr'  => 'ipNetToMediaNetAddress',
             );
 
 # 450's report full duplex as speed = 20mbps?!
@@ -78,10 +82,11 @@ $SNMP::Info::SPEED_MAP{2_000_000_000} = '1.0 Gbps';
 %MUNGE   = (
             %SNMP::Info::MUNGE,
             %SNMP::Info::Bridge::MUNGE,
-            %SNMP::Info::NortelStack::MUNGE,
             %SNMP::Info::SONMP::MUNGE,
             %SNMP::Info::RapidCity::MUNGE,
+            %SNMP::Info::NortelStack::MUNGE,
             'i_mac2' => \&SNMP::Info::munge_mac,
+            'at_paddr' => \&SNMP::Info::munge_mac,
             );
 
 sub os {
@@ -89,7 +94,7 @@ sub os {
     my $descr = $baystack->description();
     my $model = $baystack->model();
 
-    if ((defined $model and $model =~ /(470|460|BPS|5510|5520)/) and (defined $descr and $descr =~ m/SW:v[3-5]/i)) {
+    if ((defined $model and $model =~ /(470|460|BPS|5510|5520|5530)/) and (defined $descr and $descr =~ m/SW:v[3-5]/i)) {
        return 'boss';
     }
     return 'baystack';
@@ -126,23 +131,13 @@ sub model {
     return undef unless defined $id;
     my $model = &SNMP::translateObj($id);
     return $id unless defined $model;
-    $model =~ s/^sreg-//i;
 
     my $descr = $baystack->description();
 
     return '303' if (defined $descr and $descr =~ /\D303\D/);
     return '304' if (defined $descr and $descr =~ /\D304\D/);
-    return '350' if ($model =~ /BayStack350/);
-    return '380' if ($model =~ /BayStack380/);
-    return '410' if ($model =~ /BayStack410/);
-    return '420' if ($model =~ /BayStack420/);
-    return '425' if ($model =~ /BayStack425/);
-    return '450' if ($model =~ /BayStack450/);
-    return '470' if ($model =~ /BayStack470/i);
-    return '460' if ($model =~ /BayStack460/i);
     return 'BPS' if ($model =~ /BPS2000/i);
-    return '5510' if ($model =~ /BayStack5510/i);
-    return '5520' if ($model =~ /BayStack5520/i);
+    return $2 if ($model =~ /(ES|ERS|BayStack|EthernetRoutingSwitch|EthernetSwitch)(\d+)/);
     
     return $model;
 }
@@ -173,8 +168,8 @@ sub interfaces {
         # Ignore cascade ports
         next if $index > 513;
 
-	my $port = ($index % $index_factor);
-	my $slot = (int($index / $index_factor)) + $slot_offset;
+        my $port = ($index % $index_factor);
+        my $slot = (int($index / $index_factor)) + $slot_offset;
 
         my $slotport = "$slot.$port";
         $if{$iid} = $slotport;
@@ -224,7 +219,7 @@ sub index_factor {
     $op_mode = 'pure' unless defined $op_mode;
 
     my $index_factor = 32;
-    $index_factor = 64 if ((defined $model and $model =~ /(470)/) or ($os eq 'BoSS') and ($op_mode eq 'pure'));
+    $index_factor = 64 if ((defined $model and $model =~ /(470)/) or ($os eq 'boss') and ($op_mode eq 'pure'));
     
     return $index_factor;
 }
@@ -234,12 +229,11 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::Baystack - SNMP Interface to Nortel Networks' Baystack Switches
+SNMP::Info::Layer2::Baystack - SNMP Interface to Nortel Ethernet (Baystack) Switches
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>),
-Eric Miller (C<eric@jeneric.org>)
+Eric Miller
 
 =head1 SYNOPSIS
 
@@ -259,8 +253,8 @@ Eric Miller (C<eric@jeneric.org>)
 
 =head1 DESCRIPTION
 
-Provides abstraction to the configuration information obtainable from a Nortel Networks' 
-Baystack device through SNMP. 
+Provides abstraction to the configuration information obtainable from a Nortel 
+Ethernet Switch (Baystack) through SNMP. 
 
 For speed or debugging purposes you can call the subclass directly, but not after determining
 a more specific class using the method above. 
@@ -309,19 +303,22 @@ These are methods that return scalar value from SNMP
 
 =item $baystack->vendor()
 
-Returns 'Nortel'
+Returns 'nortel'
 
 =item $baystack->model()
 
 Cross references $baystack->id() to the SYNOPTICS-MIB and returns
 the results.  303s and 304s have the same ID, so we have a hack
-to return depending on which it is. 
+to return depending on which it is.
 
-Removes sreg- from the model name
+Returns BPS for Business Policy Switch
+
+For BayStack, EthernetRoutingSwitch, or EthernetSwitch extracts and returns
+the switch numeric designation.
 
 =item $baystack->os()
 
-Returns 'Baystack' or 'BoSS' depending on software version.
+Returns 'baystack' or 'boss' depending on software version.
 
 =item $baystack->os_bin()
 
@@ -339,7 +336,7 @@ Required by SNMP::Info::SONMP.  Number representing the number of ports
 reserved per slot within the device MIB.
 
 Index factor on the Baystack switches are determined by the formula: Index
-Factor = 64 if (model = 470 or (os eq 'BoSS' and operating in pure mode))
+Factor = 64 if (model = 470 or (os eq 'boss' and operating in pure mode))
 or else Index factor = 32.
 
 Returns either 32 or 64 based upon the formula.
@@ -400,6 +397,30 @@ revisions of Baystack firmware report all zeros for each port mac.
 =item $baystack->i_name()
 
 Crosses ifName with ifAlias and returns the human set port name if exists.
+
+=back
+
+=head2 RFC1213 Arp Cache Table (B<ipNetToMediaTable>)
+
+=over
+
+=item $baystack->at_index()
+
+Returns reference to hash.  Maps ARP table entries to Interface IIDs 
+
+(B<ipNetToMediaIfIndex>)
+
+=item $baystack->at_paddr()
+
+Returns reference to hash.  Maps ARP table entries to MAC addresses. 
+
+(B<ipNetToMediaPhysAddress>)
+
+=item $baystack->at_netaddr()
+
+Returns reference to hash.  Maps ARP table entries to IPs 
+
+(B<ipNetToMediaNetAddress>)
 
 =back
 

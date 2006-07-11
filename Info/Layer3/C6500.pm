@@ -1,7 +1,7 @@
 # SNMP::Info::Layer3::C6500
-# Max Baker <max@warped.org>
+# Max Baker
 #
-# Copyright (c) 2003,2004 Max Baker
+# Copyright (c) 2003,2004,2005 Max Baker
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -28,8 +28,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::C6500;
-$VERSION = 0.9;
-# $Id: C6500.pm,v 1.4 2004/10/28 21:53:15 maxbaker Exp $
+# $Id: C6500.pm,v 1.12 2006/06/30 21:32:49 jeneric Exp $
 
 use strict;
 
@@ -37,40 +36,51 @@ use Exporter;
 use SNMP::Info::Layer3;
 use SNMP::Info::CiscoVTP;
 use SNMP::Info::CiscoStack;
+use SNMP::Info::CDP;
+use SNMP::Info::CiscoStats;
+use SNMP::Info::CiscoImage;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE $INIT/ ;
-@SNMP::Info::Layer3::C6500::ISA = qw/ SNMP::Info::Layer3 SNMP::Info::CiscoStack SNMP::Info::CiscoVTP  Exporter/;
+$VERSION = '1.04';
+@SNMP::Info::Layer3::C6500::ISA = qw/ SNMP::Info::Layer3 SNMP::Info::CiscoStack SNMP::Info::CiscoVTP 
+                                      SNMP::Info::CiscoStats SNMP::Info::CDP Exporter
+                                      SNMP::Info::CiscoImage/;
 @SNMP::Info::Layer3::C6500::EXPORT_OK = qw//;
 
-$DEBUG=0;
-
-# See SNMP::Info for the details of these data structures and 
-#       the interworkings.
-$INIT = 0;
-
-%MIBS = (
-         %SNMP::Info::Layer3::MIBS,  
-         %SNMP::Info::CiscoVTP::MIBS,
-         %SNMP::Info::CiscoStack::MIBS,
-        );
+%MIBS =    (
+            %SNMP::Info::Layer3::MIBS,  
+            %SNMP::Info::CiscoVTP::MIBS,
+            %SNMP::Info::CiscoStack::MIBS,
+            %SNMP::Info::CDP::MIBS,
+            %SNMP::Info::CiscoStats::MIBS,
+            %SNMP::Info::CiscoImage::MIBS,
+           );
 
 %GLOBALS = (
             %SNMP::Info::Layer3::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
             %SNMP::Info::CiscoStack::GLOBALS,
+            %SNMP::Info::CDP::GLOBALS,
+            %SNMP::Info::CiscoStats::GLOBALS,
+            %SNMP::Info::CiscoImage::GLOBALS,
            );
 
 %FUNCS = (
             %SNMP::Info::Layer3::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
             %SNMP::Info::CiscoStack::FUNCS,
+            %SNMP::Info::CDP::FUNCS,
+            %SNMP::Info::CiscoStats::FUNCS,
+            %SNMP::Info::CiscoImage::FUNCS,
          );
 
 %MUNGE = (
-            # Inherit all the built in munging
             %SNMP::Info::Layer3::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
             %SNMP::Info::CiscoStack::MUNGE,
+            %SNMP::Info::CDP::MUNGE,
+            %SNMP::Info::CiscoStats::MUNGE,
+            %SNMP::Info::CiscoImage::MUNGE,
          );
 
 # Pick and choose
@@ -82,21 +92,13 @@ $INIT = 0;
 *SNMP::Info::Layer3::C6500::i_name     = \&SNMP::Info::Layer3::i_name;
 *SNMP::Info::Layer3::C6500::i_type     = \&SNMP::Info::CiscoStack::i_type;
 
-sub model {
-    my $c6500 = shift;
-    my $model1 = $c6500->model1();
-    return $model1 if defined $model1;
-    return $c6500->SUPER::model();
-}
-
 sub vendor {
     return 'cisco';
 }
 
-sub cisco_comm_indexing {
-    1;
-}
-
+# There are some buggy 6509's out there.
+sub bulkwalk_no { 1; }
+sub cisco_comm_indexing { 1; }
 
 1;
 __END__
@@ -107,7 +109,7 @@ SNMP::Info::Layer3::C6500 - Perl5 Interface to Cisco Catalyst 6500 Layer 2/3 Swi
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -148,6 +150,12 @@ a more specific class using the method above.
 
 =item SNMP::Info::CiscoStack
 
+=item SNMP::Info::CiscoStats
+
+=item SNMP::Info::CDP
+
+=item SNMP::Info::CiscoImage
+
 =back
 
 =head2 Required MIBs
@@ -162,6 +170,12 @@ See SNMP::Info::CiscoVTP for its own MIB requirements.
 
 See SNMP::Info::CiscoStack for its own MIB requirements.
 
+See SNMP::Info::CiscoStats for its own MIB requirements.
+
+See SNMP::Info::CDP for its own MIB requirements.
+
+See SNMP::Info::CiscoImage for its own MIB requirements.
+
 =back
 
 =head1 GLOBALS
@@ -169,6 +183,11 @@ See SNMP::Info::CiscoStack for its own MIB requirements.
 These are methods that return scalar value from SNMP
 
 =over
+
+=item $c6500->bulkwalk_no
+
+Return C<1>.  There are some buggy 6509's out there, so bulkwalk
+is turned off for this class.
 
 =item $c6500->vendor()
 
@@ -188,6 +207,18 @@ See documentation in SNMP::Info::CiscoVTP for details.
 
 See documentation in SNMP::Info::CiscoStack for details.
 
+=head2 Globals imported from SNMP::Info::CDP
+
+See documentation in SNMP::Info::CDP for details.
+
+=head2 Globals imported from SNMP::Info::CiscoStats
+
+See documentation in SNMP::Info::CiscoStats for details.
+
+=head2 Globals imported from SNMP::Info::CiscoImage
+
+See documentation in SNMP::Info::CiscoImage for details.
+
 =head1 TABLE ENTRIES
 
 These are methods that return tables of information in the form of a reference
@@ -204,6 +235,18 @@ See documentation in SNMP::Info::CiscoVTP for details.
 =head2 Table Methods imported from SNMP::Info::CiscoStack
 
 See documentation in SNMP::Info::CiscoStack for details.
+
+=head2 Table Methods imported from SNMP::Info::CDP
+
+See documentation in SNMP::Info::CDP for details.
+
+=head2 Table Methods imported from SNMP::Info::CiscoStats
+
+See documentation in SNMP::Info::CiscoStats for details.
+
+=head2 Table Methods imported from SNMP::Info::CiscoImage
+
+See documentation in SNMP::Info::CiscoImage for details.
 
 =cut
 

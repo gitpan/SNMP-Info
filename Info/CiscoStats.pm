@@ -1,5 +1,5 @@
 # SNMP::Info::CiscoStats
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Changes since Version 0.7 Copyright (c) 2004 Max Baker 
 # All rights reserved.  
@@ -31,8 +31,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CiscoStats;
-$VERSION = 0.9;
-# $Id: CiscoStats.pm,v 1.9 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: CiscoStats.pm,v 1.16 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -43,14 +43,14 @@ use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 @SNMP::Info::CiscoStats::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::CiscoStats::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT    = 0;
 %MIBS    = (
-            'RFC1213-MIB'           => 'sysDescr',
+            'SNMPv2-MIB'            => 'sysDescr',
             'CISCO-PROCESS-MIB'     => 'cpmCPUTotal5sec',
-            'CISCO-MEMORY-POOL-MIB' => 'ciscoMemoryPoolUsed' 
+            'CISCO-MEMORY-POOL-MIB' => 'ciscoMemoryPoolUsed',
+            'OLD-CISCO-SYSTEM-MIB'  => 'writeMem',
+            'CISCO-PRODUCTS-MIB'    => 'sysName',
+            'CISCO-STACK-MIB'       => 'wsc1900sysID',    # some older catalysts live here
+            'CISCO-ENTITY-VENDORTYPE-OID-MIB' => 'cevChassis',
            );
 
 %GLOBALS = (
@@ -68,6 +68,8 @@ $INIT    = 0;
             # CISCO-MEMORY-POOL-MIB
             'mem_free'     => 'ciscoMemoryPoolFree.1',
             'mem_used'     => 'ciscoMemoryPoolUsed.1',
+            # OLD-CISCO-SYSTEM-MIB
+            'write_mem'    => 'writeMem',
            );
 
 %FUNCS   = (
@@ -78,7 +80,7 @@ $INIT    = 0;
 
 sub os {
     my $l2 = shift;
-    my $descr = $l2->description();
+    my $descr = $l2->description() || '';
 
     # order here matters - there are Catalysts that run IOS and have catalyst in their description field.
     return 'ios'      if ($descr =~ /IOS/);
@@ -144,7 +146,7 @@ SNMP::Info::CiscoStats - Perl5 Interface to CPU and Memory stats for Cisco Devic
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -177,11 +179,19 @@ none.
 
 =over
 
+=item CISCO-PRODUCTS-MIB
+
 =item CISCO-PROCESS-MIB
 
 =item CISCO-MEMORY-POOL-MIB
 
-=item RFC1213-MIB
+=item SNMPv2-MIB
+
+=item OLD-CISCO-SYSTEM-MIB
+
+=item CISCO-STACK-MIB
+
+=item CISCO-ENTITY-VENDORTYPE-OID-MIB
 
 =back
 

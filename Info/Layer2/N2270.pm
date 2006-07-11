@@ -1,8 +1,8 @@
-# SNMP::Info::Layer2::Orinoco
+# SNMP::Info::Layer2::N2270
 # Eric Miller
-# $Id: Orinoco.pm,v 1.8 2006/06/30 21:31:30 jeneric Exp $
+# $Id: N2270.pm,v 1.5 2006/06/30 21:31:30 jeneric Exp $
 #
-# Copyright (c) 2004-6 Eric Miller
+# Copyright (c) 2005 Eric Miller
 #
 # Redistribution and use in source and binary forms, with or without 
 # modification, are permitted provided that the following conditions are met:
@@ -27,125 +27,74 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer2::Orinoco;
+package SNMP::Info::Layer2::N2270;
 $VERSION = '1.04';
 use strict;
 
 use Exporter;
 use SNMP::Info;
 use SNMP::Info::Bridge;
+use SNMP::Info::SONMP;
+use SNMP::Info::Airespace;
 
-@SNMP::Info::Layer2::Orinoco::ISA = qw/SNMP::Info SNMP::Info::Bridge Exporter/;
-@SNMP::Info::Layer2::Orinoco::EXPORT_OK = qw//;
+@SNMP::Info::Layer2::N2270::ISA = qw/SNMP::Info SNMP::Info::Bridge SNMP::Info::SONMP SNMP::Info::Airespace Exporter/;
+@SNMP::Info::Layer2::N2270::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 
 %MIBS    = (
             %SNMP::Info::MIBS,
             %SNMP::Info::Bridge::MIBS,
-           );
+            %SNMP::Info::SONMP::MIBS,
+            %SNMP::Info::Airespace::MIBS,
+            );
 
 %GLOBALS = (
             %SNMP::Info::GLOBALS,
             %SNMP::Info::Bridge::GLOBALS,
-           );
+            %SNMP::Info::SONMP::GLOBALS,
+            %SNMP::Info::Airespace::GLOBALS,
+            );
 
 %FUNCS   = (
             %SNMP::Info::FUNCS,
             %SNMP::Info::Bridge::FUNCS,
-             );
+            %SNMP::Info::SONMP::FUNCS,
+            %SNMP::Info::Airespace::FUNCS,
+            );
 
 %MUNGE   = (
-            %SNMP::Info::MUNGE,
-            %SNMP::Info::Bridge::MUNGE,
+          %SNMP::Info::MUNGE,
+          %SNMP::Info::Bridge::MUNGE,
+          %SNMP::Info::SONMP::MUNGE,
+          %SNMP::Info::Airespace::MUNGE,
             );
 
 sub os {
-    return 'orinoco';
-}
-
-sub os_ver {
-    my $orinoco = shift;
-    my $descr = $orinoco->description();
-    return undef unless defined $descr;
-
-    if ($descr =~ m/V(\d+\.\d+)/){
-        return $1;
-    }
-    if ($descr =~ m/v(\d+\.\d+\.\d+)/){
-        return $1;
-    }
-
-    return undef;
-}
-
-sub os_bin {
-    my $orinoco = shift;
-    my $descr = $orinoco->description();
-    return undef unless defined $descr;
-
-    if ($descr =~ m/V(\d+\.\d+)$/){
-        return $1;
-    }
-    if ($descr =~ m/v(\d+\.\d+\.\d+)$/){
-        return $1;
-    }
-
-    return undef;
+    return 'nortel';
 }
 
 sub vendor {
-    return 'proxim';
+    return 'nortel';
 }
 
 sub model {
-    my $orinoco = shift;
-    my $descr = $orinoco->description();
-    return undef unless defined $descr;
+    my $n2270 = shift;
+    my $id = $n2270->id();
+    return undef unless defined $id;
+    my $model = &SNMP::translateObj($id);
+    return $id unless defined $model;
+    $model =~ s/^sreg-WLANSecuritySwitch//i;
 
-    return $1 if ($descr =~ /(AP-\d+)/);
-    return 'WavePOINT-II' if ($descr =~ /WavePOINT-II/);
-    return undef;
+    return $model;
 }
 
-sub serial {
-    my $orinoco = shift;
-    my $descr = $orinoco->description();
-    return undef unless defined $descr;
-
-    $descr  = $1 if $descr =~ /SN-(\S+)/;
-    return $descr;
+sub index_factor {
+    return 256;
 }
 
-sub i_ignore {
-    my $orinoco = shift;
-    my $descr = $orinoco->i_description();
-
-    my %i_ignore;
-    foreach my $if (keys %$descr){
-        my $type = $descr->{$if};
-	  # Skip virtual interfaces  
-        $i_ignore{$if}++ if $type =~ /(lo|empty|PCMCIA)/i;
-    }
-    return \%i_ignore;
-}
-
-sub interfaces {
-    my $orinoco = shift;
-    my $interfaces = $orinoco->i_index();
-    my $descriptions = $orinoco->i_description();
-
-    my %interfaces = ();
-    foreach my $iid (keys %$interfaces){
-        my $desc = $descriptions->{$iid};
-        next unless defined $desc;
-        next if $desc =~ /(lo|empty|PCMCIA)/i;
-
-	$desc  = 'AMD' if $desc =~ /AMD/;
-
-        $interfaces{$iid} = $desc;
-    }
-    return \%interfaces;
+sub slot_offset {
+    return 0;
 }
 
 1;
@@ -153,7 +102,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::Orinoco - SNMP Interface to Orinoco Series Access Points
+SNMP::Info::Layer2::N2270 - SNMP Interface to Nortel 2270 Series Wireless Switch
 
 =head1 AUTHOR
 
@@ -161,8 +110,9 @@ Eric Miller
 
 =head1 SYNOPSIS
 
- # Let SNMP::Info determine the correct subclass for you. 
- my $orinoco = new SNMP::Info(
+    #Let SNMP::Info determine the correct subclass for you.
+
+    my $n2270 = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           # These arguments are passed directly on to SNMP::Session
@@ -170,20 +120,21 @@ Eric Miller
                           Community   => 'public',
                           Version     => 2
                         ) 
+
     or die "Can't connect to DestHost.\n";
 
- my $class      = $orinoco->class();
- print "SNMP::Info determined this device to fall under subclass : $class\n";
+    my $class = $n2270->class();
+    print " Using device sub class : $class\n";
 
 =head1 DESCRIPTION
 
-Provides abstraction to the configuration information obtainable from a Orinoco
-Access Point through SNMP. 
+Provides abstraction to the configuration information obtainable from a 
+Nortel 2270 Series Wireless Switch through SNMP.
 
 For speed or debugging purposes you can call the subclass directly, but not after
 determining a more specific class using the method above. 
 
- my $orinoco = new SNMP::Info::Layer2::Orinoco(...);
+my $n2270 = new SNMP::Info::Layer2::N2270(...);
 
 =head2 Inherited Classes
 
@@ -193,17 +144,25 @@ determining a more specific class using the method above.
 
 =item SNMP::Info::Bridge
 
+=item SNMP::Info::SONMP
+
+=item SNMP::Info::Airespace
+
 =back
 
 =head2 Required MIBs
 
 =over
 
-=item Inherited classes
+=item Inherited Classes' MIBs
 
 See SNMP::Info for its own MIB requirements.
 
 See SNMP::Info::Bridge for its own MIB requirements.
+
+See SNMP::Info::SONMP for its own MIB requirements.
+
+See SNMP::Info::Airespace for its own MIB requirements.
 
 =back
 
@@ -213,29 +172,36 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $orinoco->vendor()
+=item $n2270->vendor()
 
-Returns 'Proxim' :)
+Returns 'nortel'
 
-=item $orinoco->model()
+=item $n2270->os()
 
-Returns the model extracted from B<sysDescr>.
+Returns 'nortel'
 
-=item $orinoco->os()
+=item $n2270->model()
 
-Returns 'Orinoco'
+Cross references $bayhub->id() to the SYNOPTICS-ROOT-MIB and returns
+the results.
 
-=item $orinoco->os_ver()
+Removes sreg-WLANSecuritySwitch from the model name
 
-Returns the software version extracted from B<sysDescr>.
+=back
 
-=item $orinoco->os_bin()
+=head2 Overrides
 
-Returns the firmware version extracted from B<sysDescr>.
+=over
 
-=item $orinoco->serial()
+=item  $bayhub->index_factor()
 
-Returns the serial number extracted from B<sysDescr>.
+Required by SNMP::Info::SONMP.  Number representing the number of ports
+reserved per slot within the device MIB.  Returns 256.
+
+=item $bayhub->slot_offset()
+
+Required by SNMP::Info::SONMP.  Offset if slot numbering does not
+start at 0.  Returns 0.
 
 =back
 
@@ -247,6 +213,14 @@ See documentation in SNMP::Info for details.
 
 See documentation in SNMP::Info::Bridge for details.
 
+=head2 Global Methods imported from SNMP::Info::SONMP
+
+See documentation in SNMP::Info::SONMP for details.
+
+=head2 Global Methods imported from SNMP::Info::Airespace
+
+See documentation in SNMP::Info::Airespace for details.
+
 =head1 TABLE ENTRIES
 
 These are methods that return tables of information in the form of a reference
@@ -256,13 +230,7 @@ to a hash.
 
 =over
 
-=item $orinoco->interfaces()
-
-Returns reference to map of IIDs to physical ports. 
-
-=item $orinoco->i_ignore()
-
-Returns reference to hash of IIDs to ignore.
+=item None
 
 =back
 
@@ -273,5 +241,13 @@ See documentation in SNMP::Info for details.
 =head2 Table Methods imported from SNMP::Info::Bridge
 
 See documentation in SNMP::Info::Bridge for details.
+
+=head2 Table Methods imported from SNMP::Info::SONMP
+
+See documentation in SNMP::Info::SONMP for details.
+
+=head2 Table Methods imported from SNMP::Info::Airespace
+
+See documentation in SNMP::Info::Airespace for details.
 
 =cut

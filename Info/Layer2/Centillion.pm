@@ -1,8 +1,8 @@
 # SNMP::Info::Layer2::Centillion
-# Eric Miller <eric@jeneric.org>
-# $Id: Centillion.pm,v 1.2 2004/10/28 21:53:14 maxbaker Exp $
+# Eric Miller
+# $Id: Centillion.pm,v 1.7 2006/06/30 21:31:30 jeneric Exp $
 #
-# Copyright (c) 2004 Max Baker
+# Copyright (c) 2004 Eric Miller
 #
 # Redistribution and use in source and binary forms, with or without 
 # modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Centillion;
-$VERSION = 0.9;
+$VERSION = '1.04';
 
 use strict;
 
@@ -248,7 +248,7 @@ SNMP::Info::Layer2::Centillion - SNMP Interface to Nortel Centillion based ATM S
 
 =head1 AUTHOR
 
-Eric Miller (C<eric@jeneric.org>)
+Eric Miller
 
 =head1 SYNOPSIS
 

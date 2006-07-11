@@ -1,7 +1,7 @@
 # SNMP::Info::Layer2::HP - SNMP Interface to HP ProCurve Switches
-# Max Baker <max@warped.org>
+# Max Baker
 #
-# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+# Copyright (c) 2004,2005 Max Baker changes from version 0.8 and beyond.
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::HP;
-$VERSION = 0.9;
-# $Id: HP.pm,v 1.17 2004/11/01 20:33:33 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: HP.pm,v 1.26 2006/06/30 21:31:30 jeneric Exp $
 
 use strict;
 
@@ -39,18 +39,18 @@ use Exporter;
 use SNMP::Info::Layer2;
 use SNMP::Info::MAU;
 use SNMP::Info::Entity;
+use SNMP::Info::CDP;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %PORTSTAT %MODEL_MAP %MUNGE $INIT/ ;
 
-@SNMP::Info::Layer2::HP::ISA = qw/SNMP::Info::Layer2 SNMP::Info::MAU SNMP::Info::Entity Exporter/;
+@SNMP::Info::Layer2::HP::ISA = qw/SNMP::Info::Layer2 SNMP::Info::MAU SNMP::Info::Entity
+                                  SNMP::Info::CDP Exporter/;
 @SNMP::Info::Layer2::HP::EXPORT_OK = qw//;
-
-# See SNMP::Info for the details of these data structures and interworkings.
-$INIT = 0;
 
 %MIBS = ( %SNMP::Info::Layer2::MIBS,
           %SNMP::Info::MAU::MIBS,
           %SNMP::Info::Entity::MIBS,
+          %SNMP::Info::CDP::MIBS,
           'RFC1271-MIB' => 'logDescription',
           'HP-ICF-OID'  => 'hpSwitch4000',
           'HP-VLAN'     => 'hpVlanMemberIndex',
@@ -62,6 +62,7 @@ $INIT = 0;
             %SNMP::Info::Layer2::GLOBALS,
             %SNMP::Info::MAU::GLOBALS,
             %SNMP::Info::Entity::GLOBALS,
+            %SNMP::Info::CDP::GLOBALS,
             'serial1'      => 'entPhysicalSerialNum.1',
             'hp_cpu'       => 'hpSwitchCpuStat.0',
             'hp_mem_total' => 'hpGlobalMemTotalBytes.1',
@@ -77,6 +78,8 @@ $INIT = 0;
             %SNMP::Info::Layer2::FUNCS,
             %SNMP::Info::MAU::FUNCS,
             %SNMP::Info::Entity::FUNCS,
+            %SNMP::Info::CDP::FUNCS,
+            'bp_index2' => 'dot1dBasePortIfIndex',
             'i_type2'   => 'ifType',
             # RFC1271
             'l_descr'   => 'logDescription',
@@ -95,7 +98,8 @@ $INIT = 0;
             # Inherit all the built in munging
             %SNMP::Info::Layer2::MUNGE,
             %SNMP::Info::MAU::MUNGE,
-            %SNMP::Info::Entity::MUNGE
+            %SNMP::Info::Entity::MUNGE,
+            %SNMP::Info::CDP::MUNGE
          );
 
 %MODEL_MAP = ( 
@@ -108,25 +112,39 @@ $INIT = 0;
                 'J4139A' => '9304M',
                 'J4812A' => '2512',
                 'J4813A' => '2524',
+                'J4815A' => '3324XL',
                 'J4819A' => '5308XL',
                 'J4840A' => '6308M-SX',
                 'J4841A' => '6208M-SX',
                 'J4850A' => '5304XL',
+                'J4851A' => '3124',
                 'J4865A' => '4108GL',
                 'J4874A' => '9315M',
                 'J4887A' => '4104GL',
                 'J4899A' => '2650',
+                'J4899B' => '2650-CR',
                 'J4900A' => '2626',
+                'J4900B' => '2626-CR',
                 'J4902A' => '6108',
                 'J4903A' => '2824',
                 'J4904A' => '2848',
+                'J4905A' => '3400cl-24G',
+                'J4906A' => '3400cl-48G',
                 'J8130A' => 'WAP-420-NA',
                 'J8131A' => 'WAP-420-WW',
+                'J8133A' => 'AP520WL',
                 'J8164A' => '2626-PWR',
                 'J8165A' => '2650-PWR',
+                'J8433A' => 'CX4-6400cl-6XG',
+                'J8474A' => 'MF-6400cl-6XG',
+                'J8718A' => '5404yl',
+                'J8719A' => '5408yl',
            );
 
 # Method Overrides
+
+*SNMP::Info::Layer2::HP::i_duplex       = \&SNMP::Info::MAU::mau_i_duplex;
+*SNMP::Info::Layer2::HP::i_duplex_admin = \&SNMP::Info::MAU::mau_i_duplex_admin;
 
 sub cpu {
     my $hp = shift;
@@ -282,125 +300,57 @@ sub slots {
 #
 #}
 
-sub i_duplex {
-    my $hp = shift;
-
-    my $mau_index = $hp->mau_index();
-    my $mau_link = $hp->mau_link();
-
-    my %i_duplex;
-    foreach my $mau_port (keys %$mau_link){
-        my $iid = $mau_index->{$mau_port};
-        next unless defined $iid;
-
-        my $linkoid = $mau_link->{$mau_port};
-        my $link = &SNMP::translateObj($linkoid);
-        next unless defined $link;
-
-        my $duplex = undef;
-
-        if ($link =~ /fd$/i) {
-            $duplex = 'full';
-        } elsif ($link =~ /hd$/i){
-            $duplex = 'half';
-        }
-
-        $i_duplex{$iid} = $duplex if defined $duplex;
-    }
-    return \%i_duplex;
-}
-
-
-sub i_duplex_admin {
-    my $hp = shift;
-
-    my $interfaces   = $hp->interfaces();
-    my $mau_index    = $hp->mau_index();
-    my $mau_auto     = $hp->mau_auto();
-    my $mau_autostat = $hp->mau_autostat();
-    my $mau_typeadmin = $hp->mau_type_admin();
-    my $mau_autosent = $hp->mau_autosent();
-
-    my %mau_reverse = reverse %$mau_index;
-
-    my %i_duplex_admin;
-    foreach my $iid (keys %$interfaces){
-        my $mau_index = $mau_reverse{$iid};
-        next unless defined $mau_index;
-
-        my $autostat = $mau_autostat->{$mau_index};
-        
-        # HP25xx has this value
-        if (defined $autostat and $autostat =~ /enabled/i){
-            $i_duplex_admin{$iid} = 'auto';
-            next;
-        } 
-        
-        my $type = $mau_autosent->{$mau_index};
-    
-        next unless defined $type;
-
-        if ($type == 0) {
-            $i_duplex_admin{$iid} = 'none';
-            next;
-        }
-
-        my $full = $hp->_isfullduplex($type);
-        my $half = $hp->_ishalfduplex($type);
-
-        if ($full and !$half){
-            $i_duplex_admin{$iid} = 'full';
-        } elsif ($half) {
-            $i_duplex_admin{$iid} = 'half';
-        } 
-    } 
-    
-    return \%i_duplex_admin;
-}
-
 sub i_vlan {
     my $hp = shift;
 
-    my $interfaces = $hp->interfaces();
-
     # Newer devices use Q-BRIDGE-MIB
-    my $qb_i_vlan = $hp->qb_i_vlan();
-    my $qb_i_vlan_type = $hp->qb_i_vlan_type();
-        
-    my $i_vlan = {};
-
-    foreach my $if (keys %$qb_i_vlan){
-        my $vlan = $qb_i_vlan->{$if};
-        my $tagged = $qb_i_vlan_type->{$if};
-        $tagged = (defined $tagged and $tagged eq 'admitOnlyVlanTagged') ? 1 : 0;
-        next unless defined $vlan;
-        $i_vlan->{$if}= $tagged ? 'trunk' : $vlan;
+    my $qb_i_vlan = $hp->qb_i_vlan_t();
+    if (defined $qb_i_vlan and scalar(keys %$qb_i_vlan)){
+        return $qb_i_vlan;
     }
 
     # HP4000 ... get it from HP-VLAN
     # the hpvlanmembertagged2 table has an entry in the form of 
     #   vlan.interface = /untagged/no/tagged/auto
-    unless (defined $qb_i_vlan and scalar(keys %$qb_i_vlan)){
-        my $hp_v_index = $hp->hp_v_index();
-        my $hp_v_if_tag   = $hp->hp_v_if_tag();
-        foreach my $row (keys %$hp_v_if_tag){
-            my ($index,$if) = split(/\./,$row);
+    my $i_vlan      = {};
+    my $hp_v_index  = $hp->hp_v_index();
+    my $hp_v_if_tag = $hp->hp_v_if_tag();
+    foreach my $row (keys %$hp_v_if_tag){
+        my ($index,$if) = split(/\./,$row);
 
-            my $tag = $hp_v_if_tag->{$row};
-            my $vlan = $hp_v_index->{$index};
-            
-            next unless defined $tag;
-            $vlan = 'Trunk' if $tag eq 'tagged';
-            $vlan = 'Auto'  if $tag eq 'auto';
-            undef $vlan if $tag eq 'no';
+        my $tag = $hp_v_if_tag->{$row};
+        my $vlan = $hp_v_index->{$index};
+        
+        next unless defined $tag;
+        $vlan = 'Trunk' if $tag eq 'tagged';
+        $vlan = 'Auto'  if $tag eq 'auto';
+        undef $vlan if $tag eq 'no';
 
-            
-            $i_vlan->{$if} = $vlan if defined $vlan;
-        }
+        
+        $i_vlan->{$if} = $vlan if defined $vlan;
     }
 
     return $i_vlan;
 }
+
+# Bridge MIB does not map Bridge Port to ifIndex correctly on all models
+sub bp_index {
+    my $hp = shift;
+    my $if_index = $hp->i_index();
+    my $model = $hp->model();
+    my $bp_index = $hp->bp_index2();
+    
+    unless (defined $model and $model =~ /(1600|2424|4000|8000)/) {
+        return $bp_index;
+    }
+
+    my %mod_bp_index;
+    foreach my $iid (keys %$if_index){
+        $mod_bp_index{$iid} = $iid;
+    }
+    return \%mod_bp_index;
+}
+
 1;
 __END__
 
@@ -410,7 +360,7 @@ SNMP::Info::Layer2::HP - SNMP Interface to HP Procurve Switches
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -513,14 +463,43 @@ Returns the model number of the HP Switch.  Will translate between the HP Part n
 the common model number with this map :
 
  %MODEL_MAP = ( 
-               'J4812A' => '2512',
-               'J4819A' => '5308XL',
-               'J4813A' => '2524',
-               'J4805A' => '5304XL',
-               'J4815A' => '3324XL',
-               'J4865A' => '4108GL',
-               'J4887A' => '4104GL',
-               'J4874A' => '9315',
+                'J4093A' => '2424M',
+                'J4110A' => '8000M',
+                'J4120A' => '1600M',
+                'J4121A' => '4000M',
+                'J4122A' => '2400M',
+                'J4138A' => '9308M',
+                'J4139A' => '9304M',
+                'J4812A' => '2512',
+                'J4813A' => '2524',
+                'J4815A' => '3324XL',
+                'J4819A' => '5308XL',
+                'J4840A' => '6308M-SX',
+                'J4841A' => '6208M-SX',
+                'J4850A' => '5304XL',
+                'J4851A' => '3124',
+                'J4865A' => '4108GL',
+                'J4874A' => '9315M',
+                'J4887A' => '4104GL',
+                'J4899A' => '2650',
+                'J4899B' => '2650-CR',
+                'J4900A' => '2626',
+                'J4900B' => '2626-CR',
+                'J4902A' => '6108',
+                'J4903A' => '2824',
+                'J4904A' => '2848',
+                'J4905A' => '3400cl-24G',
+                'J4906A' => '3400cl-48G',
+                'J8130A' => 'WAP-420-NA',
+                'J8131A' => 'WAP-420-WW',
+                'J8133A' => 'AP520WL',
+                'J8164A' => '2626-PWR',
+                'J8165A' => '2650-PWR',
+                'J8433A' => 'CX4-6400cl-6XG',
+                'J8474A' => 'MF-6400cl-6XG',
+                'J8718A' => '5404yl',
+                'J8719A' => '5408yl',
+
               );
 
 =item $hp->os()
@@ -603,6 +582,13 @@ Crosses i_type() with $hp->e_descr() using $hp->e_port()
 Looks in Q-BRIDGE-MIB -- see SNMP::Info::Bridge
 
 and for older devices looks in HP-VLAN.
+
+=item $hp->bp_index()
+
+Returns reference to hash of bridge port table entries map back to interface identifier (iid)
+
+Returns (B<ifIndex>) for both key and value for 1600, 2424, 4000, and 8000 models
+since they seem to have problems with BRIDGE-MIB
 
 =back
 

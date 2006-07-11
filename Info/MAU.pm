@@ -1,7 +1,7 @@
-# SNMP::Info::MAU - Media Access Unit - RFC2668
-# Max Baker <max@warped.org>
+# SNMP::Info::MAU - Media Access Unit - RFC 2668
+# Max Baker
 #
-# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+# Copyright (c) 2004,2005 Max Baker changes from version 0.8 and beyond.
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::MAU;
-$VERSION = 0.9;
-# $Id: MAU.pm,v 1.9 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: MAU.pm,v 1.17 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -41,11 +41,6 @@ use SNMP::Info;
 use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 @SNMP::Info::MAU::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::MAU::EXPORT_OK = qw//;
-
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT = 0;
 
 %MIBS = ('MAU-MIB' => 'mauMod');
 
@@ -105,17 +100,166 @@ sub _ishalfduplex{
     return 0;
 }
 
+my %_mau_i_speed_map = (
+ '10' => '10 Mbps',
+ '100' => '100 Mbps',
+ '1000' => '1.0 Gbps',
+ '10Gig' => '10 Gbps',
+);
+
+sub mau_i_speed_admin {
+    my $mau = shift;
+
+    my $mau_index = $mau->mau_index();
+    my $mau_type_admin = $mau->mau_type_admin();
+
+    my %i_speed_admin;
+    foreach my $mau_port (keys %$mau_type_admin){
+        my $iid = $mau_index->{$mau_port};
+        next unless defined $iid;
+
+        my $type_adminoid = $mau_type_admin->{$mau_port};
+        my $type_admin = &SNMP::translateObj($type_adminoid);
+        next unless defined $type_admin;
+
+	if ($type_adminoid eq '.0.0') {
+		$i_speed_admin{$iid} = 'auto';
+	} elsif ($type_admin =~ /^dot3MauType(.*)Base/ && $_mau_i_speed_map{$1}) {
+		$i_speed_admin{$iid} = $_mau_i_speed_map{$1};
+	}
+    }
+    return \%i_speed_admin;
+}
+
+sub mau_i_duplex {
+    my $mau = shift;
+
+    my $mau_index = $mau->mau_index();
+    my $mau_link = $mau->mau_link();
+
+    my %i_duplex;
+    foreach my $mau_port (keys %$mau_link){
+        my $iid = $mau_index->{$mau_port};
+        next unless defined $iid;
+
+        my $linkoid = $mau_link->{$mau_port};
+        my $link = &SNMP::translateObj($linkoid);
+        next unless defined $link;
+
+        my $duplex = undef;
+
+        if ($link =~ /fd$/i) {
+            $duplex = 'full';
+        } elsif ($link =~ /hd$/i){
+            $duplex = 'half';
+        }
+
+        $i_duplex{$iid} = $duplex if defined $duplex;
+    }
+    return \%i_duplex;
+}
+
+sub mau_i_duplex_admin {
+    my $mau = shift;
+
+    my $mau_index = $mau->mau_index();
+    my $mau_autostat = $mau->mau_autostat();
+    my $mau_type_admin = $mau->mau_type_admin();
+
+    # Older HP4000's don't implement ifMauDefaultType, but we can
+    # figure out from ifMauAutoNegCapAdvertised what we'd like.
+    if (!defined($mau_type_admin)) {
+        if (defined($mau_index)) {
+            return mau_i_duplex_admin_old($mau,$mau_index,$mau_autostat);
+        } else {
+            return undef;
+        }
+    }
+
+    my %i_duplex_admin;
+    foreach my $mau_port (keys %$mau_type_admin){
+        my $iid = $mau_index->{$mau_port};
+        next unless defined $iid;
+
+        my $autostat = $mau_autostat->{$mau_port};
+        if (defined $autostat and $autostat =~ /enabled/i){
+            $i_duplex_admin{$iid} = 'auto';
+            next;
+        } 
+
+        my $type_adminoid = $mau_type_admin->{$mau_port};
+        my $type_admin = &SNMP::translateObj($type_adminoid);
+        next unless defined $type_admin;
+
+        my $duplex = undef;
+
+        if ($type_admin =~ /fd$/i) {
+            $duplex = 'full';
+        } elsif ($type_admin =~ /hd$/i){
+            $duplex = 'half';
+        }
+
+        $i_duplex_admin{$iid} = $duplex if defined $duplex;
+    }
+    return \%i_duplex_admin;
+}
+
+sub mau_i_duplex_admin_old {
+    my $mau = shift;
+    my $mau_index = shift;
+    my $mau_autostat = shift;
+
+    my $interfaces   = $mau->interfaces();
+    my $mau_autosent = $mau->mau_autosent();
+
+    my %mau_reverse = reverse %$mau_index;
+
+    my %i_duplex_admin;
+    foreach my $iid (keys %$interfaces){
+        my $mau_index = $mau_reverse{$iid};
+        next unless defined $mau_index;
+
+        my $autostat = $mau_autostat->{$mau_index};
+        
+        # HP25xx has this value
+        if (defined $autostat and $autostat =~ /enabled/i){
+            $i_duplex_admin{$iid} = 'auto';
+            next;
+        } 
+        
+        my $type = $mau_autosent->{$mau_index};
+    
+        next unless defined $type;
+
+        if ($type == 0) {
+            $i_duplex_admin{$iid} = 'none';
+            next;
+        }
+
+        my $full = $mau->_isfullduplex($type);
+        my $half = $mau->_ishalfduplex($type);
+
+        if ($full and !$half){
+            $i_duplex_admin{$iid} = 'full';
+        } elsif ($half) {
+            $i_duplex_admin{$iid} = 'half';
+        } 
+    } 
+    
+    return \%i_duplex_admin;
+}
+
 1;
 __END__
 
 
 =head1 NAME
 
-SNMP::Info::MAU - Perl5 Interface to Medium Access Unit (MAU) MIB (RFC2668) via SNMP
+SNMP::Info::MAU - Perl5 Interface to Medium Access Unit (MAU) MIB (RFC 2668) via SNMP
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -133,7 +277,7 @@ Max Baker (C<max@warped.org>)
 =head1 DESCRIPTION
 
 SNMP::Info::MAU is a sublcass of SNMP::Info that supplies access to the
-MAU-MIB (RFC2668). This MIB is sometimes implemented on Layer 2 network devices like HP Switches.
+MAU-MIB (RFC 2668). This MIB is sometimes implemented on Layer 2 network devices like HP Switches.
 MAU = Media Access Unit.
 
 The MAU table contains link and duplex info for the port itself and the device
@@ -171,6 +315,31 @@ These are methods that return scalar value from SNMP
 
 These are methods that return tables of information in the form of a reference
 to a hash.
+
+
+=over
+
+=item $mau->mau_i_duplex()
+
+Parses mau_index and mau_link to return the duplex information for
+interfaces.
+
+=item $mau->mau_i_duplex_admin()
+
+Parses C<mac_index>,C<mau_autostat>,C<mau_type_admin> in
+order to find the admin duplex setting for all the interfaces.
+
+Returns either (auto,full,half).
+
+=item $mau->mau_i_duplex_admin_old()
+
+Called by mau_i_duplex_admin() if C<mau_type_admin> is empty.
+Parses C<mau_index>,C<mau_autostat>,C<mau_autosent> in
+order to find the admin duplex setting for all the interfaces.
+
+Returns either (auto,none,full,half).
+
+=back
 
 =head2 MAU INTERFACE TABLE ENTRIES
 
@@ -234,9 +403,17 @@ of the port from a MAU POV.
 
 (B<ifMauTypeList>)
 
+=item $mau->mau_type_admin()
+
+(C<ifMauDefaultType>)
+
 =item $mau->mau_auto() - Returns status of auto-negotiation mode for ports.
 
 (B<ifMauAutoNegAdminStatus>)
+
+=item $mau->mau_autostat()
+
+(C<ifMauAutoNegAdminStatus>)
 
 =item $mau->mau_autosent() - Returns a 32 bit bit-string representing the
 capabilities we are broadcasting on that port 

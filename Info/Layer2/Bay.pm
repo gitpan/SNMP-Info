@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Bay
-# Max Baker <max@warped.org>
+# Max Baker 
 # This module depricated.  See Layer2::BayStack
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
@@ -31,8 +31,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Bay;
-$VERSION = 0.9;
-# $Id: Bay.pm,v 1.16 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Bay.pm,v 1.20 2006/06/30 21:31:30 jeneric Exp $
 use strict;
 
 use Exporter;
@@ -273,7 +273,7 @@ SNMP::Info::Layer2::Bay - SNMP Interface to old Bay Network BayStack Switches
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 

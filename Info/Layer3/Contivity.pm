@@ -1,8 +1,8 @@
 # SNMP::Info::Layer3::Contivity
-# Eric Miller <eric@jeneric.org>
-# $Id: Contivity.pm,v 1.2 2004/10/28 21:53:15 maxbaker Exp $
+# Eric Miller
+# $Id: Contivity.pm,v 1.8 2006/06/30 21:32:49 jeneric Exp $
 #
-# Copyright (c) 2004 Max Baker
+# Copyright (c) 2004 Eric Miller, Max Baker
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without 
@@ -29,7 +29,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Contivity;
-$VERSION = 0.9;
+$VERSION = '1.04';
 
 use strict;
 
@@ -41,12 +41,6 @@ use vars qw/$VERSION $DEBUG %GLOBALS %FUNCS $INIT %MIBS %MUNGE/;
 
 @SNMP::Info::Layer3::Contivity::ISA = qw/SNMP::Info SNMP::Info::Entity Exporter/;
 @SNMP::Info::Layer3::Contivity::EXPORT_OK = qw//;
-
-$DEBUG=0;
-
-# See SNMP::Info for the details of these data structures and 
-# the interworkings.
-$INIT = 0;
 
 %MIBS = (
          %SNMP::Info::MIBS,
@@ -152,29 +146,15 @@ sub i_name {
     
     my %i_name;
     foreach my $iid (keys %$i_name2){
-	my $name = $i_name2->{$iid};
-       #Skip everything except Ethernet interfaces
-	next unless (defined $name and $name =~ /fe/i);
-	
-	$name = $1 if $name =~ /(fei\.\d+\.\d+)/;
-	
-	$i_name{$iid} = $name;
+        my $name = $i_name2->{$iid};
+        #Skip everything except Ethernet interfaces
+        next unless (defined $name and $name =~ /fe/i);
+
+        $name = $1 if $name =~ /(fei\.\d+\.\d+)/;
+
+        $i_name{$iid} = $name;
      }
      return \%i_name;
-}
-
-sub root_ip {
-    my $contivity = shift;
-    my $ip_table = $contivity->ip_table();
-
-# Return First IP Address    
-    foreach my $entry (keys %$ip_table){
-        my $router_ip = $ip_table->{$entry};
-        print " SNMP::Layer3::Contivity::root_ip() using $router_ip\n" if $DEBUG;
-        next unless $router_ip;
-        return $router_ip if ($router_ip ne '0.0.0.0');
-    }
-    return undef;
 }
 
 1;
@@ -187,7 +167,7 @@ Extranet Switches (CES).
 
 =head1 AUTHOR
 
-Eric Miller (C<eric@jeneric.org>)
+Eric Miller
 
 =head1 SYNOPSIS
 
@@ -269,11 +249,6 @@ Returns the chassis serial number.
 =item $contivity->mac()
 
 Returns the MAC address of the first Ethernet Interface.
-
-=item $contivity->root_ip()
-
-Returns the primary IP used to communicate with the router.  Returns the first
-IP interface.
 
 =back
 

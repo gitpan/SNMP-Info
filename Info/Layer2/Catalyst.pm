@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Catalyst
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # Copyright (c) 2003,2004 Max Baker changes from version 0.8 and beyond
@@ -29,8 +29,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Catalyst;
-$VERSION = 0.9;
-# $Id: Catalyst.pm,v 1.13 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Catalyst.pm,v 1.20 2006/06/30 21:31:30 jeneric Exp $
 
 use strict;
 
@@ -38,40 +38,52 @@ use Exporter;
 use SNMP::Info::Layer2;
 use SNMP::Info::CiscoVTP;
 use SNMP::Info::CiscoStack;
+use SNMP::Info::CDP;
+use SNMP::Info::CiscoStats;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE $INIT/ ;
-@SNMP::Info::Layer2::Catalyst::ISA = qw/SNMP::Info::CiscoStack SNMP::Info::Layer2 
-                                        SNMP::Info::CiscoVTP Exporter/;
+@SNMP::Info::Layer2::Catalyst::ISA = qw/SNMP::Info::Layer2 SNMP::Info::CiscoStack 
+                                        SNMP::Info::CiscoVTP SNMP::Info::CDP SNMP::Info::CiscoStats Exporter/;
 @SNMP::Info::Layer2::Catalyst::EXPORT_OK = qw//;
-
-$DEBUG=0;
-
-# See SNMP::Info for the details of these data structures and 
-#       the interworkings.
-$INIT = 0;
 
 %MIBS =    ( %SNMP::Info::Layer2::MIBS, 
              %SNMP::Info::CiscoVTP::MIBS,
              %SNMP::Info::CiscoStack::MIBS,
+             %SNMP::Info::CiscoStats::MIBS,
+             %SNMP::Info::CDP::MIBS,
            );
 
 %GLOBALS = (
             %SNMP::Info::Layer2::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
             %SNMP::Info::CiscoStack::GLOBALS,
+            %SNMP::Info::CiscoStats::GLOBALS,
+            %SNMP::Info::CDP::GLOBALS,
            );
 
 %FUNCS =   (
             %SNMP::Info::Layer2::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
             %SNMP::Info::CiscoStack::FUNCS,
+            %SNMP::Info::CiscoStats::FUNCS,
+            %SNMP::Info::CDP::FUNCS,
            );
 
 %MUNGE =   (
             %SNMP::Info::Layer2::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
             %SNMP::Info::CiscoStack::MUNGE,
+            %SNMP::Info::CDP::MUNGE,
+            %SNMP::Info::CiscoStats::MUNGE,
            );
+
+# Need to specify this or it might grab the ones out of L2 instead of CiscoStack
+*SNMP::Info::Layer2::Catalyst::serial         = \&SNMP::Info::CiscoStack::serial;
+*SNMP::Info::Layer2::Catalyst::interfaces     = \&SNMP::Info::CiscoStack::interfaces;
+*SNMP::Info::Layer2::Catalyst::i_duplex       = \&SNMP::Info::CiscoStack::i_duplex;
+*SNMP::Info::Layer2::Catalyst::i_type         = \&SNMP::Info::CiscoStack::i_type;
+*SNMP::Info::Layer2::Catalyst::i_name         = \&SNMP::Info::CiscoStack::i_name;
+*SNMP::Info::Layer2::Catalyst::i_duplex_admin = \&SNMP::Info::CiscoStack::i_duplex_admin;
 
 # Overidden Methods
 
@@ -110,6 +122,23 @@ sub os_ver {
     return undef;
 }
 
+# Workaround for incomplete bp_index
+sub bp_index {
+   my $cat = shift;
+    my $p_index = $cat->p_port();
+    my $b_index = $cat->p_oidx();
+
+    my %bp_index;
+    foreach my $iid (keys %$p_index){
+        my $ifidx = $p_index->{$iid};
+        next unless defined $ifidx;
+        my $bpidx = $b_index->{$iid}||0;
+
+        $bp_index{$bpidx} = $ifidx;
+    }
+    return \%bp_index;
+}
+
 sub cisco_comm_indexing {
     1;
 }
@@ -119,11 +148,11 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::Catalyst - Perl5 Interface to Cisco Catalyst 5000 series devices.
+SNMP::Info::Layer2::Catalyst - Perl5 Interface to Cisco Catalyst devices running Catalyst OS.
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -143,15 +172,16 @@ Max Baker (C<max@warped.org>)
 
 =head1 DESCRIPTION
 
-SNMP::Info subclass to provide information for Cisco Catalyst 5000 series switches running CatOS.
+SNMP::Info subclass to provide information for Cisco Catalyst series switches running CatOS.
+
+This class includes the Catalyst 2920, 4000, 5000, 6000 (hybrid mode) families.
 
 This subclass is not for all devices that have the name Catalyst.  Note that some Catalyst
 switches run IOS, like the 2900 and 3550 families.  Cisco Catalyst 1900 switches use their
 own MIB and have a separate subclass.  Use the method above to have SNMP::Info determine the
 appropriate subclass before using this class directly.
 
-This class includes the Catalyst 2950 series devices, which fall under the 
-Catalyst 5000 family.
+See SNMP::Info::device_type() for specifics.
 
 Note:  Some older Catalyst switches will only talk SNMP version 1.  Some newer ones will not
 return all their data if connected via Version 1.
@@ -227,6 +257,19 @@ See documentation in SNMP::Info::CiscoStack for details.
 These are methods that return tables of information in the form of a reference
 to a hash.
 
+=head2 Overrides
+
+=over
+
+=item $cat->bp_index()
+
+Returns reference to hash of bridge port table entries map back to interface identifier (iid)
+
+Crosses (B<portCrossIndex>) to (B<portIfIndex>) since some devices seem to have
+problems with BRIDGE-MIB
+
+=back
+
 =head2 Table Methods imported from SNMP::Info::CiscoVTP
 
 See documentation in SNMP::Info::CiscoVTP for details.
@@ -235,7 +278,7 @@ See documentation in SNMP::Info::CiscoVTP for details.
 
 See documentation in SNMP::Info::Layer2 for details.
 
-=head2 Table Methods imported from SNMP::Info::Layer2::CiscoSTack
+=head2 Table Methods imported from SNMP::Info::Layer2::CiscoStack
 
 See documentation in SNMP::Info::Layer2::CiscoStack for details.
 

@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::C1900
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,15 +30,18 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C1900;
-$VERSION = 0.9;
-# $Id: C1900.pm,v 1.11 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: C1900.pm,v 1.17 2006/06/30 21:31:30 jeneric Exp $
 use strict;
 
 use Exporter;
 use SNMP::Info::Layer2;
 use SNMP::Info::CiscoVTP;
+use SNMP::Info::CDP;
+use SNMP::Info::CiscoStats;
 
-@SNMP::Info::Layer2::C1900::ISA = qw/SNMP::Info::Layer2 SNMP::Info::CiscoVTP Exporter/;
+@SNMP::Info::Layer2::C1900::ISA = qw/SNMP::Info::Layer2 SNMP::Info::CiscoVTP 
+                                     SNMP::Info::CDP SNMP::Info::CiscoStats Exporter/;
 @SNMP::Info::Layer2::C1900::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
@@ -47,11 +50,15 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 %GLOBALS = (
             %SNMP::Info::Layer2::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
+            %SNMP::Info::CiscoStats::GLOBALS,
+            %SNMP::Info::CDP::GLOBALS,
             'c1900_flash_status'    => 'upgradeFlashBankStatus',
             );
 
 %FUNCS   = (%SNMP::Info::Layer2::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
+            %SNMP::Info::CiscoStats::FUNCS,
+            %SNMP::Info::CDP::FUNCS,
             'i_type2'              => 'ifType',
             'i_name2'              => 'ifName',
             # ESSWITCH-MIB
@@ -68,12 +75,16 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 %MIBS    = (
             %SNMP::Info::Layer2::MIBS,
              %SNMP::Info::CiscoVTP::MIBS,
+             %SNMP::Info::CiscoStats::MIBS,
+             %SNMP::Info::CDP::MIBS,
             # Also known as the ESSWITCH-MIB
             'STAND-ALONE-ETHERNET-SWITCH-MIB' =>  'series2000'
             );
 
 %MUNGE   = (%SNMP::Info::Layer2::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
+            %SNMP::Info::CDP::MUNGE,
+            %SNMP::Info::CiscoStats::MUNGE,
             );
 
 sub vendor {
@@ -99,9 +110,8 @@ sub os_ver {
     return undef;
 }
 
-sub cisco_comm_indexing {
-    1;
-}
+sub bulkwalk_no { 1; }
+sub cisco_comm_indexing { 1; }
 
 sub interfaces {
     my $c1900 = shift;
@@ -210,7 +220,7 @@ SNMP::Info::Layer2::C1900 - Perl5 Interface to SNMP data from Cisco Catlyst 1900
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -269,6 +279,10 @@ MIBs listed in SNMP::Info::Layer2
 These are methods that return scalar value from SNMP
 
 =over
+
+=item $c1900->bulkwalk_no
+
+Return C<1>.  Bulkwalk is turned off for this class.
 
 =item $c1900->c1900_flash_status()
 

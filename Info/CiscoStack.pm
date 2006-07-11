@@ -1,7 +1,7 @@
 # SNMP::Info::CiscoStack
-# Max Baker <max@warped.org>
+# Max Baker
 #
-# Copyright (c)2003,2004 Max Baker 
+# Copyright (c)2003,2004,2006 Max Baker 
 # All rights reserved.  
 #
 # Redistribution and use in source and binary forms, with or without 
@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CiscoStack;
-$VERSION = 0.9;
-# $Id: CiscoStack.pm,v 1.5 2004/11/14 23:07:53 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: CiscoStack.pm,v 1.12 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -40,10 +40,6 @@ use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE %PORTSTAT $INIT/;
 @SNMP::Info::CiscoStack::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::CiscoStack::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT    = 0;
 %MIBS    = (
             'CISCO-STACK-MIB'         => 'ciscoStackMIB',
             'CISCO-PORT-SECURITY-MIB' => 'ciscoPortSecurityMIB',
@@ -97,6 +93,11 @@ $INIT    = 0;
             'p_speed'   => 'portAdminSpeed',
             'p_duplex'  => 'portDuplex',
             'p_port'    => 'portIfIndex',
+            'p_rx_flow_control' => 'portOperRxFlowControl',
+            'p_tx_flow_control' => 'portOperTxFlowControl',
+            'p_rx_flow_control_admin' => 'portAdminRxFlowControl',
+            'p_tx_flow_control_admin' => 'portAdminTxFlowControl',
+            'p_oidx'    => 'portCrossIndex',
             # CISCO-STACK-MIB::PortCpbEntry
             'p_speed_admin'  => 'portCpbSpeed',
             'p_duplex_admin' => 'portCpbDuplex',
@@ -169,15 +170,16 @@ sub serial {
 sub i_type {
     my $stack = shift;
 
-    my $p_port = $stack->p_port();
-    my $p_type  = $stack->p_type();
+    my $p_port = $stack->p_port() || {};
+    my $p_type = $stack->p_type() || {};
 
     # Get more generic port types from IF-MIB
-    my $i_type  = $stack->i_type2();
+    my $i_type  = $stack->i_type2() || {};
 
     # Now Override w/ port entries
     foreach my $port (keys %$p_type) {
         my $iid = $p_port->{$port};
+        next unless defined $iid;
         $i_type->{$iid} = $p_type->{$port};  
     }
 
@@ -189,8 +191,8 @@ sub i_type {
 sub i_name {
     my $stack = shift;
 
-    my $p_port = $stack->p_port();
-    my $p_name  = $stack->p_name();
+    my $p_port = $stack->p_port() || {};
+    my $p_name = $stack->p_name() || {};
 
     my %i_name;
     foreach my $port (keys %$p_name) {
@@ -205,12 +207,13 @@ sub i_duplex {
     my $stack = shift;
 
     #my $i_duplex = $stack->SUPER::i_duplex();
-    my $p_port = $stack->p_port();
-    my $p_duplex  = $stack->p_duplex();
+    my $p_port   = $stack->p_port()   || {};
+    my $p_duplex = $stack->p_duplex() || {};
 
     my $i_duplex = {};
     foreach my $port (keys %$p_duplex) {
         my $iid = $p_port->{$port};
+        next unless defined $iid;
         $i_duplex->{$iid} = $p_duplex->{$port};
     }
     return $i_duplex; 
@@ -219,8 +222,8 @@ sub i_duplex {
 sub i_duplex_admin {
     my $stack = shift;
 
-    my $p_port          = $stack->p_port();
-    my $p_duplex_admin  = $stack->p_duplex_admin();
+    my $p_port         = $stack->p_port()         || {};
+    my $p_duplex_admin = $stack->p_duplex_admin() || {};
 
     my %i_duplex_admin;
     foreach my $port (keys %$p_duplex_admin) {
@@ -243,15 +246,53 @@ sub i_duplex_admin {
     return \%i_duplex_admin; 
 }
 
+sub set_i_speed_admin {
+    # map speeds to those the switch will understand
+    my %speeds = qw/auto 1 10 10000000 100 100000000 1000 1000000000/;
+
+    my $stack = shift;
+    my ($speed, $iid) = @_;
+    my $p_port  = $stack->p_port() || {};
+    my %reverse_p_port = reverse %$p_port;
+
+    $speed = lc($speed);
+
+    return 0 unless defined $speeds{$speed};
+
+    $iid = $reverse_p_port{$iid};
+
+    return $stack->set_p_speed($speeds{$speed}, $iid);
+}
+
+sub set_i_duplex_admin {
+    # map a textual duplex to an integer one the switch understands
+    my %duplexes = qw/half 1 full 2 auto 4/;
+
+    my $stack = shift;
+    my ($duplex, $iid) = @_;
+    my $p_port  = $stack->p_port() || {};
+    my %reverse_p_port = reverse %$p_port;
+
+    $duplex = lc($duplex);
+
+    return 0 unless defined $duplexes{$duplex};
+
+    $iid = $reverse_p_port{$iid};
+
+    return $stack->set_p_duplex($duplexes{$duplex}, $iid);
+}
+
+
 # $stack->interfaces() - Maps the ifIndex table to a physical port
 sub interfaces {
     my $self = shift;
     my $i_index    = $self->i_index();
-    my $portnames  = $self->p_port();
+    my $portnames  = $self->p_port() || {};
     my %portmap    = reverse %$portnames;
 
     my %interfaces = ();
     foreach my $iid (keys %$i_index) {
+        next unless defined $iid;
         my $if   = $i_index->{$iid};
         my $port = $portmap{$iid};
         $interfaces{$iid} = $port || $if;
@@ -269,7 +310,7 @@ SNMP::Info::CiscoStack - Intefaces to data from CISCO-STACK-MIB and CISCO-PORT-S
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -424,6 +465,34 @@ Crosses p_duplex_admin with p_port.
 
 Munges bit_string returned from p_duplex_admin to get duplex settings.
 
+=item $stack->set_i_speed_admin(speed, ifIndex)
+
+    Sets port speed, must be supplied with speed and port ifIndex
+
+    Speed choices are 'auto', '10', '100', '1000'
+
+    Crosses $stack->p_port() with $stack->p_duplex() to
+    utilize port ifIndex.
+
+    Example:
+    my %if_map = reverse %{$stack->interfaces()};
+    $stack->set_i_speed_admin('auto', $if_map{'FastEthernet0/1'}) 
+        or die "Couldn't change port speed. ",$stack->error(1);
+
+=item $stack->set_i_duplex_admin(duplex, ifIndex)
+
+    Sets port duplex, must be supplied with duplex and port ifIndex
+
+    Speed choices are 'auto', 'half', 'full'
+
+    Crosses $stack->p_port() with $stack->p_duplex() to
+    utilize port ifIndex.
+
+    Example:
+    my %if_map = reverse %{$stack->interfaces()};
+    $stack->set_i_duplex_admin('auto', $if_map{'FastEthernet0/1'}) 
+        or die "Couldn't change port duplex. ",$stack->error(1);
+
 =back
 
 =head2 Module table
@@ -543,6 +612,50 @@ To see the status of port 4 :
 =item $stack->p_port()
 
 (B<portIfIndex>)
+
+=item $stack->p_rx_flow_control()
+
+Can be either C<on> C<off> or C<disagree>
+
+"Indicates the receive flow control operational status of the port. If the port
+could not agree with the far end on a link protocol, its operational status
+will be disagree(3)."
+
+B<portOperRxFlowControl>
+
+=item $stack->p_tx_flow_control()
+
+Can be either C<on> C<off> or C<disagree>
+
+"Indicates the transmit flow control operational status of the port. If the
+port could not agree with the far end on a link protocol, its operational
+status will be disagree(3)."
+
+B<portOperTxFlowControl>
+
+=item $stack->p_rx_flow_control_admin()
+
+Can be either C<on> C<off> or C<desired>
+
+"Indicates the receive flow control administrative status set on the port. If
+the status is set to on(1), the port will require the far end to send flow
+control. If the status is set to off(2), the port will not allow far end to
+send flow control.  If the status is set to desired(3), the port will allow the
+far end to send the flow control."
+
+B<portAdminRxFlowControl>
+
+=item $stack->p_tx_flow_control_admin()
+
+Can be either C<on> C<off> or C<desired>
+
+"Indicates the transmit flow control administrative status set on the port.  If
+the status is set to on(1), the port will send flow control to the far end.  If
+the status is set to off(2), the port will not send flow control to the far
+end. If the status is set to desired(3), the port will send flow control to the
+far end if the far end supports it."
+
+B<portAdminTxFlowControl>
 
 =back
 

@@ -1,5 +1,80 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
-ChangeLog $Id: ChangeLog,v 1.25 2004/11/16 01:42:32 maxbaker Exp $
+ChangeLog $Id: ChangeLog,v 1.51 2006/07/08 02:17:21 jeneric Exp $
+
+version 1.04 (07/08/06)
+    +  Added C1130 and C1240 to L2::Aironet (Ralf Gross)
+    +  Added detection for Cisco 2960, 2940, 3400 w/ MetroBase
+    +  Added generic L2::Cisco Class
+    *  Corrected detection for Cisco Supervisor Engine 2 and 32 (IOS).  
+    *  Fixed warnings in CiscoStack
+    *  Updated ProCurve HP device detection for newer firmwares
+
+version 1.03 (04/14/06) - Beta/developer release
+    * Use ipNetToMedia table instead of atTable for ARP
+    * Remove CiscoStack from Layer3::C4000
+    * Fixed bug in MAU class when polling devices without MAU-MIB support 
+
+version 1.01 (04/08/06) - Beta/developer release
+    + Change version numbers to X.XX format.  Odd releases are beta
+      or developer only releases.  Even are official releases.
+
+version 1.0 (04/07/06) - CVS only. No official release
+    + Added Interface FlowControl status to CiscoStack (Nicolai Petri)
+    + Added CiscoImage class (Matthew Tuttle)
+    + Added C1200 and C350 IOS devices to L2::Aironet (Matthew Tuttle)
+    + Added support for Foundry IronWare and gave L3::Foundry CPR
+    + Added support for Foundry EdgeIrons as new class L2::Foundry
+    + Added BulkWalk and BulkRepeaters options to new()
+    + Added DebugSNMP option to new()
+    + Added CISCO-ENTITY-VENDORTYPE-OID-MIB,CISCO-PRODUCTS-MIB,CISCO-STACK-MIB
+      to CiscoStats.pm for model()
+    + Check for bulkwalk_no() method
+    + Added Entity.pm to L3 and L2 classes per N. Petri's suggestion.
+    + Added support for Passport/Accelar 1100 and 1200 series in L3::Passport
+    + Added support for Passport/Accelar 8100 series in L3::Passport
+    + Added support for Passport 1600 series as new class, L3::N1600
+    + Added support for Extreme Alpine and Summit switches as new class
+      L3:Extreme (Mike Hunter and Eric Miller)
+    + Added support for Aruba wireless switches (Eric Miller and Brian Chow)
+    + Added support for Nortel 2700 series (Airespace) wireless switches
+    + Added support for Synoptics hubs as new class L1:S3000
+    + Added Cisco QOS and RTT classes (Alexander Hartmaier)
+    + Added BGP Peer Table to L3 class (Carlos Vicente)
+    + Added ipforwarding status to Info base class (Carlos Vicente)
+    + Added STP port state to Bridge class (Alexander Barthel)
+    + Added L3 support (arpnip) to Baystack class for routing capable switches
+    + Added set_i_duplex_admin() and set_i_speed_admin() to C2900 class (Justin Hunter)
+    + Added set_i_duplex_admin() and set_i_speed_admin() to CiscoStack class
+    + CDP added to Aironet class
+    + Added Juniper class
+    + Added support for Catalyst 4000 and 4500, get admin. duplex
+      and speed properly
+    + Added i_speed_high(), which i_speed() uses if needed to support
+      interfaces >4Gbps
+
+    * More error checking in  _load_attr() around bulkwalk code
+    * Minor warning fix in L3::Aironet::os_ver()
+    * Abstracted remaining Cisco stuff from L3 to L3::Cisco
+    * Removed all Cisco stuff from L2
+    * Expanded Entity.pm to cover the whole ENTITY-MIB and improved docs.
+    * changed all refs to $DEBUG to $self->debug() for reentrant code
+    * [ 1111284 ] Parameters not being set with AutoSpecify - fixed.
+    * Turned off BULKWALK for C1900 and C6500 classes.
+    * Added exception handling for V2 ENDOFMIBVIEW
+    * Fix in SONMP when topology not enabled
+    * Fix in L3::Passport root_ip()
+    * Fix in L3::Passport bp_index() some devices not returning complete index.
+    * Enable set_i_up_admin() in Bayhub
+    * Recognize new Nortel model names in Baystack and Passport classes
+    * Orinoco class should now recognize more models
+    * Cleanup model recognition in Baystack class, recognize more models
+    * Modify Catalyst class to use CISCO-STACK-MIB for brige port index mapping
+      some devices having problems returning complete index from BRIDGE-MIB
+    * Check root ip for reachability before assignment
+    * HP class should recognize more models
+    * Fix in HP class for models not returning full bp_index
+    * [ 1436103 ] L2::Aironet devices weren't getting their model
+      translated properly
 
 verison 0.9 (11/15/04)
     + ** Added full Nortel/Bay/BayStack support 
@@ -22,7 +97,7 @@ verison 0.9 (11/15/04)
     * Changed so a failed _global() call is cached so it won't retry
       an error over and over again if the same global is used.
     * Added check in _set() to see if data came from sub or FUNCS/GLOBALS
-        Fails if came from sub.
+      Fails if came from sub.
 
 version 0.8 (03/21/04)
     + Added Q-BRIDGE-MIB support to SNMP::Info::Bridge

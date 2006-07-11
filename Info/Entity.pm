@@ -1,5 +1,5 @@
 # SNMP::Info::Entity
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Entity;
-$VERSION = 0.9;
-# $Id: Entity.pm,v 1.7 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Entity.pm,v 1.12 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -42,24 +42,29 @@ use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 @SNMP::Info::Entity::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::Entity::EXPORT_OK = qw//;
 
-$INIT    = 0;
 %MIBS    = ('ENTITY-MIB' => 'entPhysicalSerialNum');
 
 %GLOBALS = (
            );
 
 %FUNCS   = (
+            'e_index'   => 'entPhysicalIndex',
+            'e_alias'   => 'entPhysicalAlias',
             'e_class'   => 'entPhysicalClass',
             'e_descr'   => 'entPhysicalDescr',
             'e_fwver'   => 'entPhysicalFirmwareRev',
+            'e_fru'     => 'entPhysicalIsFRU',
             'e_hwver'   => 'entPhysicalHardwareRev',
+            'e_id'      => 'entPhysicalAssetID',
             'e_map'     => 'entAliasMappingIdentifier',
             'e_model'   => 'entPhysicalModelName',
             'e_name'    => 'entPhysicalName',
             'e_parent'  => 'entPhysicalContainedIn',
+            'e_pos'     => 'entParentRelPos',
             'e_serial'  => 'entPhysicalSerialNum',
             'e_swver'   => 'entPhysicalSoftwareRev',
             'e_type'    => 'entPhysicalVendorType',
+            'e_vendor'  => 'entPhysicalMfgName',
            );
 
 %MUNGE   = (
@@ -87,11 +92,11 @@ sub e_port {
 
 =head1 NAME
 
-SNMP::Info::Entity - Perl5 Interface to SNMP data stored in ENTITY-MIB.
+SNMP::Info::Entity - Perl5 Interface to SNMP data stored in ENTITY-MIB. RFC 2737
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -111,7 +116,9 @@ Max Baker (C<max@warped.org>)
 
 =head1 DESCRIPTION
 
-ENTITY-MIB is used by some Layer 2 devices like HP Switches and Aironet Access Points
+ENTITY-MIB is used by Layer 2 devices from HP,Aironet,Foundry,Cisco and more.
+
+See RFC 2737 for full details.
 
 Create or use a device subclass that inherit this class.  Do not use directly.
 
@@ -146,11 +153,27 @@ to a hash.
 
 =over
 
+=item $entity->e_index()
+
+Not normally implemented
+
+(C<entPhysicalIndex>)
+
+=item $entity->e_alias()
+
+Human entered, not usually used.
+
+(C<entPhysicalAlias>)
+
 =item $entity->e_class()
+
+Stack, Module, Container, Port ...
 
 (C<entPhysicalClass>)
 
 =item $entity->e_descr()
+
+Human Friendly
 
 (C<entPhysicalClass>)
 
@@ -158,23 +181,43 @@ to a hash.
 
 (C<entPhysicalFirmwareRev>)
 
+=item $entity->e_fru()
+
+BOOLEAN. Field Replaceable unit?
+
+(C<entPhysicalFRU>)
+
 =item $entity->e_hwver()
 
 (C<entPhysicalHardwareRev>)
 
+=item $entity->e_id()
+
+This is human entered and not normally used.
+
+(C<entPhysicalAssetID>)
+
 =item $entity->e_map()
+
+See MIB.
 
 (C<entAliasMappingIdentifier>)
 
 =item $entity->e_model()
 
+Model Name of Entity.
+
 (C<entPhysicalModelName>)
 
 =item $entity->e_name()
 
+More computer friendly name of entity.  Parse me.
+
 (C<entPhysicalName>)
 
 =item $entity->e_parent()
+
+0 if root.
 
 (C<entPhysicalContainedIn>)
 
@@ -193,7 +236,15 @@ $entity->e_map()
 
 =item $entity->e_type()
 
+This is an OID.
+
 (C<entPhysicalVendorType>)
+
+=item $entity->e_vendor()
+
+Vendor of Module.
+
+(C<entPhysicalMfgName>)
 
 =back
 

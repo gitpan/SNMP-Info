@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::C2900
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,15 +30,18 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::C2900;
-$VERSION = 0.9;
-# $Id: C2900.pm,v 1.13 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: C2900.pm,v 1.21 2006/06/30 21:31:30 jeneric Exp $
 use strict;
 
 use Exporter;
 use SNMP::Info::Layer2;
 use SNMP::Info::CiscoVTP;
+use SNMP::Info::CDP;
+use SNMP::Info::CiscoStats;
 
-@SNMP::Info::Layer2::C2900::ISA = qw/SNMP::Info::Layer2 SNMP::Info::CiscoVTP Exporter/;
+@SNMP::Info::Layer2::C2900::ISA = qw/SNMP::Info::Layer2 SNMP::Info::CiscoVTP 
+                                     SNMP::Info::CDP SNMP::Info::CiscoStats Exporter/;
 @SNMP::Info::Layer2::C2900::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
@@ -47,10 +50,14 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 %GLOBALS = (
             %SNMP::Info::Layer2::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
+            %SNMP::Info::CiscoStats::GLOBALS,
+            %SNMP::Info::CDP::GLOBALS,
             );
 
 %FUNCS   = (%SNMP::Info::Layer2::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
+            %SNMP::Info::CiscoStats::FUNCS,
+            %SNMP::Info::CDP::FUNCS,
             'i_name'               => 'ifAlias',
             # C2900PortEntry
             'c2900_p_index'        => 'c2900PortIfIndex',
@@ -61,11 +68,15 @@ use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 
 %MIBS    = ( %SNMP::Info::Layer2::MIBS,
              %SNMP::Info::CiscoVTP::MIBS,
+             %SNMP::Info::CiscoStats::MIBS,
+             %SNMP::Info::CDP::MIBS,
             'CISCO-C2900-MIB' => 'ciscoC2900MIB',
            );
 
 %MUNGE   = (%SNMP::Info::Layer2::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
+            %SNMP::Info::CDP::MUNGE,
+            %SNMP::Info::CiscoStats::MUNGE,
            );
 
 sub vendor {
@@ -125,6 +136,54 @@ sub i_duplex_admin {
     return \%i_duplex_admin;
 }
 
+### we want to be able to set speed on 2900 class switches
+###
+### $info->set_i_speed_admin("100", ifIndex);
+### speed choices are 'auto', '10', '100'
+###
+sub set_i_speed_admin {
+    # map speeds to those the switch will understand
+    my %speeds = qw/auto 1 10 10000000 100 100000000/;
+
+    my $c2900 = shift;
+    my ($speed, $iid) = @_;
+    my $c2900_p_index  = $c2900->c2900_p_index();
+    my %reverse_2900 = reverse %$c2900_p_index;
+
+    $speed = lc($speed);
+
+    return 0 unless defined $speeds{$speed};
+
+    # account for weirdness of c2900 mib
+    $iid = $reverse_2900{$iid};
+
+    return $c2900->set_c2900_p_speed_admin($speeds{$speed}, $iid);
+}
+
+### we want to be able to set duplex on 2900 class switches
+###
+### $info->set_i_duplex_admin("half", ifIndex);
+### duplex choices are 'auto', 'half', 'full'
+###
+sub set_i_duplex_admin {
+    # map a textual duplex to an integer one the switch understands
+    my %duplexes = qw/full 1 half 2 auto 3/;
+
+    my $c2900 = shift;
+    my ($duplex, $iid) = @_;
+    my $c2900_p_index  = $c2900->c2900_p_index();
+    my %reverse_2900 = reverse %$c2900_p_index;
+
+    $duplex = lc($duplex);
+
+    return 0 unless defined $duplexes{$duplex};
+
+    # account for weirdness of c2900 mib
+    $iid = $reverse_2900{$iid};
+
+    return $c2900->set_c2900_p_duplex_admin($duplexes{$duplex}, $iid);
+}
+
 # Use i_descritption for port key, cuz i_name can be manually entered.
 sub interfaces {
     my $c2900 = shift;
@@ -154,7 +213,7 @@ SNMP::Info::Layer2::C2900 - SNMP Interface to Cisco Catalyst 2900 Switches runni
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -262,7 +321,34 @@ to a hash.
     Returns reference to hash of IIDs to admin duplex setting
     
     Crosses $c2900->c2900_p_index() with $c2900->c2900_p_duplex_admin;
-    
+
+=item $c2900->set_i_speed_admin(speed, ifIndex)
+
+    Sets port speed, must be supplied with speed and port ifIndex
+
+    Speed choices are 'auto', '10', '100'
+
+    Crosses $c2900->c2900_p_index() with $c2900->c2900_p_duplex_admin to
+    utilize port ifIndex.
+
+    Example:
+    my %if_map = reverse %{$c2900->interfaces()};
+    $c2900->set_i_speed_admin('auto', $if_map{'FastEthernet0/1'}) 
+        or die "Couldn't change port speed. ",$c2900->error(1);
+
+=item $c2900->set_i_duplex_admin(duplex, ifIndex)
+
+    Sets port duplex, must be supplied with duplex and port ifIndex
+
+    Speed choices are 'auto', 'half', 'full'
+
+    Crosses $c2900->c2900_p_index() with $c2900->c2900_p_duplex_admin to
+    utilize port ifIndex.
+
+    Example:
+    my %if_map = reverse %{$c2900->interfaces()};
+    $c2900->set_i_duplex_admin('auto', $if_map{'FastEthernet0/1'}) 
+        or die "Couldn't change port duplex. ",$c2900->error(1);
 
 =back
 

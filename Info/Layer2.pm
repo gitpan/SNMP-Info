@@ -1,7 +1,7 @@
 # SNMP::Info::Layer2 - SNMP Interface to Layer2 Devices 
-# Max Baker <max@warped.org>
+# Max Baker
 #
-# Copyright (c) 2004 Max Baker -- All changes from Version 0.7 on
+# Copyright (c) 2004,2005 Max Baker -- All changes from Version 0.7 on
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
@@ -30,61 +30,44 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2;
-$VERSION = 0.9;
-# $Id: Layer2.pm,v 1.13 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Layer2.pm,v 1.21 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
 use Exporter;
 use SNMP::Info;
 use SNMP::Info::Bridge;
-use SNMP::Info::CDP;
-use SNMP::Info::CiscoStats;
+use SNMP::Info::Entity;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %PORTSTAT %MUNGE $INIT/;
 
-@SNMP::Info::Layer2::ISA = qw/SNMP::Info SNMP::Info::Bridge SNMP::Info::CDP SNMP::Info::CiscoStats Exporter/;
+@SNMP::Info::Layer2::ISA = qw/SNMP::Info SNMP::Info::Bridge SNMP::Info::Entity Exporter/;
 @SNMP::Info::Layer2::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-# See SNMP::Info for the details of these data structures and 
-#       the interworkings.
-$INIT = 0;
-
-%MIBS = ( %SNMP::Info::MIBS, 
-          %SNMP::Info::Bridge::MIBS,
-          %SNMP::Info::CDP::MIBS,
-          %SNMP::Info::CiscoStats::MIBS,
-          'CISCO-PRODUCTS-MIB' => 'sysName',    # for model()
-          'CISCO-STACK-MIB'    => 'wsc1900sysID',    # some older catalysts live here
-          'ENTITY-MIB'         => 'entPhysicalName', # for serial stuff
+%MIBS = (   %SNMP::Info::MIBS, 
+            %SNMP::Info::Bridge::MIBS,
+            %SNMP::Info::Entity::MIBS,
         );
 
 %GLOBALS = (
             %SNMP::Info::GLOBALS,
             %SNMP::Info::Bridge::GLOBALS,
-            %SNMP::Info::CDP::GLOBALS,
-            %SNMP::Info::CiscoStats::GLOBALS,
+            %SNMP::Info::Entity::GLOBALS,
             'serial1'   => '.1.3.6.1.4.1.9.3.6.3.0', # OLD-CISCO-CHASSIS-MIB::chassisId.0
             );
 
 %FUNCS   = (
             %SNMP::Info::FUNCS,
             %SNMP::Info::Bridge::FUNCS,
-            %SNMP::Info::CDP::FUNCS,
-            %SNMP::Info::CiscoStats::FUNCS,
-            'ent_serial' => 'entPhysicalSerialNum',
-            'ent_chassis'=> 'entPhysicalDescr',
+            %SNMP::Info::Entity::FUNCS,
            );
 
 %MUNGE = (
             # Inherit all the built in munging
             %SNMP::Info::MUNGE,
             %SNMP::Info::Bridge::MUNGE,
-            %SNMP::Info::CDP::MUNGE,
-            %SNMP::Info::CiscoStats::MUNGE,
+            %SNMP::Info::Entity::MUNGE,
          );
 
 # Method OverRides
@@ -112,7 +95,7 @@ sub vendor {
     my $model = $l2->model();
     my $descr = $l2->description();
 
-    if ($model =~ /hp/i or $descr =~ /hp/i) {
+    if ($model =~ /hp/i or $descr =~ /\bhp\b/i) {
         return 'hp';
     }
 
@@ -125,12 +108,12 @@ sub vendor {
 sub serial {
     my $l2 = shift;
     
-    my $serial1     = $l2->serial1();
-    my $ent_chassis = $l2->ent_chassis() || {};
-    my $ent_serial  = $l2->ent_serial() || {};
+    my $serial1   = $l2->serial1();
+    my $e_descr   = $l2->e_descr()  || {};
+    my $e_serial  = $l2->e_serial() || {};
     
-    my $serial2 = $ent_serial->{1}  || undef;
-    my $chassis = $ent_chassis->{1} || undef;
+    my $serial2   = $e_serial->{1}  || undef;
+    my $chassis   = $e_descr->{1}   || undef;
 
     # precedence
     #   serial2,chassis parse,serial1
@@ -157,31 +140,18 @@ sub i_ignore {
     return \%i_ignore;
 }    
 
-# By Default we'll use the description field
 sub interfaces {
     my $l2 = shift;
     my $interfaces = $l2->i_index();
     my $i_descr    = $l2->i_description(); 
-    my $i_name     = $l2->i_name();
 
-    my %if;
-    foreach my $iid (keys %$interfaces){
+    # Replace the Index with the ifDescr field.
+    foreach my $iid (keys %$i_descr){
         my $port = $i_descr->{$iid};
-        my $name = $i_name->{$iid};
-        $port = $name if (defined $name and $name !~ /^\s*$/);
         next unless defined $port;
-
-        # Cisco 1900 has a space in some of its port descr.
-        # get rid of any weird characters
-        $port =~ s/[^\d\/,()\w]+//gi;
-    
-        # Translate Cisco 2926,etc. from 1/5 to 1.5
-        $port =~ s/\//\./ if ($port =~ /^\d+\/\d+$/);
-
-        $if{$iid} = $port;
+        $interfaces->{$iid} = $port;
     }
-
-    return \%if
+    return $interfaces;
 }
 
 1;
@@ -193,7 +163,7 @@ SNMP::Info::Layer2 - Perl5 Interface to network devices serving Layer2 only.
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -243,9 +213,7 @@ a more specific class using the method above.
 
 =item SNMP::Info::Bridge
 
-=item SNMP::Info::CDP
-
-=item SNMP::Info::CiscoStats
+=item SNMP::Info::Entity
 
 =back
 
@@ -253,21 +221,13 @@ a more specific class using the method above.
 
 =over
 
-=item CISCO-PRODUCTS-MIB 
-
-Needed for ID of Cisco Products
-
-=item CISCO-STACK-MIB
-
-Needed for ID of Cisco Products
-
 =item Inherited Classes
 
 MIBs required by the inherited classes listed above.
 
 =back
 
-MIBs can be found at ftp://ftp.cisco.com/pub/mibs/v2/v2.tar.gz
+MIBs can be found in netdisco-mibs package.
 
 =head1 GLOBALS
 
@@ -300,13 +260,9 @@ See documentation in SNMP::Info for details.
 
 See documentation in SNMP::Info::Bridge for details.
 
-=head2 Globals imported from SNMP::Info::CDP
+=head2 Globals imported from SNMP::Info::Entity
 
-See documentation in SNMP::Info::CDP for details.
-
-=head2 Globals imported from SNMP::Info::CiscoStats
-
-See documentation in SNMP::Info::CiscoStats for details.
+See documentation in SNMP::Info::Entity for details.
 
 =head1 TABLE METHODS
 
@@ -339,12 +295,8 @@ See documentation in SNMP::Info for details.
 
 See documentation in SNMP::Info::Bridge for details.
 
-=head2 Table Methods imported from SNMP::Info::CDP
+=head2 Table Methods imported from SNMP::Info::Entity
 
-See documentation in SNMP::Info::CDP for details.
-
-=head2 Table Methods imported from SNMP::Info::CiscoStats
-
-See documentation in SNMP::Info::CiscoStats for details.
+See documentation in SNMP::Info::Entity for details.
 
 =cut

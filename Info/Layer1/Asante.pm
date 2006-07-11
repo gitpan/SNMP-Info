@@ -1,5 +1,5 @@
 # SNMP::Info::Layer1::Asante
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1::Asante;
-$VERSION = 0.9;
-# $Id: Asante.pm,v 1.10 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Asante.pm,v 1.15 2006/06/30 21:29:54 jeneric Exp $
 use strict;
 
 use Exporter;
@@ -171,7 +171,7 @@ SNMP::Info::Layer1::Asante - SNMP Interface to old Asante 1012 Hubs
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -231,12 +231,6 @@ Culls software version from description()
 =item $asante->vendor()
 
 Returns 'asante' :)
-
-=item $asante->root_ip()
-
-Returns IP Address of Managed Hub.
-
-(B<actualIpAddr>)
 
 =item $asante->model()
 

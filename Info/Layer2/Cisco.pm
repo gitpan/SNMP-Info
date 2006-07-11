@@ -1,7 +1,7 @@
-# SNMP::Info::Layer3::Cisco
+# SNMP::Info::Layer2::Cisco
 # Max Baker
 #
-# Copyright (c) 2004-6 Max Baker
+# Copyright (c) 2006 Max Baker
 # 
 # Redistribution and use in source and binary forms, with or without 
 # modification, are permitted provided that the following conditions are met:
@@ -26,13 +26,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::Cisco;
-# $Id: Cisco.pm,v 1.10 2006/06/30 21:32:49 jeneric Exp $
+package SNMP::Info::Layer2::Cisco;
+# $Id: Cisco.pm,v 1.1 2006/06/20 03:58:45 maxbaker Exp $
 
 use strict;
 
 use Exporter;
-use SNMP::Info::Layer3;
+use SNMP::Info::Layer2;
 use SNMP::Info::CiscoVTP;
 use SNMP::Info::CDP;
 use SNMP::Info::CiscoStats;
@@ -41,15 +41,15 @@ use SNMP::Info::CiscoRTT;
 use SNMP::Info::CiscoQOS;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE $INIT/ ;
-$VERSION = '1.04';
-@SNMP::Info::Layer3::Cisco::ISA = qw/SNMP::Info::Layer3 SNMP::Info::CiscoVTP 
+$VERSION = 1.04;
+@SNMP::Info::Layer2::Cisco::ISA = qw/SNMP::Info::Layer2 SNMP::Info::CiscoVTP 
                                      SNMP::Info::CDP    SNMP::Info::CiscoStats 
                                      SNMP::Info::CiscoImage SNMP::Info::CiscoRTT
                                      SNMP::Info::CiscoQOS Exporter/;
-@SNMP::Info::Layer3::Cisco::EXPORT_OK = qw//;
+@SNMP::Info::Layer2::Cisco::EXPORT_OK = qw//;
 
 %MIBS = (
-            %SNMP::Info::Layer3::MIBS,  
+            %SNMP::Info::Layer2::MIBS,  
             %SNMP::Info::CiscoVTP::MIBS,
             %SNMP::Info::CDP::MIBS,
             %SNMP::Info::CiscoStats::MIBS,
@@ -59,7 +59,7 @@ $VERSION = '1.04';
         );
 
 %GLOBALS = (
-            %SNMP::Info::Layer3::GLOBALS,
+            %SNMP::Info::Layer2::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
             %SNMP::Info::CDP::GLOBALS,
             %SNMP::Info::CiscoStats::GLOBALS,
@@ -69,7 +69,7 @@ $VERSION = '1.04';
            );
 
 %FUNCS = (
-            %SNMP::Info::Layer3::FUNCS,
+            %SNMP::Info::Layer2::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
             %SNMP::Info::CDP::FUNCS,
             %SNMP::Info::CiscoStats::FUNCS,
@@ -79,7 +79,7 @@ $VERSION = '1.04';
          );
 
 %MUNGE = (
-            %SNMP::Info::Layer3::MUNGE,
+            %SNMP::Info::Layer2::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
             %SNMP::Info::CDP::MUNGE,
             %SNMP::Info::CiscoStats::MUNGE,
@@ -93,7 +93,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::Cisco - Perl5 Interface to L3 and L2+L3 IOS Cisco Device
+SNMP::Info::Layer2::Cisco - Perl5 Interface to L3 and L2+L3 IOS Cisco Device
 that are not covered in other classes.
 
 =head1 AUTHOR
@@ -124,7 +124,7 @@ Subclass for Generic Cisco Routers running IOS
 
 =over
 
-=item SNMP::Info::Layer3
+=item SNMP::Info::Layer2
 
 =item SNMP::Info::CiscoVTP
 
@@ -142,7 +142,7 @@ Subclass for Generic Cisco Routers running IOS
 
 =item Inherited Classes' MIBs
 
-See SNMP::Info::Layer3 for its own MIB requirements.
+See SNMP::Info::Layer2 for its own MIB requirements.
 
 See SNMP::Info::CiscoVTP for its own MIB requirements.
 
@@ -166,9 +166,9 @@ These are methods that return scalar value from SNMP
 
 =back
 
-=head2 Globals imported from SNMP::Info::Layer3
+=head2 Globals imported from SNMP::Info::Layer2
 
-See documentation in SNMP::Info::Layer3 for details.
+See documentation in SNMP::Info::Layer2 for details.
 
 =head2 Global Methods imported from SNMP::Info::CiscoVTP
 
@@ -191,9 +191,9 @@ See documentation in SNMP::Info::CiscoImage for details.
 These are methods that return tables of information in the form of a reference
 to a hash.
 
-=head2 Table Methods imported from SNMP::Info::Layer3
+=head2 Table Methods imported from SNMP::Info::Layer2
 
-See documentation in SNMP::Info::Layer3 for details.
+See documentation in SNMP::Info::Layer2 for details.
 
 =head2 Table Methods imported from SNMP::Info::CiscoVTP
 

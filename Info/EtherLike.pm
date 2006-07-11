@@ -1,5 +1,5 @@
 # SNMP::Info::EtherLike
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::EtherLike;
-$VERSION = 0.9;
-# $Id: EtherLike.pm,v 1.9 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: EtherLike.pm,v 1.14 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -42,12 +42,6 @@ use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 @SNMP::Info::EtherLike::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::EtherLike::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT = 0;
-
-# Same info in both rfc1398 and this?
 %MIBS = ('ETHERLIKE-MIB' => 'etherMIB' );
 
 %GLOBALS = ();
@@ -75,7 +69,18 @@ $INIT = 0;
           'el_coll_freq'       => 'dot3CollFrequencies'
           );
 
-%MUNGE = ( %SNMP::Info::MUNGE );
+%MUNGE = ( %SNMP::Info::MUNGE,
+           'el_duplex' => \&munge_el_duplex,
+         );
+
+sub munge_el_duplex {
+    my $duplex = shift;
+    return unless defined $duplex;
+
+    $duplex =~ s/Duplex$//;
+    return $duplex;
+}
+
 
 1;
 __END__
@@ -83,11 +88,11 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::EtherLike - Perl5 Interface to SNMP ETHERLIKE-MIB 
+SNMP::Info::EtherLike - Perl5 Interface to SNMP ETHERLIKE-MIB RFC 1398
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -112,10 +117,6 @@ Max Baker (C<max@warped.org>)
     my $iid    = $el_index->{$el_port};
     my $port   = $interfaces->{$iid};
 
-    $duplex = 'half' if $duplex =~/half/i;
-    $duplex = 'full' if $duplex =~/full/i;
-    $duplex = 'auto' if $duplex =~/auto/i;
-
     print "PORT:$port set to duplex:$duplex\n";
  }
 
@@ -123,6 +124,8 @@ Max Baker (C<max@warped.org>)
 
 SNMP::Info::EtherLike is a subclass of SNMP::Info that supplies 
 access to the ETHERLIKE-MIB used by some Layer 3 Devices such as Cisco routers.
+
+See RFC 1398 for more details.
 
 Use or create a subclass of SNMP::Info that inherits this one.  Do not use directly.
 

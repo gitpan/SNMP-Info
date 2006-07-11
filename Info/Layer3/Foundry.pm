@@ -1,7 +1,7 @@
 # SNMP::Info::Layer3::Foundry - SNMP Interface to Foundry devices
-# Max Baker <max@warped.org>
+# Max Baker
 #
-# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+# Copyright (c) 2004,2005 Max Baker changes from version 0.8 and beyond.
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
@@ -30,30 +30,25 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Foundry;
-$VERSION = 0.9;
-# $Id: Foundry.pm,v 1.10 2004/11/01 19:19:38 maxbaker Exp $
+# $Id: Foundry.pm,v 1.16 2006/06/30 21:32:49 jeneric Exp $
 
 use strict;
 
 use Exporter;
-use SNMP::Info;
-use SNMP::Info::Bridge;
+use SNMP::Info::Layer3;
 use SNMP::Info::FDP;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %FUNCS $INIT %MIBS %MUNGE/;
 
-@SNMP::Info::Layer3::Foundry::ISA = qw/SNMP::Info SNMP::Info::Bridge SNMP::Info::FDP Exporter/;
+$VERSION = '1.04';
+
+@SNMP::Info::Layer3::Foundry::ISA = qw/SNMP::Info::Layer3 SNMP::Info::FDP Exporter/;
 @SNMP::Info::Layer3::Foundry::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT = 0;
-
-%MIBS = ( %SNMP::Info::MIBS,
-          %SNMP::Info::Bridge::MIBS,
+%MIBS = ( %SNMP::Info::Layer3::MIBS,
           %SNMP::Info::FDP::MIBS,
           'FOUNDRY-SN-ROOT-MIB' => 'foundry',
+          'FOUNDRY-SN-AGENT-MIB' => 'snChasPwrSupplyDescription',
           # IP-FORWARD-MIB
           # ETHERLIKE-MIB
           # RFC1398-MIB
@@ -62,9 +57,7 @@ $INIT = 0;
         );
 
 %GLOBALS = (
-            # Inherit the super class ones
-            %SNMP::Info::GLOBALS,
-            %SNMP::Info::Bridge::GLOBALS,
+            %SNMP::Info::Layer3::GLOBALS,
             %SNMP::Info::FDP::GLOBALS,
             'mac'        => 'ifPhysAddress.1',
             'chassis'    => 'entPhysicalDescr.1',
@@ -81,14 +74,9 @@ $INIT = 0;
            );
 
 %FUNCS   = (
-            %SNMP::Info::FUNCS,
-            %SNMP::Info::Bridge::FUNCS,
+            %SNMP::Info::Layer3::FUNCS,
             %SNMP::Info::FDP::FUNCS,
             'i_name2'    => 'ifName',
-            # From RFC1213-MIB
-            'at_index'    => 'ipNetToMediaIfIndex',
-            'at_paddr'    => 'ipNetToMediaPhysAddress',
-            'at_netaddr'  => 'ipNetToMediaNetAddress',
             # FOUNDRY-MIB
             #   snSwPortInfoTable - Switch Port Information Group
             'sw_index'    => 'snSwPortIfIndex',
@@ -99,14 +87,15 @@ $INIT = 0;
 
 %MUNGE = (
             # Inherit all the built in munging
-            %SNMP::Info::MUNGE,
-            %SNMP::Info::Bridge::MUNGE,
+            %SNMP::Info::Layer3::MUNGE,
             %SNMP::Info::FDP::MUNGE,
             'at_paddr' => \&SNMP::Info::munge_mac,
          );
 
 
 # Method OverRides
+
+sub bulkwalk_no { 1; }
 
 # Add our i_aliases if they are set (manually)
 sub i_name {
@@ -145,6 +134,10 @@ sub i_duplex {
     my $foundry = shift;
     my $sw_index = $foundry->sw_index();
     my $sw_duplex= $foundry->sw_duplex();
+
+    unless (defined $sw_index and defined $sw_duplex){
+       return $foundry->SUPER::i_duplex(); 
+    }
     
     my %i_duplex;
     foreach my $sw_port (keys %$sw_duplex){
@@ -161,6 +154,10 @@ sub i_type {
     my $foundry = shift;
     my $sw_index = $foundry->sw_index();
     my $sw_type= $foundry->sw_type();
+
+    unless (defined $sw_index and defined $sw_type){
+       return $foundry->SUPER::i_type(); 
+    }
     
     my %i_type;
     foreach my $sw_port (keys %$sw_type){
@@ -176,6 +173,10 @@ sub i_speed {
     my $foundry = shift;
     my $sw_index = $foundry->sw_index();
     my $sw_speed= $foundry->sw_speed();
+
+    unless (defined $sw_index and defined $sw_speed){
+       return $foundry->SUPER::i_speed(); 
+    }
     
     my %i_speed;
     foreach my $sw_port (keys %$sw_speed){
@@ -201,7 +202,9 @@ sub model {
     my $model = &SNMP::translateObj($id);
 
     $model = $1 if $desc =~ /\s+([a-z]{2}\d{4})\D/i;
-    
+    $model = $1 if $desc =~ /\b(FW[A-Z\d]+)/;
+
+    $model =~ s/^sn//;
 
     return $model;
 }
@@ -246,6 +249,7 @@ sub interfaces {
 sub vendor {
     return 'foundry';
 }
+
 1;
 __END__
 
@@ -255,7 +259,7 @@ SNMP::Info::Layer3::Foundry - Perl5 Interface to Foundry FastIron Network Device
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -271,15 +275,14 @@ Max Baker (C<max@warped.org>)
     or die "Can't connect to DestHost.\n";
 
  my $class      = $foundry->class();
+
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-This subclass no longer supported.
+This module provides limited functionality from some L2+L3 and L3 Foundry devices.
 
-This module provides limited functionality from older Foundry devices.
-
-Specifically designed for a FI4802.
+Specifically designed for a FI4802. Works on a FWSX424.
 
 For speed or debugging purposes you can call the subclass directly, but not after determining
 a more specific class using the method above.  Turn off the AutoSpecify flag.
@@ -292,7 +295,6 @@ a more specific class using the method above.  Turn off the AutoSpecify flag.
 
 =item SNMP::Info
 
-=item SNMP::Info::Bridge
 
 =back
 
@@ -372,10 +374,6 @@ Returns the status of the chassis fan.
 =head2 Globals imported from SNMP::Info
 
 See documentation in SNMP::Info for details.
-
-=head2 Globals imported from SNMP::Info::Bridge
-
-See documentation in SNMP::Info::Bridge for details.
 
 =head1 TABLE ENTRIES
 
@@ -481,9 +479,5 @@ Returns reference to hash.  Current Port Speed.
 =head2 Table Methods imported from SNMP::Info
 
 See documentation in SNMP::Info for details.
-
-=head2 Table Methods imported from SNMP::Info::Bridge
-
-See documentation in SNMP::Info::Bridge for details.
 
 =cut

@@ -1,5 +1,5 @@
 # SNMP::Info::CiscoVTP
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::CiscoVTP;
-$VERSION = 0.9;
-# $Id: CiscoVTP.pm,v 1.5 2004/11/15 23:30:07 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: CiscoVTP.pm,v 1.10 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -42,10 +42,6 @@ use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 @SNMP::Info::CiscoVTP::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::CiscoVTP::EXPORT_OK = qw//;
 
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT    = 0;
 %MIBS    = (
             'CISCO-VTP-MIB'                       => 'vtpVlanName',
             'CISCO-VLAN-MEMBERSHIP-MIB'           => 'vmMembershipEntry',
@@ -106,11 +102,12 @@ $INIT    = 0;
             # CISCO-VLAN-IFTABLE-RELATIONSHIP-MIB
             'v_cvi_if'    => 'cviRoutedVlanIfIndex',
 
+            # vlanTrunkPortTable
+
             # TODO Add these tables if someone wants them..
             # vtpEditControlTable
             # vtpVlanEditTable
             # vtpStatsTable
-            # vlanTrunkPortTable
            );
 
 %MUNGE   = (
@@ -141,6 +138,18 @@ sub i_vlan {
     return $i_vlan;
 }
 
+sub set_i_vlan {
+    my $vtp = shift;
+
+    # Check for CISCO-VLAN-MIB
+    my $i_vlan = $vtp->i_vlan2();
+    if (defined $i_vlan) {
+        return $vtp->set_i_vlan2(@_);
+    }
+    # only support the first case for now.
+    return undef;
+}
+
 1;
 __END__
 
@@ -150,7 +159,7 @@ SNMP::Info::CiscoVTP - Perl5 Interface to Cisco's VLAN Management MIBs
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 

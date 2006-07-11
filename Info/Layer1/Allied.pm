@@ -1,5 +1,5 @@
 # SNMP::Info::Layer1::Allied
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1::Allied;
-$VERSION = 0.9;
-# $Id: Allied.pm,v 1.9 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Allied.pm,v 1.13 2006/06/30 21:29:54 jeneric Exp $
 use strict;
 
 use Exporter;
@@ -128,7 +128,7 @@ SNMP::Info::Layer1::Allied - SNMP Interface to old Allied Hubs
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 

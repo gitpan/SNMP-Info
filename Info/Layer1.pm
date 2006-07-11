@@ -1,5 +1,5 @@
 # SNMP::Info::Layer1 - SNMP Interface to Layer1 Devices 
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 #
@@ -30,8 +30,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1;
-$VERSION = 0.9;
-# $Id: Layer1.pm,v 1.9 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Layer1.pm,v 1.13 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -42,13 +42,6 @@ use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %PORTSTAT %MUNGE $INIT/;
 
 @SNMP::Info::Layer1::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::Layer1::EXPORT_OK = qw//;
-
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-# See SNMP::Info for the details of these data structures and 
-#       the interworkings.
-$INIT = 0;
 
 %MIBS = ( %SNMP::Info::MIBS, 
           'SNMP-REPEATER-MIB' => 'rptrPortGroupIndex'
@@ -169,7 +162,7 @@ SNMP::Info::Layer1 - Perl5 Interface to network devices serving Layer1 only.
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 

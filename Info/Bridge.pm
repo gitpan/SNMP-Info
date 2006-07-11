@@ -1,5 +1,5 @@
 # SNMP::Info::Bridge
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Changes since Version 0.7 Copyright (c) 2004 Max Baker 
 # All rights reserved.  
@@ -32,8 +32,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Bridge;
-$VERSION = 0.9;
-# $Id: Bridge.pm,v 1.14 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Bridge.pm,v 1.19 2006/06/30 21:33:47 jeneric Exp $
 
 use strict;
 
@@ -43,11 +43,6 @@ use SNMP::Info;
 use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 @SNMP::Info::Bridge::ISA = qw/SNMP::Info Exporter/;
 @SNMP::Info::Bridge::EXPORT_OK = qw//;
-
-$DEBUG=0;
-$SNMP::debugging=$DEBUG;
-
-$INIT = 0;
 
 %MIBS    = ('BRIDGE-MIB'   => 'dot1dBaseBridgeAddress',
             'Q-BRIDGE-MIB' => 'dot1qPvid',
@@ -107,6 +102,22 @@ $INIT = 0;
           'stp_p_port'   => \&SNMP::Info::munge_mac
          );
 
+sub qb_i_vlan_t {
+    my $bridge = shift;
+
+    my $qb_i_vlan      = $bridge->qb_i_vlan();
+    my $qb_i_vlan_type = $bridge->qb_i_vlan_type();
+        
+    my $i_vlan = {};
+
+    foreach my $if (keys %$qb_i_vlan){
+        my $vlan   = $qb_i_vlan->{$if};
+        my $tagged = $qb_i_vlan_type->{$if} || '';
+        next unless defined $vlan;
+        $i_vlan->{$if} = $tagged eq 'admitOnlyVlanTagged' ? 'trunk' : $vlan;
+    }
+    return $i_vlan;
+}
 
 sub i_stp_state {
     my $bridge = shift;
@@ -126,7 +137,60 @@ sub i_stp_state {
     return \%i_stp_state;
 }
 
+
+sub i_stp_port {
+    my $bridge = shift;    
+    my $bp_index = $bridge->bp_index();
+    my $stp_p_port = $bridge->stp_p_port();
+    
+    my %i_stp_port;
+
+    foreach my $index (keys %$stp_p_port){
+       my $bridge = $stp_p_port->{$index};
+       my $iid   = $bp_index->{$index};
+       next unless defined $iid;
+       next unless defined $bridge;
+       $i_stp_port{$iid}=$bridge;
+    }
+    return \%i_stp_port;
+}
+
+sub i_stp_id {
+    my $bridge = shift;
+    my $bp_index = $bridge->bp_index();
+    my $stp_p_id = $bridge->stp_p_id();
+
+    my %i_stp_id;
+
+    foreach my $index (keys %$stp_p_id){
+        my $bridge = $stp_p_id->{$index};
+        my $iid   = $bp_index->{$index};
+        next unless defined $iid;
+        next unless defined $bridge;
+        $i_stp_id{$iid}=$bridge;
+    }
+    return \%i_stp_id;
+}
+
+sub i_stp_bridge {
+    my $bridge = shift;
+    my $bp_index = $bridge->bp_index();
+    my $stp_p_bridge = $bridge->stp_p_bridge();
+
+    my %i_stp_bridge;
+
+    foreach my $index (keys %$stp_p_bridge){
+        my $bridge = $stp_p_bridge->{$index};
+        my $iid   = $bp_index->{$index};
+        next unless defined $iid;
+        next unless defined $bridge;
+        $i_stp_bridge{$iid}=$bridge;
+    }
+    return \%i_stp_bridge;
+}
+
 1;
+
 __END__
 
 
@@ -136,7 +200,7 @@ SNMP::Info::Bridge - Perl5 Interface to SNMP data available through the BRIDGE-M
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -191,7 +255,7 @@ None.
 
 =item Q-BRIDGE-MIB
 
-f<rfc2674_q.mib>
+F<rfc2674_q.mib>
 
 =back
 
@@ -362,6 +426,18 @@ this port's segment."
 (B<dot1dStpPortDesignatedPort>)
 
 "The Port Identifier of the port on the Designated Bridge for this port's segment."
+
+=item $bridge->i_stp_port()
+
+Returns the mapping of (B<dot1dStpPortDesignatedPort>) to the interface index (iid).
+
+=item $bridge->i_stp_id()
+
+Returns the mapping of (B<dot1dStpPort>) to the interface index (iid).
+
+=item $bridge->i_stp_bridge()
+
+Returns the mapping of (B<dot1dStpPortDesignatedBridge>) to the interface index (iid).
 
 =back
 

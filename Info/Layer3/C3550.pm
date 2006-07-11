@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::C3550
-# Max Baker <max@warped.org>
+# Max Baker
 #
 # Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
 # Copyright (c) 2003, Regents of the University of California
@@ -29,8 +29,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::C3550;
-$VERSION = 0.9;
-# $Id: C3550.pm,v 1.12 2004/10/28 21:53:15 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: C3550.pm,v 1.19 2006/06/30 21:32:49 jeneric Exp $
 
 use strict;
 
@@ -38,27 +38,32 @@ use Exporter;
 use SNMP::Info::Layer3;
 use SNMP::Info::CiscoVTP;
 use SNMP::Info::CiscoStack;
+use SNMP::Info::CDP;
+use SNMP::Info::CiscoStats;
+use SNMP::Info::CiscoImage;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE $INIT/ ;
-@SNMP::Info::Layer3::C3550::ISA = qw/ SNMP::Info::Layer3 SNMP::Info::CiscoStack SNMP::Info::CiscoVTP  Exporter/;
+@SNMP::Info::Layer3::C3550::ISA = qw/SNMP::Info::Layer3     SNMP::Info::CiscoStack SNMP::Info::CiscoVTP
+                                     SNMP::Info::CiscoStats SNMP::Info::CDP        Exporter
+                                     SNMP::Info::CiscoImage/;
 @SNMP::Info::Layer3::C3550::EXPORT_OK = qw//;
 
-$DEBUG=0;
-
-# See SNMP::Info for the details of these data structures and 
-#       the interworkings.
-$INIT = 0;
-
-%MIBS = (
-         %SNMP::Info::Layer3::MIBS,  
-         %SNMP::Info::CiscoVTP::MIBS,
-         %SNMP::Info::CiscoStack::MIBS,
-        );
+%MIBS =    (
+            %SNMP::Info::Layer3::MIBS,  
+            %SNMP::Info::CiscoVTP::MIBS,
+            %SNMP::Info::CiscoStack::MIBS,
+            %SNMP::Info::CDP::MIBS,
+            %SNMP::Info::CiscoStats::MIBS,
+            %SNMP::Info::CiscoImage::MIBS,
+           );
 
 %GLOBALS = (
             %SNMP::Info::Layer3::GLOBALS,
             %SNMP::Info::CiscoVTP::GLOBALS,
             %SNMP::Info::CiscoStack::GLOBALS,
+            %SNMP::Info::CDP::GLOBALS,
+            %SNMP::Info::CiscoStats::GLOBALS,
+            %SNMP::Info::CiscoImage::GLOBALS,
             'ports2'      => 'ifNumber',
            );
 
@@ -66,6 +71,9 @@ $INIT = 0;
             %SNMP::Info::Layer3::FUNCS,
             %SNMP::Info::CiscoVTP::FUNCS,
             %SNMP::Info::CiscoStack::FUNCS,
+            %SNMP::Info::CDP::FUNCS,
+            %SNMP::Info::CiscoStats::FUNCS,
+            %SNMP::Info::CiscoImage::FUNCS,
          );
 
 %MUNGE = (
@@ -73,6 +81,9 @@ $INIT = 0;
             %SNMP::Info::Layer3::MUNGE,
             %SNMP::Info::CiscoVTP::MUNGE,
             %SNMP::Info::CiscoStack::MUNGE,
+            %SNMP::Info::CDP::MUNGE,
+            %SNMP::Info::CiscoStats::MUNGE,
+            %SNMP::Info::CiscoImage::MUNGE,
          );
 
 # Pick and choose
@@ -95,7 +106,7 @@ sub model {
     $model =~ s/^catalyst//;
 
     # turn 355048 into 3550-48
-    if ($model =~ /^(35\d\d)(\d\d[T]?)$/) {
+    if ($model =~ /^(35\d\d)(\d\d(T|G)?)$/) {
         $model = "$1-$2";
     }
     return $model;
@@ -109,7 +120,7 @@ sub ports {
 
     my $id = $c3550->id();
     my $model = &SNMP::translateObj($id);
-    if ($model =~ /(12|24|48)[T]?$/) {
+    if ($model =~ /(12|24|48)(C|T|TS|G|TS-E|TS-S|T-E)?$/) {
         return $1;
     }
     return $ports2;
@@ -129,7 +140,7 @@ SNMP::Info::Layer3::C3550 - Perl5 Interface to Cisco Catalyst 3550 Layer 2/3 Swi
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker
 
 =head1 SYNOPSIS
 
@@ -170,6 +181,12 @@ a more specific class using the method above.
 
 =item SNMP::Info::CiscoStack
 
+=item SNMP::Info::CDP
+
+=item SNMP::Info::CiscoStats
+
+=item SNMP::Info::CiscoImage
+
 =back
 
 =head2 Required MIBs
@@ -184,6 +201,12 @@ See SNMP::Info::CiscoVTP for its own MIB requirements.
 
 See SNMP::Info::CiscoStack for its own MIB requirements.
 
+See SNMP::Info::CiscoStats for its own MIB requirements.
+
+See SNMP::Info::CiscoImage for its own MIB requirements.
+
+See SNMP::Info::CDP for its own MIB requirements.
+
 =back
 
 =head1 GLOBALS
@@ -195,6 +218,17 @@ These are methods that return scalar value from SNMP
 =item $c3550->vendor()
 
     Returns 'cisco'
+
+=item $c3550->model()
+
+Will take the translated model number and try to format it better.
+
+ 355048 -> 3550-48
+ 355012G -> 3550-12G
+
+=item $c3550->ports()
+
+Trys to cull the number of ports from the model number.
 
 =back
 
@@ -209,6 +243,18 @@ See documentation in SNMP::Info::CiscoVTP for details.
 =head2 Global Methods imported from SNMP::Info::CiscoStack
 
 See documentation in SNMP::Info::CiscoStack for details.
+
+=head2 Globals imported from SNMP::Info::CDP
+
+See documentation in SNMP::Info::CDP for details.
+
+=head2 Globals imported from SNMP::Info::CiscoStats
+
+See documentation in SNMP::Info::CiscoStats for details.
+
+=head2 Globals imported from SNMP::Info::CiscoImage
+
+See documentation in SNMP::Info::CiscoImage for details.
 
 =head1 TABLE ENTRIES
 
@@ -226,5 +272,17 @@ See documentation in SNMP::Info::CiscoVTP for details.
 =head2 Table Methods imported from SNMP::Info::CiscoStack
 
 See documentation in SNMP::Info::CiscoStack for details.
+
+=head2 Table Methods imported from SNMP::Info::CDP
+
+See documentation in SNMP::Info::CDP for details.
+
+=head2 Table Methods imported from SNMP::Info::CiscoStats
+
+See documentation in SNMP::Info::CiscoStats for details.
+
+=head2 Table Methods imported from SNMP::Info::CiscoImage
+
+See documentation in SNMP::Info::CiscoImage for details.
 
 =cut

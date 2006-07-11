@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Allied
-# Max Baker <max@warped.org>, Dmitry Sergienko <dmitry@trifle.net>
+# Max Baker, Dmitry Sergienko <dmitry@trifle.net>
 #
 # Copyright (c) 2004 Max Baker
 # All rights reserved.
@@ -28,8 +28,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer2::Allied;
-$VERSION = 0.9;
-# $Id: Allied.pm,v 1.2 2004/10/28 21:53:14 maxbaker Exp $
+$VERSION = '1.04';
+# $Id: Allied.pm,v 1.7 2006/06/30 21:31:30 jeneric Exp $
 use strict;
 
 use Exporter;
@@ -119,10 +119,10 @@ sub i_up {
     my $allied = shift;
 
     my $i_up  = SNMP::Info::Layer1::i_up($allied);
-    my $i_up2 = $allied->i_up2();
+    #my $i_up2 = $allied->i_up2() || {};
 
-    foreach my $port (keys %$ati_up){
-        my $up = $ati_up->{$port};
+    foreach my $port (keys %$i_up){
+        my $up = $i_up->{$port};
         $i_up->{$port} = 'down' if $up eq 'linktesterror';
         $i_up->{$port} = 'up' if $up eq 'nolinktesterror';
     }
@@ -138,7 +138,7 @@ SNMP::Info::Layer2::Allied - SNMP Interface to Allied Telesyn switches
 
 =head1 AUTHOR
 
-Max Baker (C<max@warped.org>)
+Max Baker, Dmitry Sergienko <dmitry@trifle.net>
 
 =head1 SYNOPSIS
 
