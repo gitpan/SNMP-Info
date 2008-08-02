@@ -1,66 +1,60 @@
 # SNMP::Info::Layer1::Allied
-# Max Baker
+# $Id: Allied.pm,v 1.21 2008/08/02 03:22:03 jeneric Exp $
 #
-# Copyright (c) 2004 Max Baker changes from version 0.8 and beyond.
+# Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without 
+#
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 #     * Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright notice,
-#       this list of conditions and the following disclaimer in the documentation
-#       and/or other materials provided with the distribution.
-#     * Neither the name of the University of California, Santa Cruz nor the 
-#       names of its contributors may be used to endorse or promote products 
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the University of California, Santa Cruz nor the
+#       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR # ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer1::Allied;
-$VERSION = '1.04';
-# $Id: Allied.pm,v 1.13 2006/06/30 21:29:54 jeneric Exp $
-use strict;
 
+use strict;
 use Exporter;
 use SNMP::Info::Layer1;
 
-@SNMP::Info::Layer1::Allied::ISA = qw/SNMP::Info::Layer1 Exporter/;
+@SNMP::Info::Layer1::Allied::ISA       = qw/SNMP::Info::Layer1 Exporter/;
 @SNMP::Info::Layer1::Allied::EXPORT_OK = qw//;
 
-use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
+use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
+
+$VERSION = '2.00';
 
 # Set for No CDP
-%GLOBALS = (
-            %SNMP::Info::Layer1::GLOBALS,
-            'root_ip'   => 'actualIPAddr',
-            );
+%GLOBALS = ( %SNMP::Info::Layer1::GLOBALS, 'root_ip' => 'actualIPAddr', );
 
-%FUNCS   = (%SNMP::Info::Layer1::FUNCS,
-            'i_name2'    => 'ifName',
-            'ati_p_name' => 'portName',
-            'ati_up'     => 'linkTestLED',
-            );
+%FUNCS = (
+    %SNMP::Info::Layer1::FUNCS,
+    'ati_p_name' => 'portName',
+    'ati_up'     => 'linkTestLED',
+);
 
-%MIBS    = (
-            %SNMP::Info::Layer1::MIBS,
-            'ATI-MIB' => 'atiPortGroupIndex'
-            );
+%MIBS = ( %SNMP::Info::Layer1::MIBS, 'ATI-MIB' => 'atiPortGroupIndex' );
 
-%MUNGE   = (%SNMP::Info::Layer1::MUNGE,
-            );
+%MUNGE = ( %SNMP::Info::Layer1::MUNGE, );
 
 sub vendor {
     return 'allied';
@@ -72,9 +66,9 @@ sub os {
 
 sub os_ver {
     my $allied = shift;
-    my $descr = $allied->description();
-    
-    if ($descr =~ m/version (\d+\.\d+)/){
+    my $descr  = $allied->description();
+
+    if ( $descr =~ m/version (\d+\.\d+)/ ) {
         return $1;
     }
 }
@@ -84,39 +78,40 @@ sub model {
 
     my $desc = $allied->description();
 
-    if ($desc =~ /(AT-\d{4}\S{1}?)/){
+    if ( $desc =~ /(AT-\d{4}\S{1}?)/ ) {
         return $1;
     }
-    return undef;
+    return;
 }
 
-sub i_name{
-    my $allied = shift;
+sub i_name {
+    my $allied  = shift;
+    my $partial = shift;
 
-    my $i_name = $allied->i_name2();
+    my $i_name     = $allied->orig_i_name($partial) || {};
+    my $ati_p_name = $allied->ati_p_name($partial)  || {};
 
-    my $ati_p_name = $allied->ati_p_name();
-
-    foreach my $port (keys %$ati_p_name){
+    foreach my $port ( keys %$ati_p_name ) {
         my $name = $ati_p_name->{$port};
-        $i_name->{$port} = $name if (defined $name and $name !~ /^\s*$/);
+        $i_name->{$port} = $name if ( defined $name and $name !~ /^\s*$/ );
     }
-    
+
     return $i_name;
 }
 
 sub i_up {
-    my $allied = shift;
+    my $allied  = shift;
+    my $partial = shift;
 
-    my $i_up = SNMP::Info::Layer1::i_up($allied);
-    my $ati_up = $allied->ati_up();
+    my $i_up = SNMP::Info::Layer1::i_up( $allied, $partial );
+    my $ati_up = $allied->ati_up($partial) || {};
 
-    foreach my $port (keys %$ati_up){
+    foreach my $port ( keys %$ati_up ) {
         my $up = $ati_up->{$port};
         $i_up->{$port} = 'down' if $up eq 'linktesterror';
-        $i_up->{$port} = 'up' if $up eq 'nolinktesterror';
+        $i_up->{$port} = 'up'   if $up eq 'nolinktesterror';
     }
-    
+
     return $i_up;
 }
 1;
@@ -136,14 +131,13 @@ Max Baker
  my $allied = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          # These arguments are passed directly on to SNMP::Session
                           DestHost    => 'myhub',
                           Community   => 'public',
                           Version     => 1
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $l1->class();
+ my $class = $allied->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
@@ -164,15 +158,13 @@ inherited methods.
 
 =over
 
-=item ATI-MIB 
-
-Download for your device from http://www.allied-telesyn.com/allied/support/
-
-=item Inherited Classes
-
-MIBs listed in SNMP::Info::Layer1 and its inherited classes.
+=item F<ATI-MIB>
 
 =back
+
+=head2 Inherited MIBs
+
+See L<SNMP::Info::Layer1/"Required MIBs"> for its MIB requirements.
 
 =head1 GLOBALS
 
@@ -198,19 +190,19 @@ Culls Version from description()
 
 Returns IP Address of Managed Hub.
 
-(B<actualIpAddr>)
+(C<actualIpAddr>)
 
 =item $allied->model()
 
-Trys to cull out AT-nnnnX out of the description field.
+Tries to cull out C<AT-nnnnX> out of the description field.
 
 =back
 
 =head2 Global Methods imported from SNMP::Info::Layer1
 
-See documentation in SNMP::Info::Layer1 for details.
+See L<SNMP::Info::Layer1/"GLOBALS"> for details.
 
-=head1 TABLE ENTRIES
+=head1 TABLE METHODS
 
 =head2 Overrides
 
@@ -233,16 +225,16 @@ the values of ati_up() to 'up' and 'down'.
 
 =item $allied->ati_p_name()
 
-(B<portName>)
+(C<portName>)
 
 =item $allied->ati_up()
 
-(B<linkTestLED>)
+(C<linkTestLED>)
 
 =back
 
 =head2 Table Methods imported from SNMP::Info::Layer1
 
-See documentation in SNMP::Info::Layer1 for details.
+See L<SNMP::Info::Layer1/"TABLE METHODS"> for details.
 
 =cut

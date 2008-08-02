@@ -1,11 +1,16 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         SNMP-Info
-version:      1.04
-version_from: Info.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                SNMP-Info
+version:             2.00
+abstract:            Object Oriented Perl5 Interface to Network devices and MIBs through SNMP. 
+license:             bsd
+author:              
+    - Eric A. Miller <emiller@cpan.org>
+generated_by:        ExtUtils::MakeMaker version 6.44
+distribution_type:   module
+requires:     
     Math::BigInt:                  0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.17
+    SNMP:                          0
+    Test::More:                    0
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

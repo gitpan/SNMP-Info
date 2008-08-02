@@ -1,88 +1,88 @@
 # SNMP::Info::Layer3::Juniper
-# Bill Fenner
+# $Id: Juniper.pm,v 1.17 2008/08/02 03:21:47 jeneric Exp $
 #
-# 
-# Redistribution and use in source and binary forms, with or without 
+# Copyright (c) 2008 Bill Fenner
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 #     * Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright notice,
-#       this list of conditions and the following disclaimer in the documentation
-#       and/or other materials provided with the distribution.
-#     * Neither the name of the University of California, Santa Cruz nor the 
-#       names of its contributors may be used to endorse or promote products 
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the University of California, Santa Cruz nor the
+#       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR # ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 package SNMP::Info::Layer3::Juniper;
-# $Id: Juniper.pm,v 1.5 2006/06/30 21:32:49 jeneric Exp $
 
+use strict;
 use Exporter;
 use SNMP::Info::Layer3;
 
-use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE $INIT/ ;
-$VERSION = '1.04';
-@SNMP::Info::Layer3::Juniper::ISA = qw/SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::Juniper::ISA       = qw/SNMP::Info::Layer3 Exporter/;
 @SNMP::Info::Layer3::Juniper::EXPORT_OK = qw//;
 
+use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
+
+$VERSION = '2.00';
+
 %MIBS = (
-            %SNMP::Info::Layer3::MIBS,  
-	    'JUNIPER-CHASSIS-DEFINES-MIB' => 'jnxChassisDefines',
-	    'JUNIPER-MIB' => 'jnxBoxAnatomy',
-	);
+    %SNMP::Info::Layer3::MIBS,
+    'JUNIPER-CHASSIS-DEFINES-MIB' => 'jnxChassisDefines',
+    'JUNIPER-MIB'                 => 'jnxBoxAnatomy',
+);
 
-%GLOBALS = (
-            %SNMP::Info::Layer3::GLOBALS,
-	    'serial' => 'jnxBoxSerialNo.0',
-	   );
+%GLOBALS = ( %SNMP::Info::Layer3::GLOBALS, 'serial' => 'jnxBoxSerialNo.0', );
 
-%FUNCS = (
-            %SNMP::Info::Layer3::FUNCS,
-	 );
+%FUNCS = ( %SNMP::Info::Layer3::FUNCS, );
 
-%MUNGE = (
-            %SNMP::Info::Layer3::MUNGE,
-	 );
+%MUNGE = ( %SNMP::Info::Layer3::MUNGE, );
 
 sub vendor {
-	return 'juniper';
+    return 'juniper';
 }
 
 sub os {
-	return 'junos';
+    return 'junos';
 }
 
 sub os_ver {
     my $juniper = shift;
-    my $descr = $juniper->description();
-    return undef unless defined $descr;
+    my $descr   = $juniper->description();
+    return unless defined $descr;
 
-    if ($descr =~ m/kernel JUNOS (\S+)/) {
-	return $1;
+    if ( $descr =~ m/kernel JUNOS (\S+)/ ) {
+        return $1;
     }
-    return undef;
+    return;
 }
 
 sub model {
     my $l3 = shift;
     my $id = $l3->id();
-    
-    unless (defined $id){
-        print " SNMP::Info::Layer3::Juniper::model() - Device does not support sysObjectID\n" if $l3->debug(); 
-        return undef;
+
+    unless ( defined $id ) {
+        print
+            " SNMP::Info::Layer3::Juniper::model() - Device does not support sysObjectID\n"
+            if $l3->debug();
+        return;
     }
-    
+
     my $model = &SNMP::translateObj($id);
 
     return $id unless defined $model;
@@ -91,12 +91,36 @@ sub model {
     return $model;
 }
 
+# Override the fancy Layer3.pm serial function
+sub serial {
+    my $juniper = shift;
+    return $juniper->orig_serial();
+}
+
+sub i_vlan {
+    my ($juniper) = shift;
+    my ($partial) = shift;
+
+    my ($i_type)  = $juniper->i_type($partial);
+    my ($i_descr) = $juniper->i_description($partial);
+    my %i_vlan;
+
+    foreach my $idx ( keys %$i_descr ) {
+        if ( $i_type->{$idx} eq 'l2vlan' || $i_type->{$idx} eq 135 ) {
+            if ( $i_descr->{$idx} =~ /\.(\d+)$/ ) {
+                $i_vlan{$idx} = $1;
+            }
+        }
+    }
+    return \%i_vlan;
+}
+
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::Juniper - Perl5 Interface to L3 Juniper Devices
+SNMP::Info::Layer3::Juniper - SNMP Interface to L3 Juniper Devices
 
 =head1 AUTHOR
 
@@ -108,7 +132,6 @@ Bill Fenner
  my $juniper = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          # These arguments are passed directly on to SNMP::Session
                           DestHost    => 'myrouter',
                           Community   => 'public',
                           Version     => 2
@@ -136,7 +159,7 @@ Subclass for Generic Juniper Routers running JUNOS
 
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::Layer3> for its own MIB requirements.
+See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
 
 =back
 
@@ -148,34 +171,49 @@ These are methods that return scalar value from SNMP
 
 =item $juniper->vendor()
 
-    Returns 'juniper'
+Returns C<'juniper'>
 
 =item $juniper->os()
 
-    Returns 'junos'
+Returns C<'junos'>
 
 =item $juniper->os_ver()
 
-    Returns the software version extracted from sysDescr.
+Returns the software version extracted from C<sysDescr>.
 
 =item $juniper->model()
 
-    Returns the model from sysObjectID, with jnxProductName
-    removed from the beginning.
+Returns the model from C<sysObjectID>, with C<jnxProductNameremoved> from the
+beginning.
+
+=item $juniper->serial()
+
+Returns serial number
+
+(C<jnxBoxSerialNo.0>)
 
 =back
 
 =head2 Globals imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3> for details.
+See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
 
-=head1 TABLE ENTRIES
+=head1 TABLE METHODS
 
 These are methods that return tables of information in the form of a reference
 to a hash.
 
+=over
+
+=item $juniper->i_vlan()
+
+Returns the list of interfaces whose C<ifType> is l2vlan(135), and
+the VLAN ID extracted from the interface description.
+
+=back
+
 =head2 Table Methods imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3> for details.
+See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
 
 =cut
