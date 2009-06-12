@@ -1,5 +1,5 @@
 # SNMP::Info::Bridge
-# $Id: Bridge.pm,v 1.38 2008/08/02 03:21:25 jeneric Exp $
+# $Id: Bridge.pm,v 1.41 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Changes since Version 0.7 Copyright (c) 2004 Max Baker
 # All rights reserved.
@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     'BRIDGE-MIB'   => 'dot1dBaseBridgeAddress',
@@ -55,9 +55,11 @@ $VERSION = '2.00';
     'b_type'  => 'dot1dBaseType',
 
     # Spanning Tree Protocol
-    'stp_ver'  => 'dot1dStpProtocolSpecification',
-    'stp_time' => 'dot1dStpTimeSinceTopologyChange',
-    'stp_root' => 'dot1dStpDesignatedRoot',
+    'stp_ver'       => 'dot1dStpProtocolSpecification',
+    'stp_time'      => 'dot1dStpTimeSinceTopologyChange',
+    'stp_root'      => 'dot1dStpDesignatedRoot',
+    'stp_root_port' => 'dot1dStpRootPort',
+    'stp_priority'  => 'dot1dStpPriority',
 
     # Q-BRIDGE-MIB
     'qb_vlans_max'       => 'dot1qMaxSupportedVlans',
@@ -103,6 +105,7 @@ $VERSION = '2.00';
 
     # Q-BRIDGE-MIB : dot1qVlanStaticTable
     'v_name'           => 'dot1qVlanStaticName',
+    'qb_v_name'        => 'dot1qVlanStaticName',
     'qb_v_egress'      => 'dot1qVlanStaticEgressPorts',
     'qb_v_fbdn_egress' => 'dot1qVlanForbiddenEgressPorts',
     'qb_v_untagged'    => 'dot1qVlanStaticUntaggedPorts',

@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3 - SNMP Interface to Layer3 devices
-# $Id: Layer3.pm,v 1.34 2008/08/02 03:21:25 jeneric Exp $
+# $Id: Layer3.pm,v 1.36 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Max Baker -- All changes from Version 0.7 on
 #
@@ -47,7 +47,7 @@ use SNMP::Info::PowerEthernet;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     %SNMP::Info::MIBS,
@@ -286,7 +286,12 @@ sub vendor {
     my $l3 = shift;
 
     my $descr = $l3->description();
+    my $id = $l3->id();
 
+    # .1.3.6.1.4.1.9.1 is the CISCO-PRODUCTS-MIB
+    # .1.3.6.1.4.1.9.9.368.4 is an old tree that Cisco CSSs were numbered from
+    return 'cisco'   if $id =~ /^\Q.1.3.6.1.4.1.9.1.\E\d+$/;
+    return 'cisco'   if $id =~ /^\Q.1.3.6.1.4.1.9.9.368.4.\E\d+/;
     return 'cisco'   if ( $descr =~ /(cisco|\bios\b)/i );
     return 'foundry' if ( $descr =~ /foundry/i );
 

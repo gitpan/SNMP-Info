@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::AlcatelLucent
-# $Id: AlcatelLucent.pm,v 1.3 2008/08/02 03:21:47 jeneric Exp $
+# $Id: AlcatelLucent.pm,v 1.4 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Bill Fenner
 #
@@ -42,7 +42,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,

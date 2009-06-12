@@ -1,5 +1,5 @@
 # SNMP::Info::CiscoPortSecurity
-# $Id: CiscoPortSecurity.pm,v 1.10 2008/08/02 03:21:25 jeneric Exp $
+# $Id: CiscoPortSecurity.pm,v 1.11 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -38,7 +38,7 @@ use Exporter;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE %PAECAPABILITIES/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     'CISCO-PORT-SECURITY-MIB' => 'ciscoPortSecurityMIB',

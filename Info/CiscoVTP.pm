@@ -1,5 +1,5 @@
 # SNMP::Info::CiscoVTP
-# $Id: CiscoVTP.pm,v 1.26 2008/08/02 03:21:25 jeneric Exp $
+# $Id: CiscoVTP.pm,v 1.27 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
 #
@@ -41,7 +41,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     'CISCO-VTP-MIB'                       => 'vtpVlanName',

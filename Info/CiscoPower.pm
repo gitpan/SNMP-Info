@@ -1,5 +1,5 @@
 # SNMP::Info::CiscoPower
-# $Id: CiscoPower.pm,v 1.6 2008/08/02 03:21:25 jeneric Exp $
+# $Id: CiscoPower.pm,v 1.7 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Bill Fenner
 # All rights reserved.
@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = ( 'CISCO-POWER-ETHERNET-EXT-MIB' => 'cpeExtPsePortEntPhyIndex' );
 

@@ -1,5 +1,5 @@
 # SNMP::Info::EtherLike
-# $Id: EtherLike.pm,v 1.21 2008/08/02 03:21:25 jeneric Exp $
+# $Id: EtherLike.pm,v 1.23 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
 #
@@ -41,9 +41,9 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
-%MIBS = ( 'ETHERLIKE-MIB' => 'etherMIB' );
+%MIBS = ( 'EtherLike-MIB' => 'etherMIB' );
 
 %GLOBALS = ();
 

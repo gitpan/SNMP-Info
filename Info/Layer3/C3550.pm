@@ -1,7 +1,7 @@
 # SNMP::Info::Layer3::C3550
-# $Id: C3550.pm,v 1.31 2008/08/02 03:21:47 jeneric Exp $
+# $Id: C3550.pm,v 1.33 2009/06/11 21:49:37 maxbaker Exp $
 #
-# Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
+# Copyright (c) 2008-2009 Max Baker changes from version 0.8 and beyond.
 # Copyright (c) 2004 Regents of the University of California
 # All rights reserved.
 #
@@ -36,62 +36,76 @@ use Exporter;
 use SNMP::Info::CiscoVTP;
 use SNMP::Info::CiscoStack;
 use SNMP::Info::CDP;
+use SNMP::Info::CiscoConfig;
 use SNMP::Info::CiscoStats;
 use SNMP::Info::CiscoImage;
 use SNMP::Info::CiscoPortSecurity;
 use SNMP::Info::CiscoPower;
 use SNMP::Info::Layer3;
-
-@SNMP::Info::Layer3::C3550::ISA
-    = qw/SNMP::Info::CiscoVTP SNMP::Info::CiscoStack
-    SNMP::Info::CDP SNMP::Info::CiscoStats
-    SNMP::Info::CiscoPortSecurity
-    SNMP::Info::CiscoImage SNMP::Info::CiscoPower
-    SNMP::Info::Layer3
-    Exporter/;
-@SNMP::Info::Layer3::C3550::EXPORT_OK = qw//;
+use SNMP::Info::CiscoStpExtensions;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.00';
+# NOTE : Top-most items gets precedence for @ISA
+@SNMP::Info::Layer3::C3550::ISA = qw/
+    SNMP::Info::CiscoVTP
+    SNMP::Info::CiscoStpExtensions
+    SNMP::Info::CiscoStack
+    SNMP::Info::CDP
+    SNMP::Info::CiscoStats
+    SNMP::Info::CiscoImage
+    SNMP::Info::CiscoPortSecurity
+    SNMP::Info::CiscoConfig
+    SNMP::Info::CiscoPower
+    SNMP::Info::Layer3
+    Exporter/;
+
+@SNMP::Info::Layer3::C3550::EXPORT_OK = qw//;
+
+$VERSION = '2.01';
+
+# NOTE: Order creates precedence
+#       Example: v_name exists in Bridge.pm and CiscoVTP.pm
+#       Bridge is called from Layer3 and CiscoStpExtensions
+#       So we want CiscoVTP to come last to get the right one.
+# The @ISA order should match these orders.
 
 %MIBS = (
-    %SNMP::Info::Layer3::MIBS,            %SNMP::Info::CiscoPower::MIBS,
-    %SNMP::Info::CiscoPortSecurity::MIBS, %SNMP::Info::CiscoImage::MIBS,
-    %SNMP::Info::CiscoStats::MIBS,        %SNMP::Info::CDP::MIBS,
-    %SNMP::Info::CiscoStack::MIBS,        %SNMP::Info::CiscoVTP::MIBS,
+    %SNMP::Info::Layer3::MIBS,             %SNMP::Info::CiscoPower::MIBS,
+    %SNMP::Info::CiscoConfig::MIBS,        %SNMP::Info::CiscoPortSecurity::MIBS,
+    %SNMP::Info::CiscoImage::MIBS,         %SNMP::Info::CiscoStats::MIBS,
+    %SNMP::Info::CDP::MIBS,                %SNMP::Info::CiscoStack::MIBS,
+    %SNMP::Info::CiscoStpExtensions::MIBS, %SNMP::Info::CiscoVTP::MIBS,
 );
+
 
 %GLOBALS = (
     %SNMP::Info::Layer3::GLOBALS,
     %SNMP::Info::CiscoPower::GLOBALS,
+    %SNMP::Info::CiscoConfig::GLOBALS,
     %SNMP::Info::CiscoPortSecurity::GLOBALS,
     %SNMP::Info::CiscoImage::GLOBALS,
     %SNMP::Info::CiscoStats::GLOBALS,
     %SNMP::Info::CDP::GLOBALS,
     %SNMP::Info::CiscoStack::GLOBALS,
+    %SNMP::Info::CiscoStpExtensions::GLOBALS,
     %SNMP::Info::CiscoVTP::GLOBALS,
-    'ports2' => 'ifNumber',
 );
 
 %FUNCS = (
-    %SNMP::Info::Layer3::FUNCS,            %SNMP::Info::CiscoPower::FUNCS,
-    %SNMP::Info::CiscoPortSecurity::FUNCS, %SNMP::Info::CiscoImage::FUNCS,
-    %SNMP::Info::CiscoStats::FUNCS,        %SNMP::Info::CDP::FUNCS,
-    %SNMP::Info::CiscoStack::FUNCS,        %SNMP::Info::CiscoVTP::FUNCS,
+    %SNMP::Info::Layer3::FUNCS,             %SNMP::Info::CiscoPower::FUNCS,
+    %SNMP::Info::CiscoConfig::FUNCS,        %SNMP::Info::CiscoPortSecurity::FUNCS,
+    %SNMP::Info::CiscoImage::FUNCS,         %SNMP::Info::CiscoStats::FUNCS,
+    %SNMP::Info::CDP::FUNCS,                %SNMP::Info::CiscoStack::FUNCS,
+    %SNMP::Info::CiscoStpExtensions::FUNCS, %SNMP::Info::CiscoVTP::FUNCS,    
 );
 
 %MUNGE = (
-
-    # Inherit all the built in munging
-    %SNMP::Info::Layer3::MUNGE,
-    %SNMP::Info::CiscoPower::MUNGE,
-    %SNMP::Info::CiscoPortSecurity::MUNGE,
-    %SNMP::Info::CiscoImage::MUNGE,
-    %SNMP::Info::CiscoStats::MUNGE,
-    %SNMP::Info::CDP::MUNGE,
-    %SNMP::Info::CiscoStack::MUNGE,
-    %SNMP::Info::CiscoVTP::MUNGE,
+    %SNMP::Info::Layer3::MUNGE,             %SNMP::Info::CiscoPower::MUNGE,
+    %SNMP::Info::CiscoConfig::MUNGE,        %SNMP::Info::CiscoPortSecurity::MUNGE,
+    %SNMP::Info::CiscoImage::MUNGE,         %SNMP::Info::CiscoStats::MUNGE,
+    %SNMP::Info::CDP::MUNGE,                %SNMP::Info::CiscoStack::MUNGE,
+    %SNMP::Info::CiscoStpExtensions::MUNGE, %SNMP::Info::CiscoVTP::MUNGE,    
 );
 
 sub vendor {
@@ -115,14 +129,14 @@ sub model {
 sub ports {
     my $c3550 = shift;
 
-    my $ports2 = $c3550->ports2();
-
     my $id    = $c3550->id();
     my $model = &SNMP::translateObj($id);
     if ( $model =~ /(12|24|48)(C|T|TS|G|TS-E|TS-S|T-E)?$/ ) {
         return $1;
     }
-    return $ports2;
+
+    my $ports = $c3550->orig_ports();
+    return $ports;
 }
 
 #  Verions prior to 12.1(22)EA1a use the older CiscoStack method
@@ -263,6 +277,8 @@ after determining a more specific class using the method above.
 
 =item SNMP::Info::Layer3
 
+=item SNMP::Info::CiscoSTPExtensions
+
 =item SNMP::Info::CiscoPower
 
 =item SNMP::Info::CiscoPortSecurity
@@ -286,6 +302,8 @@ after determining a more specific class using the method above.
 =item Inherited Classes' MIBs
 
 See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
+
+See L<SNMP::Info::CiscoStpExtensions/"Required MIBs"> for its own MIB requirements.
 
 See L<SNMP::Info::CiscoPower/"Required MIBs"> for its own MIB requirements.
 
@@ -334,6 +352,10 @@ Returns 1.  Use vlan indexing.
 =head2 Globals imported from SNMP::Info::Layer3
 
 See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+
+=head2 Globals imported from SNMP::Info::CiscoStpExtensions
+
+See documentation in L<SNMP::Info::CiscoStpExtensions/"GLOBALS"> for details.
 
 =head2 Globals imported from SNMP::Info::CiscoPower
 
@@ -411,6 +433,10 @@ Crosses $c3550->p_port() with $c3550->p_duplex() to utilize port C<ifIndex>.
 =head2 Table Methods imported from SNMP::Info::Layer3
 
 See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
+
+=head2 Table Methods imported from SNMP::Info::CiscoStpExtensions
+
+See documentation in L<SNMP::Info::CiscoStpExtensions/"TABLE METHODS"> for details.
 
 =head2 Table Methods imported from SNMP::Info::CiscoPower
 

@@ -1,5 +1,5 @@
 # SNMP::Info::NortelStack
-# $Id: NortelStack.pm,v 1.19 2008/08/02 03:21:25 jeneric Exp $
+# $Id: NortelStack.pm,v 1.20 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
 

@@ -1,7 +1,7 @@
 # SNMP::Info::Layer2::HP - SNMP Interface to HP ProCurve Switches
-# $Id: HP.pm,v 1.45 2008/08/02 03:21:57 jeneric Exp $
+# $Id: HP.pm,v 1.48 2009/06/12 22:24:25 maxbaker Exp $
 #
-# Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
+# Copyright (c) 2008-2009 Max Baker changes from version 0.8 and beyond.
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
@@ -46,7 +46,7 @@ use SNMP::Info::CDP;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %PORTSTAT %MODEL_MAP %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -112,12 +112,12 @@ $VERSION = '2.00';
 );
 
 %MUNGE = (
-
     # Inherit all the built in munging
     %SNMP::Info::Layer3::MUNGE,
     %SNMP::Info::MAU::MUNGE,
     %SNMP::Info::LLDP::MUNGE,
-    %SNMP::Info::CDP::MUNGE
+    %SNMP::Info::CDP::MUNGE,
+    'c_id'   => \&munge_hp_c_id,
 );
 
 %MODEL_MAP = (
@@ -553,7 +553,6 @@ sub c_port {
     foreach my $iid ( keys %$lldp ) {
         my $port = $lldp->{$iid};
         next unless defined $port;
-
         $c_port{$iid} = $port;
     }
     return \%c_port;
@@ -570,17 +569,30 @@ sub c_id {
     foreach my $iid ( keys %$cdp ) {
         my $id = $cdp->{$iid};
         next unless defined $id;
-
+	
         $c_id{$iid} = $id;
     }
-
+    
     foreach my $iid ( keys %$lldp ) {
-        my $id = $lldp->{$iid};
-        next unless defined $id;
-
-        $c_id{$iid} = $id;
+	my $id = $lldp->{$iid};
+	next unless defined $id;
+	
+	$c_id{$iid} = $id;
     }
     return \%c_id;
+}
+
+sub munge_hp_c_id {
+    my ($v) = @_;
+    if ( length(unpack('H*', $v)) == 12 ){
+	return join(':',map { sprintf "%02x", $_ } unpack('C*', $v));
+    }if ( length(unpack('H*', $v)) == 10 ){
+	# IP address (first octet is sign, I guess)
+	my @octets = (map { sprintf "%02x",$_ } unpack('C*', $v))[1..4];
+	return join '.', map { hex($_) } @octets;
+    }else{
+	return $v;
+    }
 }
 
 sub c_platform {
@@ -991,5 +1003,15 @@ See documentation in L<SNMP::Info::LLDP/"TABLE METHODS"> for details.
 =head2 Table Methods imported from SNMP::Info::MAU
 
 See documentation in L<SNMP::Info::MAU/"TABLE METHODS"> for details.
+
+=head1 MUNGES
+
+=over
+
+=item munge_hp_c_id()
+
+Munge for c_id which handles CDP and LLDP.
+
+=back
 
 =cut

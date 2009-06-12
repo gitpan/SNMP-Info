@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::C2900
-# $Id: C2900.pm,v 1.32 2008/08/02 03:21:57 jeneric Exp $
+# $Id: C2900.pm,v 1.33 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
 #
@@ -47,7 +47,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %GLOBALS = (
     %SNMP::Info::Layer2::GLOBALS,     %SNMP::Info::CiscoConfig::GLOBALS,

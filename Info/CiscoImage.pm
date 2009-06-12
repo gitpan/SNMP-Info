@@ -1,4 +1,4 @@
-# $Id: CiscoImage.pm,v 1.11 2008/08/02 03:21:25 jeneric Exp $
+# $Id: CiscoImage.pm,v 1.12 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2005 Matt Tuttle
 # All rights reserved.
@@ -38,7 +38,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = ( 'CISCO-IMAGE-MIB' => 'ciscoImageString', );
 

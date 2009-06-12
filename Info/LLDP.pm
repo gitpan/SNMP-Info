@@ -1,5 +1,5 @@
 # SNMP::Info::LLDP
-# $Id: LLDP.pm,v 1.8 2008/08/02 03:21:25 jeneric Exp $
+# $Id: LLDP.pm,v 1.10 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     'LLDP-MIB'          => 'lldpLocSysCapEnabled',
@@ -191,7 +191,13 @@ sub lldp_id {
         # May need to format other types in the future
         if ( $type =~ /mac/ ) {
             $id = join( ':', map { sprintf "%02x", $_ } unpack( 'C*', $id ) );
-        }
+        }elsif ($type eq 'networkAddress'){
+ 	    if ( length(unpack('H*', $id)) == 10 ){
+ 		# IP address (first octet is sign, I guess)
+ 		my @octets = (map { sprintf "%02x",$_ } unpack('C*', $id))[1..4];
+ 		$id = join '.', map { hex($_) } @octets;
+ 	    }
+	}
         $lldp_id{$key} = $id;
     }
     return \%lldp_id;

@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Contivity
-# $Id: Contivity.pm,v 1.18 2008/08/02 03:21:47 jeneric Exp $
+# $Id: Contivity.pm,v 1.19 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -42,7 +42,7 @@ use SNMP::Info::Entity;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     %SNMP::Info::MIBS, %SNMP::Info::Layer3::MIBS, %SNMP::Info::Entity::MIBS,

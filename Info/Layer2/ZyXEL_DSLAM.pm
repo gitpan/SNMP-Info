@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::ZyXEL_DSLAM
-# $Id: ZyXEL_DSLAM.pm,v 1.16 2008/08/02 03:21:57 jeneric Exp $
+# $Id: ZyXEL_DSLAM.pm,v 1.17 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Max Baker
 # All rights reserved.
@@ -39,7 +39,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 # Set for No CDP
 %GLOBALS = ( %SNMP::Info::Layer2::GLOBALS );

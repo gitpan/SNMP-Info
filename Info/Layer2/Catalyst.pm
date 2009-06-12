@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Catalyst
-# $Id: Catalyst.pm,v 1.33 2008/08/02 03:21:57 jeneric Exp $
+# $Id: Catalyst.pm,v 1.34 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # Copyright (c) 2008 Max Baker changes from version 0.8 and beyond
@@ -49,7 +49,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     %SNMP::Info::Layer2::MIBS,     %SNMP::Info::CiscoPortSecurity::MIBS,

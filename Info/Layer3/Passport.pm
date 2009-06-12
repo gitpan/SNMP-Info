@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Passport
-# $Id: Passport.pm,v 1.34 2008/08/02 03:21:47 jeneric Exp $
+# $Id: Passport.pm,v 1.35 2009/06/12 22:24:25 maxbaker Exp $
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -43,7 +43,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.00';
+$VERSION = '2.01';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS, %SNMP::Info::RapidCity::MIBS,

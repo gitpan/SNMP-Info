@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: make_dev_matrix.pl,v 1.7 2007/11/27 02:59:18 jeneric Exp $
+# $Id: make_dev_matrix.pl,v 1.8 2009/06/07 23:35:06 maxbaker Exp $
 
 $DevMatrix = '../DeviceMatrix.txt';
 $DevHTML   = 'DeviceMatrix.html';
@@ -40,6 +40,7 @@ if ($@) {
     $gvds->graph()->as_png($DevPNG);
 }
 
+print "Creating $DevHTML\n";
 open (HTML, "> $DevHTML") or die "Can't open $DevHTML. $!\n";
 $old_fh = select(HTML);
 &html_head;
