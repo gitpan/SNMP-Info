@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::C1900
-# $Id: C1900.pm,v 1.32 2009/06/12 22:24:25 maxbaker Exp $
+# $Id: C1900.pm,v 1.33 2010/05/25 23:30:20 bldewolf Exp $
 #
 # Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
 #
@@ -46,7 +46,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 %GLOBALS = (
     %SNMP::Info::Layer2::GLOBALS,
@@ -251,6 +251,18 @@ sub i_vlan_membership {
     return $i_vlan_membership;
 }
 
+sub bp_index {
+    my $c1900   = shift;
+    my $partial = shift;
+
+    my $if_index = $c1900->i_index($partial);
+    my $index = $c1900->orig_bp_index($partial) || {};
+    foreach my $iid ( keys %$if_index ) {
+        $index->{$iid} = $iid if(!defined $index->{$iid});
+    }
+    return $index;
+}
+
 1;
 __END__
 
@@ -431,6 +443,13 @@ bridge group IDs.
     my $vlan = join(',', sort(@{$vlans->{$iid}}));
     print "Port: $port VLAN: $vlan\n";
   }
+
+
+=item $c1900->bp_index()
+
+Returns a bp_index that contains the original bp_index entries and extra
+entries for those interfaces listed in if_index, as some C1900 devices do not
+return complete bp_indexes.
 
 =back
 

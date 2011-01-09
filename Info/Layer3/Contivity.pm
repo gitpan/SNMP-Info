@@ -1,7 +1,7 @@
 # SNMP::Info::Layer3::Contivity
-# $Id: Contivity.pm,v 1.19 2009/06/12 22:24:25 maxbaker Exp $
+# $Id: Contivity.pm,v 1.20 2010/11/17 23:18:39 jeneric Exp $
 #
-# Copyright (c) 2008 Eric Miller
+# Copyright (c) 2010 Eric Miller
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ use SNMP::Info::Entity;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 %MIBS = (
     %SNMP::Info::MIBS, %SNMP::Info::Layer3::MIBS, %SNMP::Info::Entity::MIBS,
@@ -77,7 +77,7 @@ sub model {
 
     my $model = $e_model->{1} || undef;
 
-    return $1 if ( defined $model and $model =~ /(CES\d+)/i );
+    return $1 if ( defined $model and $model =~ /(CES\d+|NVR\d+)/i );
     return;
 }
 

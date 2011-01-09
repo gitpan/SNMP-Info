@@ -1,6 +1,6 @@
 # SNMP::Info
 #
-# Copyright (c) 2003-2009 Max Baker and SNMP::Info Developers
+# Copyright (c) 2003-2010 Max Baker and SNMP::Info Developers
 # All rights reserved.
 #
 # Portions Copyright (c) 2002-2003, Regents of the University of California
@@ -23,8 +23,8 @@ use vars
     qw/$VERSION $VERSION_CVS %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '2.01';
-$VERSION_CVS = '$Id: Info.pm,v 1.150 2009/06/12 22:25:32 maxbaker Exp $';
+$VERSION = '2.03_01';
+$VERSION_CVS = '$Id: Info.pm,v 1.162 2010/11/17 23:18:35 jeneric Exp $';
 
 =head1 NAME
 
@@ -32,12 +32,12 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 2.01
+SNMP::Info - Version 2.03_01
 
 =head1 AUTHOR
 
-SNMP::Info is maintained by team of Open Source authors headed by Eric Miller
-and Bill Fenner.
+SNMP::Info is maintained by team of Open Source authors headed by Eric Miller,
+Bill Fenner, Max Baker and Jeroen van Ingen.
 
 Please visit L<http://sourceforge.net/projects/snmp-info/> for most up-to-date
 list of developers.
@@ -333,6 +333,14 @@ Foundry Discovery Protocol.  F<FOUNDRY-SN-SWITCH-GROUP-MIB>
 
 See documentation in L<SNMP::Info::FDP> for details.
 
+=item SNMP::Info::Ipv6
+
+SNMP Interface for obtaining configured IPv6 addresses and mapping IPv6
+addresses to MACs and interfaces, using information from F<IP-MIB>,
+F<IPV6-MIB> and/or F<CISCO-IETF-IP-MIB>.
+
+See documentation in L<SNMP::Info::Ipv6> for details.
+
 =item SNMP::Info::IEEE802dot11
 
 F<IEEE802dot11-MIB>.  A collection of OIDs providing information about
@@ -523,11 +531,19 @@ Depreciated.  Use SNMP::Info::Layer3::Foundry.
 
 =item SNMP::Info::Layer2::HP
 
-Subclass for HP Procurve Switches
+Subclass for more recent HP Procurve Switches
 
 Requires F<HP-ICF-OID> and F<ENTITY-MIB> downloaded from HP.  
 
 See documentation in L<SNMP::Info::Layer2::HP> for details.
+
+=item SNMP::Info::Layer2::HP4000
+
+Subclass for older HP Procurve Switches
+
+Requires F<HP-ICF-OID> and F<ENTITY-MIB> downloaded from HP.  
+
+See documentation in L<SNMP::Info::Layer2::HP4000> for details.
 
 =item SNMP::Info::Layer2::N2270
 
@@ -633,6 +649,12 @@ This is a simple wrapper around Layer3 for IOS devices.  It adds on CiscoVTP.
 
 See documentation in L<SNMP::Info::Layer3::Cisco> for details.
 
+=item SNMP::Info::Layer3::CiscoFWSM
+
+Subclass for Cisco Firewall Services Modules.
+
+See documentation in L<SNMP::Info::Layer3::CiscoFWSM> for details.
+
 =item SNMP::Info::Layer3::Contivity
 
 Subclass for Nortel Contivity/VPN Routers.  
@@ -668,7 +690,7 @@ See documentation in L<SNMP::Info::Layer3::Foundry> for details.
 =item SNMP::Info::Layer3::HP9300
 
 Subclass for HP network devices which Foundry Networks was the
-Original Equipment Manufacturer (OEM) such as the HP ProCurve 9300 series.
+Original Equipment Manufacturer (OEM) such as the HP ProCurve 9300 and 6300 series.
 
 See documentation in L<SNMP::Info::Layer3::HP9300> for details.
 
@@ -708,6 +730,12 @@ Subclass for Nortel Ethernet Routing Switch/Passport 8000 series and Accelar
 series switches.
 
 See documentation in L<SNMP::Info::Layer3::Passport> for details.
+
+=item SNMP::Info::Layer3::Pf
+
+Subclass for FreeBSD-Based Firewalls using Pf /Pf Sense
+
+See documentation in L<SNMP::Info::Layer3::Pf> for details.
 
 =item SNMP::Info::Layer3::Sun
 
@@ -1151,13 +1179,22 @@ sub device_type {
 
     my $objtype = "SNMP::Info";
 
-    my $layers = $info->layers();
-
-    # if we dont have sysServices, we dont have anything else either probably.
-    return unless ( defined $layers and length($layers) );
+    my $layers = $info->layers() || '00000000';
 
     my $desc = $info->description() || 'undef';
     $desc =~ s/[\r\n\l]+/ /g;
+
+    # Some devices don't implement sysServices, but do return a description. 
+    # In that case, log a warning and continue.
+    if ( $layers eq '00000000' ) {
+        if ($desc ne 'undef') {
+            carp("Device doesn't implement sysServices but did return sysDescr. Might give unexpected results.\n") if $info->debug();
+        } else {
+            # No sysServices, no sysDescr 
+            return undef;
+        }
+    }
+
     my $id = $info->id() || 'undef';
 
     # Hash for generic fallback to a device class if unable to determine using
@@ -1181,6 +1218,7 @@ sub device_type {
         6486 => 'SNMP::Info::Layer3::AlcatelLucent',
         6527 => 'SNMP::Info::Layer3::Timetra',
         8072 => 'SNMP::Info::Layer3::NetSNMP',
+        12325 => 'SNMP::Info::Layer3::Pf',
         30065 => 'SNMP::Info::Layer3::Arista',
     );
 
@@ -1196,6 +1234,7 @@ sub device_type {
         2925  => 'SNMP::Info::Layer1::Cyclades',
         4526  => 'SNMP::Info::Layer2::Netgear',
         5624  => 'SNMP::Info::Layer3::Enterasys',
+        11898 => 'SNMP::Info::Layer2::Orinoco',
         14179 => 'SNMP::Info::Layer2::Airespace',
         14823 => 'SNMP::Info::Layer2::Aruba',
     );
@@ -1235,6 +1274,22 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::C6500'
             if $desc =~ /(s72033_rp|s3223_rp|s32p3_rp|s222_rp)/;
 
+        #   Cisco 2970
+        $objtype = 'SNMP::Info::Layer3::C6500'
+            if ( $desc =~ /(C2970|C2960)/ );
+
+        #   Cisco 3400 w/ Layer3 capable image
+        $objtype = 'SNMP::Info::Layer3::C3550'
+            if ( $desc =~ /(ME340x)/ );
+
+        # Various Cisco blade switches, CBS30x0 and CBS31x0 models
+        $objtype = 'SNMP::Info::Layer3::C6500'
+            if ( $desc =~ /cisco/i and $desc =~ /CBS3[0-9A-Za-z]{3}/ );
+
+        # HP, older ProCurve models (1600, 2400, 2424m, 4000, 8000)
+        $objtype = 'SNMP::Info::Layer2::HP4000'
+            if $desc =~ /\b(J4093A|J4110A|J4120A|J4121A|J4122A|J4122B)\b/;
+
         # HP, Foundry OEM
         $objtype = 'SNMP::Info::Layer3::HP9300'
             if $desc =~ /\b(J4874A|J4138A|J4139A|J4840A|J4841A)\b/;
@@ -1253,11 +1308,15 @@ sub device_type {
             if $desc =~ /Alteon\s[1A][8D]/;
 
         # Nortel Contivity
-        $objtype = 'SNMP::Info::Layer3::Contivity' if $desc =~ /\bCES\b/;
+        $objtype = 'SNMP::Info::Layer3::Contivity' if $desc =~ /(\bCES\b|\bNVR\sV\d)/;
 
         # Allied Telesyn Layer2 managed switches. They report they have L3 support
         $objtype = 'SNMP::Info::Layer2::Allied'
             if ( $desc =~ /Allied.*AT-80\d{2}\S*/i );
+
+        # Cisco FWSM
+        $objtype = 'SNMP::Info::Layer3::CiscoFWSM'
+            if ( $desc =~ /Cisco Firewall Services Module/i );
 
         # Generic device classification based upon sysObjectID
         if (    ( $objtype eq 'SNMP::Info::Layer3' )
@@ -1295,6 +1354,10 @@ sub device_type {
         #   Cisco 2970
         $objtype = 'SNMP::Info::Layer3::C6500'
             if ( $desc =~ /(C2970|C2960)/ );
+
+        # HP, older ProCurve models (1600, 2400, 2424m, 4000, 8000)
+        $objtype = 'SNMP::Info::Layer2::HP4000'
+            if $desc =~ /\b(J4093A|J4110A|J4120A|J4121A|J4122A|J4122B)\b/;
 
         # HP, Foundry OEM
         $objtype = 'SNMP::Info::Layer3::HP9300'
@@ -1405,10 +1468,14 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Cisco'
             if ( $desc =~ /Cisco Adaptive Security Appliance/i );
 
-        # Cisco FWSM
-        $objtype = 'SNMP::Info::Layer3::Cisco'
-            if ( $desc =~ /Cisco Firewall Services Module/i );
-
+        # Generic device classification based upon sysObjectID
+        if ( defined($id) ) {
+            if ( defined $l3sysoidmap{$id} ) {
+                $objtype = $l3sysoidmap{$id};
+            } elsif ( defined $l2sysoidmap{$id}) {
+                $objtype = $l2sysoidmap{$id};
+            }
+        }
     }
 
     return $objtype;
@@ -3655,7 +3722,7 @@ sub AUTOLOAD {
 =head1 COPYRIGHT AND LICENSE
 
 Changes from SNMP::Info Version 0.7 and on are:
-Copyright (c) 2003-2009 Max Baker and SNMP::Info Developers
+Copyright (c) 2003-2010 Max Baker and SNMP::Info Developers
 All rights reserved.
 
 Original Code is:

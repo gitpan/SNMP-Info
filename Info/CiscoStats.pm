@@ -1,5 +1,5 @@
 # SNMP::Info::CiscoStats
-# $Id: CiscoStats.pm,v 1.26 2009/06/12 20:48:44 maxbaker Exp $
+# $Id: CiscoStats.pm,v 1.27 2010/05/04 14:18:37 jeroenvi Exp $
 #
 # Changes since Version 0.7 Copyright (c) 2008-2009 Max Baker and SNMP::Info Developers
 # All rights reserved.
@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 %MIBS = (
     'SNMPv2-MIB'            => 'sysDescr',
@@ -76,6 +76,7 @@ $VERSION = '2.01';
 
     # OLD-CISCO-SYSTEM-MIB
     'write_mem' => 'writeMem',
+    'rom_id'    => 'romId',
 );
 
 %FUNCS = (
@@ -202,6 +203,15 @@ sub os_ver {
         return $1;
     }
 
+    return;
+}
+
+sub os_bin {
+    my $self   = shift;
+    my $rom_id = $self->rom_id();
+    if ($rom_id =~ m/Version ([^,]+),/)  {
+        return $1;
+    }
     return;
 }
 
@@ -426,6 +436,10 @@ Cisco Content Switch Secure Content Acceleration
 =item $ciscostats->os_ver()
 
 Tries to parse device operating system version from description()
+
+=item $ciscostats->os_bin()
+
+Tries to parse ROMMON version from rom_id() string
 
 =item $ciscostats->ios_cpu()
 

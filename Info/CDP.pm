@@ -1,5 +1,5 @@
 # SNMP::Info::CDP
-# $Id: CDP.pm,v 1.28 2009/06/12 22:24:25 maxbaker Exp $
+# $Id: CDP.pm,v 1.29 2010/05/03 14:51:35 jeroenvi Exp $
 #
 # Changes since Version 0.7 Copyright (c) 2004 Max Baker
 # All rights reserved.
@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION $DEBUG %FUNCS %GLOBALS %MIBS %MUNGE $INIT/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 # Five data structures required by SNMP::Info
 %MIBS = ( 'CISCO-CDP-MIB' => 'cdpGlobalRun' );
@@ -69,6 +69,10 @@ $VERSION = '2.01';
     'c_vlan'         => 'cdpCacheNativeVLAN',
     'c_duplex'       => 'cdpCacheDuplex',
     'c_power'        => 'cdpCachePowerConsumption',
+    'c_pri_mgmt_type'=> 'cdpCachePrimaryMgmtAddrType',
+    'c_pri_mgmt_addr'=> 'cdpCachePrimaryMgmtAddr',
+    'c_sec_mgmt_type'=> 'cdpCacheSecondaryMgmtAddrType',
+    'c_sec_mgmt_addr'=> 'cdpCacheSecondaryMgmtAddr',
 );
 
 %MUNGE = (

@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Orinoco
-# $Id: Orinoco.pm,v 1.16 2009/06/12 22:24:25 maxbaker Exp $
+# $Id: Orinoco.pm,v 1.17 2010/07/23 15:39:03 jeroenvi Exp $
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -41,7 +41,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 %MIBS = (
     %SNMP::Info::Layer2::MIBS,
@@ -114,6 +114,8 @@ sub model {
 
     return $1             if ( $descr =~ /(AP-\d+)/ );
     return 'WavePOINT-II' if ( $descr =~ /WavePOINT-II/ );
+    return 'Outdoor Router' if ( $descr =~ /Wireless Router/ );
+
     return;
 }
 

@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Baystack
-# $Id: Baystack.pm,v 1.25 2009/06/12 22:24:25 maxbaker Exp $
+# $Id: Baystack.pm,v 1.27 2010/11/23 13:50:16 jeneric Exp $
 #
 # Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
 # All rights reserved.
@@ -46,7 +46,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,    %SNMP::Info::LLDP::MIBS,
@@ -82,20 +82,26 @@ sub os {
     my $descr    = $baystack->description();
     my $model    = $baystack->model();
 
-    if ((   defined $model
-            and $model
-            =~ /(325|420|425|470|460|BPS|2500|3510|4524|4526|4548|4550|5510|5520|5530)/
-        )
-        and ( defined $descr and $descr =~ m/SW:v[3-5]/i )
-        )
-    {
-        return 'boss';
-    }
     if ( ( defined $descr and $descr =~ /Business Ethernet Switch.*SW:v/i ) )
     {
         return 'bes';
     }
-    return 'baystack';
+    if (
+        (
+           (defined $model and $model =~ /(420|425|BPS)/ )
+        and
+           (defined $descr and $descr =~ m/SW:v[1-2]/i )
+        )
+        or
+        (
+            (defined $model and $model =~ /(410|450|380)/ )
+        )
+       )
+    {
+        return 'baystack';
+    }
+
+    return 'boss';
 }
 
 sub os_bin {
@@ -210,14 +216,23 @@ sub index_factor {
     my $baystack = shift;
     my $model    = $baystack->model();
     my $os       = $baystack->os();
+    my $os_ver   = $baystack->os_ver();
     my $op_mode  = $baystack->ns_op_mode();
 
     $op_mode = 'pure' unless defined $op_mode;
+    if ( $os_ver =~ m/^(\d+)\./ ) {
+        $os_ver = $1;
+    } else {
+        $os_ver = 1;
+    }
 
     my $index_factor = 32;
     $index_factor = 64
         if ( ( defined $model and $model =~ /(470)/ )
         or ( $os =~ m/(boss|bes)/ ) and ( $op_mode eq 'pure' ) );
+    $index_factor = 128
+        if ( ( defined $model and $model =~ /(5[56]\d\d)/ )
+        and ( $os_ver >= 6 ) );
 
     return $index_factor;
 }

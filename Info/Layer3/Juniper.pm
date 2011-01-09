@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Juniper
-# $Id: Juniper.pm,v 1.18 2009/06/12 22:24:25 maxbaker Exp $
+# $Id: Juniper.pm,v 1.21 2010/09/22 23:18:22 cvicente Exp $
 #
 # Copyright (c) 2008 Bill Fenner
 # All rights reserved.
@@ -33,25 +33,33 @@ package SNMP::Info::Layer3::Juniper;
 use strict;
 use Exporter;
 use SNMP::Info::Layer3;
+use SNMP::Info::LLDP;
 
-@SNMP::Info::Layer3::Juniper::ISA       = qw/SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::Juniper::ISA       = qw/SNMP::Info::Layer3 SNMP::Info::LLDP  Exporter/;
 @SNMP::Info::Layer3::Juniper::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
+    %SNMP::Info::LLDP::MIBS,
     'JUNIPER-CHASSIS-DEFINES-MIB' => 'jnxChassisDefines',
     'JUNIPER-MIB'                 => 'jnxBoxAnatomy',
 );
 
-%GLOBALS = ( %SNMP::Info::Layer3::GLOBALS, 'serial' => 'jnxBoxSerialNo.0', );
+%GLOBALS = ( %SNMP::Info::Layer3::GLOBALS, 
+	     %SNMP::Info::LLDP::GLOBALS,
+	     'serial' => 'jnxBoxSerialNo.0', );
 
-%FUNCS = ( %SNMP::Info::Layer3::FUNCS, );
+%FUNCS = ( %SNMP::Info::Layer3::FUNCS, 
+	   %SNMP::Info::LLDP::FUNCS,
+);
 
-%MUNGE = ( %SNMP::Info::Layer3::MUNGE, );
+%MUNGE = ( %SNMP::Info::Layer3::MUNGE, 
+	   %SNMP::Info::LLDP::MUNGE,
+);
 
 sub vendor {
     return 'juniper';
@@ -115,6 +123,65 @@ sub i_vlan {
     return \%i_vlan;
 }
 
+# Use Q-BRIDGE-MIB for bridge forwarding tables
+sub fw_mac {
+    my $juniper  = shift;
+    my $partial = shift;
+
+    return $juniper->qb_fw_mac($partial);
+}
+
+sub fw_port {
+    my $juniper  = shift;
+    my $partial = shift;
+
+    return $juniper->qb_fw_port($partial);
+}
+
+# Use LLDP
+
+sub hasCDP {
+    my $juniper = shift;
+
+    return $juniper->hasLLDP();
+}
+
+sub c_ip {
+    my $juniper  = shift;
+    my $partial = shift;
+
+    return $juniper->lldp_ip($partial);
+}
+
+sub c_if {
+    my $juniper  = shift;
+    my $partial = shift;
+
+    return $juniper->lldp_if($partial);
+}
+
+sub c_port {
+    my $juniper  = shift;
+    my $partial = shift;
+
+    return $juniper->lldp_port($partial);
+}
+
+sub c_id {
+    my $juniper  = shift;
+    my $partial = shift;
+
+    return $juniper->lldp_id($partial);
+}
+
+sub c_platform {
+    my $juniper  = shift;
+    my $partial = shift;
+
+    return $juniper->lldp_rem_sysdesc($partial);
+}
+
+
 1;
 __END__
 
@@ -151,6 +218,8 @@ Subclass for Generic Juniper Routers running JUNOS
 
 =item SNMP::Info::Layer3
 
+=item SNMP::Info::LLDP
+
 =back
 
 =head2 Required MIBs
@@ -160,6 +229,8 @@ Subclass for Generic Juniper Routers running JUNOS
 =item Inherited Classes' MIBs
 
 See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
+
+See L<SNMP::Info::LLDP/"Required MIBs"> for its own MIB requirements.
 
 =back
 
@@ -192,11 +263,19 @@ Returns serial number
 
 (C<jnxBoxSerialNo.0>)
 
+=item $juniper->hasCDP()
+
+    Returns whether LLDP is enabled.
+
 =back
 
 =head2 Globals imported from SNMP::Info::Layer3
 
 See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+
+=head2 Global Methods imported from SNMP::Info::LLDP
+
+See documentation in L<SNMP::Info::LLDP/"GLOBALS"> for details.
 
 =head1 TABLE METHODS
 
@@ -210,10 +289,53 @@ to a hash.
 Returns the list of interfaces whose C<ifType> is l2vlan(135), and
 the VLAN ID extracted from the interface description.
 
+=item $juniper->c_id()
+
+Returns LLDP information.
+
+=item $juniper->c_if()
+
+Returns LLDP information.
+
+=item $juniper->c_ip()
+
+Returns LLDP information.
+
+=item $juniper->c_platform()
+
+Returns LLDP information.
+
+=item $juniper->c_port()
+
+Returns LLDP information.
+
 =back
+
+=head2 Forwarding Table (C<dot1dTpFdbEntry>)
+
+=over 
+
+=item $juniper->fw_mac()
+
+Returns reference to hash of forwarding table MAC Addresses
+
+(C<dot1dTpFdbAddress>)
+
+=item $juniper->fw_port()
+
+Returns reference to hash of forwarding table entries port interface
+identifier (iid)
+
+(C<dot1dTpFdbPort>)
+
+=back 
 
 =head2 Table Methods imported from SNMP::Info::Layer3
 
 See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
+
+=head2 Table Methods imported from SNMP::Info::LLDP
+
+See documentation in L<SNMP::Info::LLDP/"TABLE METHODS"> for details.
 
 =cut

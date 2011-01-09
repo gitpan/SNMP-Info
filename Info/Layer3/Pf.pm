@@ -1,7 +1,7 @@
-# SNMP::Info::Layer3::Arista
-# $Id: Arista.pm,v 1.3 2009/06/12 22:24:25 maxbaker Exp $
+# SNMP::Info::Layer3::Pf
+# $Id: Pf.pm,v 1.1 2010/05/07 00:01:33 maxbaker Exp $
 #
-# Copyright (c) 2008 Arista Networks, Inc.
+# Copyright (c) 2010 Max Baker
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-#     * Neither the name of Arista Networks, Inc. nor the
+#     * Neither the name of Pf Networks, Inc. nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
 #
@@ -28,18 +28,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::Arista;
+package SNMP::Info::Layer3::Pf;
 
 use strict;
 use Exporter;
 
 use SNMP::Info::Layer3;
-use SNMP::Info::MAU;
 use SNMP::Info::LLDP;
 
-@SNMP::Info::Layer3::Arista::ISA = qw/SNMP::Info::LLDP SNMP::Info::MAU
-    SNMP::Info::Layer3 Exporter/;
-@SNMP::Info::Layer3::Arista::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::Pf::ISA = qw/SNMP::Info::LLDP SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::Pf::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
@@ -47,120 +45,113 @@ $VERSION = '2.03_01';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
-    %SNMP::Info::MAU::MIBS,
     %SNMP::Info::LLDP::MIBS,
-    'ARISTA-PRODUCTS-MIB' => 'aristaProducts',
+    # Enterprise container where BEGEMOT-* lives
+    'FOKUS-MIB' => 'fokus',
+    # MIBs used included in Layer3 and above:
+    # UDP-MIB
+    # TCP-MIB
+    # IF-MIB
+    #
+    # Stuff in these MIBs but not used for Netdisco yet for my test device:
+    #
+    #'BEGEMOT-SNMPD-MIB',
+    #'BEGEMOT-PF-MIB',
+    #'BEGEMOT-NETGRAPH-MIB',
+    #'BEGEMOT-MIB2-MIB',
+    #'BEGEMOT-HOSTRES-MIB',
+    # HOST-RESOURCES-MIB
+    # IP-FORWARD-MIB
+    #
+    # Nothing in these MIBs for my test device:
+    #
+    #'BEGEMOT-IP-MIB',
+    #'BEGEMOT-MIB',
+    #'BEGEMOT-BRIDGE-MIB',
 );
 
 %GLOBALS = (
     %SNMP::Info::Layer3::GLOBALS,
-    %SNMP::Info::MAU::GLOBALS,
     %SNMP::Info::LLDP::GLOBALS,
 );
 
 %FUNCS = (
     %SNMP::Info::Layer3::FUNCS,
-    %SNMP::Info::MAU::FUNCS,
     %SNMP::Info::LLDP::FUNCS,
 );
 
 %MUNGE = (
     %SNMP::Info::Layer3::MUNGE,
-    %SNMP::Info::MAU::MUNGE,
     %SNMP::Info::LLDP::MUNGE,
 );
 
-# use MAU-MIB for admin. duplex and admin. speed
-*SNMP::Info::Layer3::Arista::i_duplex_admin
-    = \&SNMP::Info::MAU::mau_i_duplex_admin;
-*SNMP::Info::Layer3::Arista::i_speed_admin
-    = \&SNMP::Info::MAU::mau_i_speed_admin;
-
 sub vendor {
-    return 'arista';
-}
-
-sub os {
-    return 'EOS';
-}
-
-sub os_ver {
-    my $arista = shift;
-    my $descr   = $arista->description();
-    my $os_ver  = undef;
-
-    $os_ver = $1 if ( $descr =~ /\s+EOS\s+version\s+(\S+)\s+/ );
-    return $os_ver;
+    return 'FreeBSD';
 }
 
 sub model {
-    my $arista = shift;
-    my $id     = $arista->id();
-
-    my $model = &SNMP::translateObj($id);
-    return $id unless defined $model;
-
-    $model =~ s/^arista//;
-    return $model;
+    my $pf = shift;
+    my $descr   = $pf->description() || '';
+    my $model  = undef;
+    $model = $1 if ( $descr =~ /FreeBSD\s+(\S+)/ );
+    return $model if defined $model;
+    return $pf->os_ver();
 }
 
-# Use Q-BRIDGE-MIB
-
-sub fw_mac {
-    my $arista  = shift;
-    my $partial = shift;
-
-    return $arista->qb_fw_mac($partial);
+sub os {
+    return 'Pf';
 }
 
-sub fw_port {
-    my $arista  = shift;
-    my $partial = shift;
+sub os_ver {
+    my $pf = shift;
+    my $id = $pf->id();
 
-    return $arista->qb_fw_port($partial);
+    my $os_ver = &SNMP::translateObj($id);
+    return $id unless defined $os_ver;
+
+    # From /usr/share/snmp/defs/tree.def on a Pf Machine
+    # (2 begemotSnmpdDefs
+    #   (1 begemotSnmpdAgent
+    #     (1 begemotSnmpdAgentFreeBSD OID op_dummy)
+    # We're leaving the 1.1 and trimming off up to the 2
+    $os_ver =~ s/fokus.1.1.2.//;
+    return $os_ver;
 }
 
 # Use LLDP
-
 sub hasCDP {
-    my $arista = shift;
-
-    return $arista->hasLLDP();
+    my $pf = shift;
+    return $pf->hasLLDP();
 }
 
 sub c_ip {
-    my $arista  = shift;
+    my $pf  = shift;
     my $partial = shift;
-
-    return $arista->lldp_ip($partial);
+    return $pf->lldp_ip($partial);
 }
 
 sub c_if {
-    my $arista  = shift;
+    my $pf  = shift;
     my $partial = shift;
-
-    return $arista->lldp_if($partial);
+    return $pf->lldp_if($partial);
 }
 
 sub c_port {
-    my $arista  = shift;
+    my $pf  = shift;
     my $partial = shift;
-
-    return $arista->lldp_port($partial);
+    return $pf->lldp_port($partial);
 }
 
 sub c_id {
-    my $arista  = shift;
+    my $pf  = shift;
     my $partial = shift;
-
-    return $arista->lldp_id($partial);
+    return $pf->lldp_id($partial);
 }
 
 sub c_platform {
-    my $arista  = shift;
+    my $pf  = shift;
     my $partial = shift;
-
-    return $arista->lldp_rem_sysdesc($partial);
+    return $pf->lldp_rem_sysdesc($partial);
 }
 
 1;
@@ -168,16 +159,17 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::Arista - SNMP Interface to Arista Networks EOS
+SNMP::Info::Layer3::Pf - SNMP Interface to FreeBSD-Based Firewalls using Pf /Pf Sense
 
 =head1 AUTHOR
 
-Bill Fenner
+Max Baker
 
 =head1 SYNOPSIS
 
+
  # Let SNMP::Info determine the correct subclass for you. 
- my $arista = new SNMP::Info(
+ my $pf = new SNMP::Info(
                         AutoSpecify => 1,
                         Debug       => 1,
                         # These arguments are passed directly to SNMP::Session
@@ -187,20 +179,28 @@ Bill Fenner
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $arista->class();
+ my $class      = $pf->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Arista Networks EOS-based devices
+Subclass for Free-BSD PF-Based devices
+
+=head1 LLDP Support
+
+LLDP Support is included but untested in this Device Class.  It is reported
+that the available CDP/LLDP modules for net-snmp don't work on FreeBSD (on
+which pfSense is based) as they assume certain Linux specific Ethernet
+structures.  This problem is apparently solved on PF based firewall appliances
+by using the ladvd package, for which a port may be found here:
+L<http://www.freshports.org/net/ladvd/>.  I'm not sure if this module ties into 
+Net-SNMP or not.
 
 =head2 Inherited Classes
 
 =over
 
 =item SNMP::Info::Layer3
-
-=item SNMP::Info::MAU
 
 =item SNMP::Info::LLDP
 
@@ -210,13 +210,11 @@ Subclass for Arista Networks EOS-based devices
 
 =over
 
-=item F<ARISTA-PRODUCTS-MIB>
+=item F<FOKUS-MIB>
 
 =item Inherited Classes' MIBs
 
 See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::MAU/"Required MIBs"> for its own MIB requirements.
 
 See L<SNMP::Info::LLDP/"Required MIBs"> for its own MIB requirements.
 
@@ -228,37 +226,29 @@ These are methods that return scalar values from SNMP
 
 =over
 
-=item $arista->vendor()
+=item $pf->vendor()
 
-    Returns 'Arista Networks, Inc.'
+    Returns 'FreeBSD'
 
-=item $arista->hasCDP()
+=item $pf->hasCDP()
 
     Returns whether LLDP is enabled.
 
-=item $arista->model()
-
-Tries to reference $arista->id() to one of the product MIBs listed above
-
-Removes 'arista' from the name for readability.
-
-=item $arista->os()
-
-Returns 'EOS'
-
-=item $arista->os_ver()
+=item $pf->model()
 
 Grabs the os version from C<sysDescr>
 
+=item $pf->os()
+
+Returns 'Pf'
+
+=item $pf->os_ver()
+
+Tries to reference $pf->id() to one of the product MIBs listed above.
+Will probably return a truncation of the default OID for pf-based systems 
+C<enterprises.12325.1.1.2.1.1>.
+
 =back
-
-=head2 Global Methods imported from SNMP::Info::Layer3
-
-See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
-
-=head2 Global Methods imported from SNMP::Info::MAU
-
-See documentation in L<SNMP::Info::MAU/"GLOBALS"> for details.
 
 =head2 Global Methods imported from SNMP::Info::Layer3
 
@@ -271,51 +261,31 @@ to a hash.
 
 =over
 
-=item $arista->fw_mac()
-
-Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
-
-=item $arista->fw_port()
-
-Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
-
-=item $arista->c_id()
+=item $pf->c_id()
 
 Returns LLDP information.
 
-=item $arista->c_if()
+=item $pf->c_if()
 
 Returns LLDP information.
 
-=item $arista->c_ip()
+=item $pf->c_ip()
 
 Returns LLDP information.
 
-=item $arista->c_platform()
+=item $pf->c_platform()
 
 Returns LLDP information.
 
-=item $arista->c_port()
+=item $pf->c_port()
 
 Returns LLDP information.
-
-=item $arista->i_duplex_admin()
-
-Returns info from F<MAU-MIB>
-
-=item $arista->i_speed_admin()
-
-Returns info from F<MAU-MIB>
 
 =back
 
 =head2 Table Methods imported from SNMP::Info::Layer3
 
 See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::MAU
-
-See documentation in L<SNMP::Info::MAU/"TABLE METHODS"> for details.
 
 =head2 Table Methods imported from SNMP::Info::LLDP
 

@@ -1,0 +1,52 @@
+{
+   "abstract" : "Object Oriented Perl5 Interface to Network devices and MIBs through SNMP. ",
+   "author" : [
+      "Oliver Gorwits <oliver@cpan.org>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.200000, CPAN::Meta::Converter version 2.102400",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "SNMP-Info",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.31"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Math::BigInt" : 0
+         }
+      },
+      "test" : {
+         "requires" : {
+            "File::Glob" : 0,
+            "FindBin" : 0,
+            "Getopt::Long" : 0,
+            "SNMP" : 0,
+            "Test::More" : 0,
+            "vars" : 0
+         }
+      }
+   },
+   "release_status" : "testing",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://sourceforge.net/tracker/?group_id=70362&atid=527527"
+      },
+      "homepage" : "http://snmp-info.sourceforge.net/",
+      "repository" : {
+         "type" : "cvs",
+         "url" : "cvs://pserver:anonymous@snmp-info.cvs.sourceforge.net:/cvsroot/snmp-info",
+         "web" : "http://snmp-info.cvs.sourceforge.net/snmp-info/"
+      }
+   },
+   "version" : "2.03_01"
+}
+

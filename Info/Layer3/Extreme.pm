@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Extreme - SNMP Interface to Extreme devices
-# $Id: Extreme.pm,v 1.16 2009/06/12 22:24:25 maxbaker Exp $
+# $Id: Extreme.pm,v 1.17 2010/08/23 11:38:55 jeroenvi Exp $
 #
 # Copyright (c) 2008 Eric Miller
 #
@@ -43,7 +43,7 @@ use SNMP::Info::MAU;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.01';
+$VERSION = '2.03_01';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -52,6 +52,7 @@ $VERSION = '2.01';
     'EXTREME-SYSTEM-MIB' => 'extremeSystem',
     'EXTREME-FDB-MIB'    => 'extremeSystem',
     'EXTREME-VLAN-MIB'   => 'extremeVlan',
+    'EXTREME-POE-MIB'    => 'extremePethSystemAdminEnable',
 );
 
 %GLOBALS = (
@@ -82,6 +83,8 @@ $VERSION = '2.01';
 
     # EXTREME-VLAN-MIB:extremeVlanEncapsIfTable
     'ex_vlan_encap_tag' => 'extremeVlanEncapsIfTag',
+
+    'peth_port_power'   => 'extremePethPortMeasuredPower',
 );
 
 %MUNGE = (
@@ -587,6 +590,8 @@ my $extreme = new SNMP::Info::Layer3::Extreme(...);
 
 =item F<EXTREME-VLAN-MIB>
 
+=item F<EXTREME-POE-MIB>
+
 =item Inherited Classes' MIBs
 
 See classes listed above for their required MIBs.
@@ -748,6 +753,11 @@ identifier (iid)
 Returns (C<ifIndex>) for both key and value since we're using
 F<EXTREME-FDB-MIB> rather than F<BRIDGE-MIB>.
 
+=item $extreme->peth_port_power()
+
+Power supplied by PoE ports, in milliwatts
+("extremePethPortMeasuredPower")
+
 =back
 
 =head2 Table Methods imported from SNMP::Info::Layer3
@@ -807,6 +817,7 @@ with the numeric VLAN ID and port C<ifIndex>.
   my %if_map = reverse %{$extreme->interfaces()};
   $extreme->set_remove_i_vlan_tagged('2', $if_map{'FastEthernet0/1'}) 
     or die "Couldn't add port to egress list. ",$extreme->error(1);
+
 
 =back
 

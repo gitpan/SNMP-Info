@@ -4,7 +4,7 @@
 # This file is meant to detail the cababilities
 # of network devices to supply data via SNMP.  
 
-# $Id: DeviceMatrix.txt,v 1.33 2009/06/12 18:03:03 maxbaker Exp $
+# $Id: DeviceMatrix.txt,v 1.37 2010/09/01 16:16:43 jeroenvi Exp $
 
 #
 # Airespace (pre-Cisco)
@@ -301,6 +301,11 @@ class: Layer3::C6500
 
 device: 3750
 
+device-family: Catalyst Blade Switch 3xxx
+macsuck: vlan
+class: Layer3::C6500
+note: Cisco Blade switches for Dell, FSC, HP and IBM blade system chassis. Limited testing done.
+
 device-family: Catalyst 4000
 duplex: write
 macsuck: vlan
@@ -398,7 +403,11 @@ device-family: Firewall
 class: Layer3::Cisco
 device: PIX Security Appliance
 device: Adaptive Security Applicance
-device: Firewall Services Moduels (FWSM)
+
+device: Firewall Services Modules (FWSM)
+note: !Arpnip only available for 4.x software releases.
+class: Layer3::CiscoFWSM
+arpnip: yes
 
 #
 # Cyclades
@@ -474,6 +483,16 @@ device: Alpine 3808
 device: Summit 7i, 48si
 
 #
+# FreeBSD
+#
+device-vendor: FreeBSD
+device-famly: Pf
+class: Layer3::Pf
+arpnip: yes
+cdp: no
+note: LLDP support might be available. See note in Layer3::Pf
+
+#
 # Foundry
 #
 device-vendor: Foundry Networks
@@ -512,29 +531,42 @@ device: FLS624, FLS648
 # HP
 #
 device-vendor: HP
-class:  Layer2::HP
 note: HP Devices are very widely supported.
 ver: 2
 modules: yes
 
-device-family: HP ProCurve
+device-family: HP ProCurve (old)
+class:  Layer2::HP4000
 duplex: both
 macsuck: yes
 arpnip: no
 cdp: yes
 vlan: write
-note: CDP and LLDP support are very firmware version dependent
-note: This list hasn't been updated since 2003
+note: devices in this class only have CDP support
+note: VLAN info in HP-VLAN MIB
 
-device: 2512, 2524
-ver: 1
-
-device: 4000,4104GL
+device: 1600M,2400,2424M,4000,8000
 duplex: link
 note: duplex issues?
 
-device: 4108GL,8000,2626,2650,8000
+device-family: HP ProCurve (recent)
+class:  Layer2::HP
+duplex: both
+macsuck: yes
+arpnip: no
+cdp: yes
+vlan: write
+note: old firmware versions only have CDP support, more recent have LLDP
 note: VLAN info in Q-BRIDGE-MIB
+
+device: 2312,2324,2512,2524
+ver: 1
+
+device: 2510,2600,2610,2800,2810,2900,2910al
+device: 3124,3324XL,3400cl,3500,3500yl
+device: 4100GL,4200vl,5300XL,5400yy,5400zl
+device: 6108,6200yl,6400cl,6410cl,6600,6600ml,8200zl
+
 
 #
 # Juniper
