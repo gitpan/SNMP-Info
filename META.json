@@ -6,7 +6,7 @@
    "dynamic_config" : 0,
    "generated_by" : "Dist::Zilla version 4.200000, CPAN::Meta::Converter version 2.102400",
    "license" : [
-      "perl_5"
+      "bsd"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -47,6 +47,6 @@
          "web" : "http://snmp-info.cvs.sourceforge.net/snmp-info/"
       }
    },
-   "version" : "2.03_01"
+   "version" : "2.03_02"
 }
 

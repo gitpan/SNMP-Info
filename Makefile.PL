@@ -24,12 +24,12 @@ my %WriteMakefileArgs = (
   },
   'DISTNAME' => 'SNMP-Info',
   'EXE_FILES' => [],
-  'LICENSE' => 'perl',
+  'LICENSE' => 'bsd',
   'NAME' => 'SNMP::Info',
   'PREREQ_PM' => {
     'Math::BigInt' => '0'
   },
-  'VERSION' => '2.03_01',
+  'VERSION' => '2.03_02',
   'test' => {
     'TESTS' => 't/*.t'
   }

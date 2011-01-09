@@ -3,7 +3,7 @@ NAME
     through SNMP.
 
 VERSION
-    SNMP::Info - Version 2.03_01
+    SNMP::Info - Version 2.03_02
 
 AUTHOR
     SNMP::Info is maintained by team of Open Source authors headed by Eric
