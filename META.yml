@@ -6,9 +6,7 @@ build_requires:
   File::Glob: 0
   FindBin: 0
   Getopt::Long: 0
-  SNMP: 0
   Test::More: 0
-  vars: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.31
 dynamic_config: 0
@@ -19,9 +17,15 @@ meta-spec:
   version: 1.4
 name: SNMP-Info
 requires:
+  Carp: 0
+  Data::Dumper: 0
+  Exporter: 0
   Math::BigInt: 0
+  SNMP: 0
+  constant: 0
+  vars: 0
 resources:
   bugtracker: https://sourceforge.net/tracker/?group_id=70362&atid=527527
   homepage: http://snmp-info.sourceforge.net/
   repository: cvs://pserver:anonymous@snmp-info.cvs.sourceforge.net:/cvsroot/snmp-info
-version: 2.03_02
+version: 2.03_03

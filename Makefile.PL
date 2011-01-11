@@ -15,9 +15,7 @@ my %WriteMakefileArgs = (
     'File::Glob' => '0',
     'FindBin' => '0',
     'Getopt::Long' => '0',
-    'SNMP' => '0',
-    'Test::More' => '0',
-    'vars' => '0'
+    'Test::More' => '0'
   },
   'CONFIGURE_REQUIRES' => {
     'ExtUtils::MakeMaker' => '6.31'
@@ -27,9 +25,15 @@ my %WriteMakefileArgs = (
   'LICENSE' => 'bsd',
   'NAME' => 'SNMP::Info',
   'PREREQ_PM' => {
-    'Math::BigInt' => '0'
+    'Carp' => '0',
+    'Data::Dumper' => '0',
+    'Exporter' => '0',
+    'Math::BigInt' => '0',
+    'SNMP' => '0',
+    'constant' => '0',
+    'vars' => '0'
   },
-  'VERSION' => '2.03_02',
+  'VERSION' => '2.03_03',
   'test' => {
     'TESTS' => 't/*.t'
   }

@@ -21,7 +21,13 @@
       },
       "runtime" : {
          "requires" : {
-            "Math::BigInt" : 0
+            "Carp" : 0,
+            "Data::Dumper" : 0,
+            "Exporter" : 0,
+            "Math::BigInt" : 0,
+            "SNMP" : 0,
+            "constant" : 0,
+            "vars" : 0
          }
       },
       "test" : {
@@ -29,9 +35,7 @@
             "File::Glob" : 0,
             "FindBin" : 0,
             "Getopt::Long" : 0,
-            "SNMP" : 0,
-            "Test::More" : 0,
-            "vars" : 0
+            "Test::More" : 0
          }
       }
    },
@@ -47,6 +51,6 @@
          "web" : "http://snmp-info.cvs.sourceforge.net/snmp-info/"
       }
    },
-   "version" : "2.03_02"
+   "version" : "2.03_03"
 }
 
