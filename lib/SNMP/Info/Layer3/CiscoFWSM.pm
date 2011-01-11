@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::CiscoFWSM;
 BEGIN {
-  $SNMP::Info::Layer3::CiscoFWSM::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::CiscoFWSM::VERSION = '2.03_04';
 }
 
 use strict;
@@ -137,12 +137,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::CiscoFWSM - SNMP Interface to Firewall Services Modules for features not covered elsewhere.
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::CiscoFWSM - SNMP Interface to Firewall Services Modules for
-features not covered elsewhere.
+version 2.03_04
 
 =head1 AUTHOR
 

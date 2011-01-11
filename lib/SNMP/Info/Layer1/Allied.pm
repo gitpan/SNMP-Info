@@ -32,7 +32,7 @@
 
 package SNMP::Info::Layer1::Allied;
 BEGIN {
-  $SNMP::Info::Layer1::Allied::VERSION = '2.03_03';
+  $SNMP::Info::Layer1::Allied::VERSION = '2.03_04';
 }
 
 use strict;
@@ -125,7 +125,7 @@ SNMP::Info::Layer1::Allied - SNMP Interface to old Allied Hubs
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

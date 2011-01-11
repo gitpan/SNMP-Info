@@ -30,7 +30,7 @@
 
 package SNMP::Info::CiscoPortSecurity;
 BEGIN {
-  $SNMP::Info::CiscoPortSecurity::VERSION = '2.03_03';
+  $SNMP::Info::CiscoPortSecurity::VERSION = '2.03_04';
 }
 
 use strict;
@@ -130,12 +130,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::CiscoPortSecurity - SNMP Interface to data from F<CISCO-PORT-SECURITY-MIB> and F<CISCO-PAE-MIB>
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::CiscoPortSecurity - SNMP Interface to data from
-F<CISCO-PORT-SECURITY-MIB> and F<CISCO-PAE-MIB>
+version 2.03_04
 
 =head1 AUTHOR
 

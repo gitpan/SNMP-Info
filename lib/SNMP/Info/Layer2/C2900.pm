@@ -32,7 +32,7 @@
 
 package SNMP::Info::Layer2::C2900;
 BEGIN {
-  $SNMP::Info::Layer2::C2900::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::C2900::VERSION = '2.03_04';
 }
 
 use strict;
@@ -208,12 +208,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::C2900 - SNMP Interface to Cisco Catalyst 2900 Switches running IOS
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::C2900 - SNMP Interface to Cisco Catalyst 2900 Switches
-running IOS
+version 2.03_04
 
 =head1 AUTHOR
 

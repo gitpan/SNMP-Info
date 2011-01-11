@@ -32,7 +32,7 @@
 
 package SNMP::Info::Layer3::Extreme;
 BEGIN {
-  $SNMP::Info::Layer3::Extreme::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Extreme::VERSION = '2.03_04';
 }
 
 use strict;
@@ -542,7 +542,7 @@ SNMP::Info::Layer3::Extreme - Perl5 Interface to Extreme Network Devices
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

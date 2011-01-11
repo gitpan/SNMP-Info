@@ -32,7 +32,7 @@
 
 package SNMP::Info::EtherLike;
 BEGIN {
-  $SNMP::Info::EtherLike::VERSION = '2.03_03';
+  $SNMP::Info::EtherLike::VERSION = '2.03_04';
 }
 
 use strict;
@@ -94,7 +94,7 @@ SNMP::Info::EtherLike - SNMP Interface to SNMP F<ETHERLIKE-MIB> RFC 1398
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::HP9300;
 BEGIN {
-  $SNMP::Info::Layer3::HP9300::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::HP9300::VERSION = '2.03_04';
 }
 
 use strict;
@@ -335,7 +335,7 @@ SNMP::Info::Layer3::HP9300 - SNMP Interface to HP Foundry OEM Network Devices
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

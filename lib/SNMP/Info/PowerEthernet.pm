@@ -30,7 +30,7 @@
 
 package SNMP::Info::PowerEthernet;
 BEGIN {
-  $SNMP::Info::PowerEthernet::VERSION = '2.03_03';
+  $SNMP::Info::PowerEthernet::VERSION = '2.03_04';
 }
 
 use strict;
@@ -119,12 +119,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::PowerEthernet - SNMP Interface to data stored in F<POWER-ETHERNET-MIB>.
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::PowerEthernet - SNMP Interface to data stored in
-F<POWER-ETHERNET-MIB>.
+version 2.03_04
 
 =head1 AUTHOR
 

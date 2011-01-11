@@ -32,7 +32,7 @@
 
 package SNMP::Info::Layer2::Aironet;
 BEGIN {
-  $SNMP::Info::Layer2::Aironet::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::Aironet::VERSION = '2.03_04';
 }
 
 use strict;
@@ -444,12 +444,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::Aironet - SNMP Interface to Cisco Aironet devices running IOS.
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::Aironet - SNMP Interface to Cisco Aironet devices running
-IOS.
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -29,7 +29,7 @@
 
 package SNMP::Info::CiscoImage;
 BEGIN {
-  $SNMP::Info::CiscoImage::VERSION = '2.03_03';
+  $SNMP::Info::CiscoImage::VERSION = '2.03_04';
 }
 
 use strict;
@@ -59,7 +59,7 @@ SNMP::Info::CiscoImage - SNMP Interface to image strings for Cisco Devices
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

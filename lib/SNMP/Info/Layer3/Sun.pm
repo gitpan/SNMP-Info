@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Sun;
 BEGIN {
-  $SNMP::Info::Layer3::Sun::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Sun::VERSION = '2.03_04';
 }
 
 use strict;
@@ -111,7 +111,7 @@ SNMP::Info::Layer3::Sun - SNMP Interface to L3 Sun Solaris
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

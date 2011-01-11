@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer2::NAP222x;
 BEGIN {
-  $SNMP::Info::Layer2::NAP222x::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::NAP222x::VERSION = '2.03_04';
 }
 
 use strict;
@@ -368,12 +368,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::NAP222x - SNMP Interface to Nortel 2220 Series Access Points
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::NAP222x - SNMP Interface to Nortel 2220 Series Access
-Points
+version 2.03_04
 
 =head1 AUTHOR
 

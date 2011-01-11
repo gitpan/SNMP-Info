@@ -30,7 +30,7 @@
 
 package SNMP::Info::NortelStack;
 BEGIN {
-  $SNMP::Info::NortelStack::VERSION = '2.03_03';
+  $SNMP::Info::NortelStack::VERSION = '2.03_04';
 }
 
 use strict;
@@ -551,12 +551,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::NortelStack - SNMP Interface to the Nortel F<S5-AGENT-MIB> and F<S5-CHASSIS-MIB>
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::NortelStack - SNMP Interface to the Nortel F<S5-AGENT-MIB> and
-F<S5-CHASSIS-MIB>
+version 2.03_04
 
 =head1 AUTHOR
 

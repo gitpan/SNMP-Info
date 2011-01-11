@@ -29,7 +29,7 @@
 
 package SNMP::Info::Layer3::AlcatelLucent;
 BEGIN {
-  $SNMP::Info::Layer3::AlcatelLucent::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::AlcatelLucent::VERSION = '2.03_04';
 }
 
 use strict;
@@ -360,7 +360,7 @@ SNMP::Info::Layer3::AlcatelLucent - SNMP Interface to Alcatel-Lucent OmniSwitch
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -31,7 +31,7 @@
 
 package SNMP::Info::Layer2::Catalyst;
 BEGIN {
-  $SNMP::Info::Layer2::Catalyst::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::Catalyst::VERSION = '2.03_04';
 }
 
 use strict;
@@ -178,12 +178,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::Catalyst - SNMP Interface to Cisco Catalyst devices running Catalyst OS.
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::Catalyst - SNMP Interface to Cisco Catalyst devices
-running Catalyst OS.
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer2::Allied;
 BEGIN {
-  $SNMP::Info::Layer2::Allied::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::Allied::VERSION = '2.03_04';
 }
 
 use strict;
@@ -135,7 +135,7 @@ SNMP::Info::Layer2::Allied - SNMP Interface to Allied Telesyn switches
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

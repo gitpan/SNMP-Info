@@ -28,4 +28,4 @@ resources:
   bugtracker: https://sourceforge.net/tracker/?group_id=70362&atid=527527
   homepage: http://snmp-info.sourceforge.net/
   repository: cvs://pserver:anonymous@snmp-info.cvs.sourceforge.net:/cvsroot/snmp-info
-version: 2.03_03
+version: 2.03_04

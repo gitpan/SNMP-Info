@@ -30,7 +30,7 @@
 
 package SNMP::Info::SONMP;
 BEGIN {
-  $SNMP::Info::SONMP::VERSION = '2.03_03';
+  $SNMP::Info::SONMP::VERSION = '2.03_04';
 }
 
 use strict;
@@ -224,12 +224,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::SONMP - SNMP Interface to SynOptics Network Management Protocol (SONMP)
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::SONMP - SNMP Interface to SynOptics Network Management Protocol
-(SONMP)
+version 2.03_04
 
 =head1 AUTHOR
 

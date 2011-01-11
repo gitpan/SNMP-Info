@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Netscreen;
 BEGIN {
-  $SNMP::Info::Layer3::Netscreen::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Netscreen::VERSION = '2.03_04';
 }
 
 use strict;
@@ -104,7 +104,7 @@ SNMP::Info::Layer3::Netscreen - SNMP Interface to Juniper Netscreen Devices
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

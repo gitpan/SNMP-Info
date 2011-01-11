@@ -30,7 +30,7 @@
 
 package SNMP::Info::CiscoQOS;
 BEGIN {
-  $SNMP::Info::CiscoQOS::VERSION = '2.03_03';
+  $SNMP::Info::CiscoQOS::VERSION = '2.03_04';
 }
 
 use strict;
@@ -84,7 +84,7 @@ SNMP::Info::CiscoQOS - SNMP Interface to Cisco's Quality of Service MIBs
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

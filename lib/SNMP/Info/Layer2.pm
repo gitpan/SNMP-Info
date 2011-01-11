@@ -32,7 +32,7 @@
 
 package SNMP::Info::Layer2;
 BEGIN {
-  $SNMP::Info::Layer2::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::VERSION = '2.03_04';
 }
 
 use strict;
@@ -174,7 +174,7 @@ SNMP::Info::Layer2 - SNMP Interface to network devices serving Layer2 only.
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Pf;
 BEGIN {
-  $SNMP::Info::Layer3::Pf::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Pf::VERSION = '2.03_04';
 }
 
 use strict;
@@ -165,7 +165,7 @@ SNMP::Info::Layer3::Pf - SNMP Interface to FreeBSD-Based Firewalls using Pf /Pf 
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Microsoft;
 BEGIN {
-  $SNMP::Info::Layer3::Microsoft::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Microsoft::VERSION = '2.03_04';
 }
 
 use strict;
@@ -102,7 +102,7 @@ SNMP::Info::Layer3::Microsoft - SNMP Interface to L3 Microsoft Windows router
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

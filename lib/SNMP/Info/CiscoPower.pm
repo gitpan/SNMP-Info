@@ -30,7 +30,7 @@
 
 package SNMP::Info::CiscoPower;
 BEGIN {
-  $SNMP::Info::CiscoPower::VERSION = '2.03_03';
+  $SNMP::Info::CiscoPower::VERSION = '2.03_04';
 }
 
 use strict;
@@ -106,12 +106,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::CiscoPower - SNMP Interface to data stored in F<CISCO-POWER-ETHERNET-EXT-MIB>.
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::CiscoPower - SNMP Interface to data stored in
-F<CISCO-POWER-ETHERNET-EXT-MIB>.
+version 2.03_04
 
 =head1 AUTHOR
 

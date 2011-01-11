@@ -30,7 +30,7 @@
 
 package SNMP::Info::RapidCity;
 BEGIN {
-  $SNMP::Info::RapidCity::VERSION = '2.03_03';
+  $SNMP::Info::RapidCity::VERSION = '2.03_04';
 }
 
 use strict;
@@ -578,7 +578,7 @@ SNMP::Info::RapidCity - SNMP Interface to the Nortel RapidCity MIB
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -29,7 +29,7 @@
 
 package SNMP::Info::IPv6;
 BEGIN {
-  $SNMP::Info::IPv6::VERSION = '2.03_03';
+  $SNMP::Info::IPv6::VERSION = '2.03_04';
 }
 
 use strict;
@@ -334,12 +334,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::IPv6 - SNMP Interface for obtaining IPv6 addresses and IPv6 address mappings
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::IPv6 - SNMP Interface for obtaining IPv6 addresses and IPv6
-address mappings
+version 2.03_04
 
 =head1 AUTHOR
 

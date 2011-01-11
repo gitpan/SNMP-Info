@@ -30,7 +30,7 @@
 
 package SNMP::Info::LLDP;
 BEGIN {
-  $SNMP::Info::LLDP::VERSION = '2.03_03';
+  $SNMP::Info::LLDP::VERSION = '2.03_04';
 }
 
 use strict;
@@ -258,7 +258,7 @@ SNMP::Info::LLDP - SNMP Interface to the Link Layer Discovery Protocol (LLDP)
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

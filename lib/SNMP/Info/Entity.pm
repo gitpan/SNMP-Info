@@ -32,7 +32,7 @@
 
 package SNMP::Info::Entity;
 BEGIN {
-  $SNMP::Info::Entity::VERSION = '2.03_03';
+  $SNMP::Info::Entity::VERSION = '2.03_04';
 }
 
 use strict;
@@ -121,7 +121,7 @@ SNMP::Info::Entity - SNMP Interface to data stored in F<ENTITY-MIB>. RFC 2737
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

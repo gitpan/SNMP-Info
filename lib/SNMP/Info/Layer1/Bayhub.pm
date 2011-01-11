@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer1::Bayhub;
 BEGIN {
-  $SNMP::Info::Layer1::Bayhub::VERSION = '2.03_03';
+  $SNMP::Info::Layer1::Bayhub::VERSION = '2.03_04';
 }
 
 use strict;
@@ -475,7 +475,7 @@ SNMP::Info::Layer1::Bayhub - SNMP Interface to Bay / Nortel Hubs
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

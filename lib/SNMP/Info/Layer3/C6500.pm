@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::C6500;
 BEGIN {
-  $SNMP::Info::Layer3::C6500::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::C6500::VERSION = '2.03_04';
 }
 
 use strict;
@@ -209,12 +209,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::C6500 - SNMP Interface to Cisco Catalyst 6500 Layer 2/3 Switches running IOS and/or CatOS
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::C6500 - SNMP Interface to Cisco Catalyst 6500 Layer 2/3
-Switches running IOS and/or CatOS
+version 2.03_04
 
 =head1 AUTHOR
 

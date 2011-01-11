@@ -30,7 +30,7 @@
 
 package SNMP::Info::Airespace;
 BEGIN {
-  $SNMP::Info::Airespace::VERSION = '2.03_03';
+  $SNMP::Info::Airespace::VERSION = '2.03_04';
 }
 
 use strict;
@@ -947,12 +947,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Airespace - SNMP Interface to data from F<AIRESPACE-WIRELESS-MIB> and F<AIRESPACE-SWITCHING-MIB>
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Airespace - SNMP Interface to data from F<AIRESPACE-WIRELESS-MIB>
-and F<AIRESPACE-SWITCHING-MIB>
+version 2.03_04
 
 =head1 AUTHOR
 

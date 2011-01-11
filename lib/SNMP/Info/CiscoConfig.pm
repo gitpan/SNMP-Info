@@ -30,7 +30,7 @@
 
 package SNMP::Info::CiscoConfig;
 BEGIN {
-  $SNMP::Info::CiscoConfig::VERSION = '2.03_03';
+  $SNMP::Info::CiscoConfig::VERSION = '2.03_04';
 }
 
 use strict;
@@ -267,7 +267,7 @@ SNMP::Info::CiscoConfig - SNMP Interface to Cisco Configuration Files
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

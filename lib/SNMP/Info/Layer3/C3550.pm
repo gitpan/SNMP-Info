@@ -31,7 +31,7 @@
 
 package SNMP::Info::Layer3::C3550;
 BEGIN {
-  $SNMP::Info::Layer3::C3550::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::C3550::VERSION = '2.03_04';
 }
 
 use strict;
@@ -378,12 +378,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::C3550 - SNMP Interface to Cisco Catalyst 3550 Layer 2/3 Switches running IOS
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::C3550 - SNMP Interface to Cisco Catalyst 3550 Layer 2/3
-Switches running IOS
+version 2.03_04
 
 =head1 AUTHOR
 

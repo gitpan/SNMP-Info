@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer2::N2270;
 BEGIN {
-  $SNMP::Info::Layer2::N2270::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::N2270::VERSION = '2.03_04';
 }
 
 use strict;
@@ -99,12 +99,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::N2270 - SNMP Interface to Nortel 2270 Series Wireless Switch
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::N2270 - SNMP Interface to Nortel 2270 Series Wireless
-Switch
+version 2.03_04
 
 =head1 AUTHOR
 

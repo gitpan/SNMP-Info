@@ -10,7 +10,7 @@
 
 package SNMP::Info;
 BEGIN {
-  $SNMP::Info::VERSION = '2.03_03';
+  $SNMP::Info::VERSION = '2.03_04';
 }
 
 use strict;
@@ -33,7 +33,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

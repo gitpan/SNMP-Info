@@ -32,7 +32,7 @@
 
 package SNMP::Info::Layer1::Asante;
 BEGIN {
-  $SNMP::Info::Layer1::Asante::VERSION = '2.03_03';
+  $SNMP::Info::Layer1::Asante::VERSION = '2.03_04';
 }
 
 use strict;
@@ -170,7 +170,7 @@ SNMP::Info::Layer1::Asante - SNMP Interface to old Asante 1012 Hubs
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

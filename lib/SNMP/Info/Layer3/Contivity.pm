@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Contivity;
 BEGIN {
-  $SNMP::Info::Layer3::Contivity::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Contivity::VERSION = '2.03_04';
 }
 
 use strict;
@@ -164,12 +164,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::Contivity - SNMP Interface to Nortel VPN Routers (Contivity Extranet Switches).
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::Contivity - SNMP Interface to Nortel VPN Routers
-(Contivity Extranet Switches).
+version 2.03_04
 
 =head1 AUTHOR
 

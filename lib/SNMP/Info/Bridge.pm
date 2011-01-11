@@ -33,7 +33,7 @@
 
 package SNMP::Info::Bridge;
 BEGIN {
-  $SNMP::Info::Bridge::VERSION = '2.03_03';
+  $SNMP::Info::Bridge::VERSION = '2.03_04';
 }
 
 use strict;
@@ -443,12 +443,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Bridge - SNMP Interface to SNMP data available through the F<BRIDGE-MIB> (RFC1493)
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Bridge - SNMP Interface to SNMP data available through the
-F<BRIDGE-MIB> (RFC1493)
+version 2.03_04
 
 =head1 AUTHOR
 

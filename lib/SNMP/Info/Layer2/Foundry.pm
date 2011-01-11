@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer2::Foundry;
 BEGIN {
-  $SNMP::Info::Layer2::Foundry::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::Foundry::VERSION = '2.03_04';
 }
 
 use strict;
@@ -207,12 +207,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::Foundry - SNMP Interface to Foundry FastIron Network Devices
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::Foundry - SNMP Interface to Foundry FastIron Network
-Devices
+version 2.03_04
 
 =head1 AUTHOR
 

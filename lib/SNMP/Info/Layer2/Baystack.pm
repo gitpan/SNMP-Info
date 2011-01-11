@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer2::Baystack;
 BEGIN {
-  $SNMP::Info::Layer2::Baystack::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::Baystack::VERSION = '2.03_04';
 }
 
 use strict;
@@ -460,12 +460,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::Baystack - SNMP Interface to Nortel Ethernet (Baystack) Switches
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::Baystack - SNMP Interface to Nortel Ethernet (Baystack)
-Switches
+version 2.03_04
 
 =head1 AUTHOR
 

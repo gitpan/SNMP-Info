@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Arista;
 BEGIN {
-  $SNMP::Info::Layer3::Arista::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Arista::VERSION = '2.03_04';
 }
 
 use strict;
@@ -174,7 +174,7 @@ SNMP::Info::Layer3::Arista - SNMP Interface to Arista Networks EOS
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

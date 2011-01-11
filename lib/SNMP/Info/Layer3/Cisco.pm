@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Cisco;
 BEGIN {
-  $SNMP::Info::Layer3::Cisco::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Cisco::VERSION = '2.03_04';
 }
 
 use strict;
@@ -128,12 +128,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::Cisco - SNMP Interface to L3 and L2+L3 IOS Cisco Device that are not covered in other classes.
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::Cisco - SNMP Interface to L3 and L2+L3 IOS Cisco Device
-that are not covered in other classes.
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -29,7 +29,7 @@
 
 package SNMP::Info::Layer2::Airespace;
 BEGIN {
-  $SNMP::Info::Layer2::Airespace::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::Airespace::VERSION = '2.03_04';
 }
 
 use strict;
@@ -139,12 +139,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer2::Airespace - SNMP Interface to Cisco (Airespace) Wireless Controllers
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer2::Airespace - SNMP Interface to Cisco (Airespace) Wireless
-Controllers
+version 2.03_04
 
 =head1 AUTHOR
 

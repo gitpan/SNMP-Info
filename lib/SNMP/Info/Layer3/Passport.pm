@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Passport;
 BEGIN {
-  $SNMP::Info::Layer3::Passport::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Passport::VERSION = '2.03_04';
 }
 
 use strict;
@@ -1053,12 +1053,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::Passport - SNMP Interface to modular Nortel Ethernet Routing Switches (formerly Passport / Accelar)
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::Passport - SNMP Interface to modular Nortel Ethernet Routing
-Switches (formerly Passport / Accelar)
+version 2.03_04
 
 =head1 AUTHOR
 

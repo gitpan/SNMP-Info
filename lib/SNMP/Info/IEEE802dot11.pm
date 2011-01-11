@@ -30,7 +30,7 @@
 
 package SNMP::Info::IEEE802dot11;
 BEGIN {
-  $SNMP::Info::IEEE802dot11::VERSION = '2.03_03';
+  $SNMP::Info::IEEE802dot11::VERSION = '2.03_04';
 }
 
 use strict;
@@ -194,7 +194,7 @@ SNMP::Info::IEEE802dot11 - SNMP Interface to data from F<IEEE802dot11-MIB>
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

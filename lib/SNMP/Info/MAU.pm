@@ -32,7 +32,7 @@
 
 package SNMP::Info::MAU;
 BEGIN {
-  $SNMP::Info::MAU::VERSION = '2.03_03';
+  $SNMP::Info::MAU::VERSION = '2.03_04';
 }
 
 use strict;
@@ -277,12 +277,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::MAU - SNMP Interface to Medium Access Unit (MAU) MIB (RFC 2668) via SNMP
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::MAU - SNMP Interface to Medium Access Unit (MAU) MIB (RFC 2668)
-via SNMP
+version 2.03_04
 
 =head1 AUTHOR
 

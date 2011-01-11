@@ -28,7 +28,7 @@
 
 package SNMP::Info::CiscoStpExtensions;
 BEGIN {
-  $SNMP::Info::CiscoStpExtensions::VERSION = '2.03_03';
+  $SNMP::Info::CiscoStpExtensions::VERSION = '2.03_04';
 }
 
 use strict;
@@ -240,7 +240,7 @@ SNMP::Info::CiscoStpExtensions - SNMP Interface to C<CISCO-STP-EXTENSIONS-MIB>
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

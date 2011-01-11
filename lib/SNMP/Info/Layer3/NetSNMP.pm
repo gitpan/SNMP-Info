@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::NetSNMP;
 BEGIN {
-  $SNMP::Info::Layer3::NetSNMP::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::NetSNMP::VERSION = '2.03_04';
 }
 
 use strict;
@@ -132,7 +132,7 @@ SNMP::Info::Layer3::NetSNMP - SNMP Interface to L3 Net-SNMP Devices
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHORS
 

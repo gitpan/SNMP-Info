@@ -33,7 +33,7 @@
 
 package SNMP::Info::CiscoStats;
 BEGIN {
-  $SNMP::Info::CiscoStats::VERSION = '2.03_03';
+  $SNMP::Info::CiscoStats::VERSION = '2.03_04';
 }
 
 use strict;
@@ -304,12 +304,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::CiscoStats - Perl5 Interface to CPU and Memory stats for Cisco Devices
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::CiscoStats - Perl5 Interface to CPU and Memory stats for Cisco
-Devices
+version 2.03_04
 
 =head1 AUTHOR
 

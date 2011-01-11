@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::C4000;
 BEGIN {
-  $SNMP::Info::Layer3::C4000::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::C4000::VERSION = '2.03_04';
 }
 
 use strict;
@@ -129,12 +129,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::C4000 - SNMP Interface to Cisco Catalyst 4000 Layer 2/3 Switches running IOS
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::C4000 - SNMP Interface to Cisco Catalyst 4000 Layer 2/3
-Switches running IOS
+version 2.03_04
 
 =head1 AUTHOR
 

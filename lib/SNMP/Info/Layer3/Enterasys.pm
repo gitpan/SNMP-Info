@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Enterasys;
 BEGIN {
-  $SNMP::Info::Layer3::Enterasys::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Enterasys::VERSION = '2.03_04';
 }
 
 use strict;
@@ -310,7 +310,7 @@ SNMP::Info::Layer3::Enterasys - SNMP Interface to Enterasys Network Devices
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

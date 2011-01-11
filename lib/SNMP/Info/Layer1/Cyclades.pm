@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer1::Cyclades;
 BEGIN {
-  $SNMP::Info::Layer1::Cyclades::VERSION = '2.03_03';
+  $SNMP::Info::Layer1::Cyclades::VERSION = '2.03_04';
 }
 
 use strict;
@@ -288,7 +288,7 @@ SNMP::Info::Layer1::Cyclades - SNMP Interface to Cyclades terminal servers
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

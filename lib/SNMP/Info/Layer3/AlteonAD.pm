@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::AlteonAD;
 BEGIN {
-  $SNMP::Info::Layer3::AlteonAD::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::AlteonAD::VERSION = '2.03_04';
 }
 
 use strict;
@@ -367,12 +367,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::Layer3::AlteonAD - SNMP Interface to Nortel Alteon Layer 2-7 Switches.
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::Layer3::AlteonAD - SNMP Interface to Nortel Alteon Layer 2-7
-Switches.
+version 2.03_04
 
 =head1 AUTHOR
 

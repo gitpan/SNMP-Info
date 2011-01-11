@@ -32,7 +32,7 @@
 
 package SNMP::Info::CiscoVTP;
 BEGIN {
-  $SNMP::Info::CiscoVTP::VERSION = '2.03_03';
+  $SNMP::Info::CiscoVTP::VERSION = '2.03_04';
 }
 
 use strict;
@@ -458,7 +458,7 @@ SNMP::Info::CiscoVTP - SNMP Interface to Cisco's VLAN Management MIBs
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

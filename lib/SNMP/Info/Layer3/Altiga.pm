@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Altiga;
 BEGIN {
-  $SNMP::Info::Layer3::Altiga::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Altiga::VERSION = '2.03_04';
 }
 
 use strict;
@@ -277,7 +277,7 @@ SNMP::Info::Layer3::Altiga - SNMP Interface to Cisco (formerly Altiga) VPN conce
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

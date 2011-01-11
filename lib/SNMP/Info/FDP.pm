@@ -33,7 +33,7 @@
 
 package SNMP::Info::FDP;
 BEGIN {
-  $SNMP::Info::FDP::VERSION = '2.03_03';
+  $SNMP::Info::FDP::VERSION = '2.03_04';
 }
 
 use strict;
@@ -143,12 +143,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::FDP - SNMP Interface to Foundry Discovery Protocol (FDP) using SNMP
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::FDP - SNMP Interface to Foundry Discovery Protocol (FDP) using
-SNMP
+version 2.03_04
 
 =head1 AUTHOR
 

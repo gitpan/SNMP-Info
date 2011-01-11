@@ -33,7 +33,7 @@
 
 package SNMP::Info::CDP;
 BEGIN {
-  $SNMP::Info::CDP::VERSION = '2.03_03';
+  $SNMP::Info::CDP::VERSION = '2.03_04';
 }
 
 use strict;
@@ -171,7 +171,7 @@ SNMP::Info::CDP - SNMP Interface to Cisco Discovery Protocol (CDP) using SNMP
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

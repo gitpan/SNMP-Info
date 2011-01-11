@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer2::Orinoco;
 BEGIN {
-  $SNMP::Info::Layer2::Orinoco::VERSION = '2.03_03';
+  $SNMP::Info::Layer2::Orinoco::VERSION = '2.03_04';
 }
 
 use strict;
@@ -192,7 +192,7 @@ SNMP::Info::Layer2::Orinoco - SNMP Interface to Orinoco Series Access Points
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

@@ -30,7 +30,7 @@
 
 package SNMP::Info::CiscoRTT;
 BEGIN {
-  $SNMP::Info::CiscoRTT::VERSION = '2.03_03';
+  $SNMP::Info::CiscoRTT::VERSION = '2.03_04';
 }
 
 use strict;
@@ -65,7 +65,7 @@ SNMP::Info::CiscoRTT - SNMP Interface to Cisco's Round Trip Time MIBs
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 

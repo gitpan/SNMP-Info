@@ -30,7 +30,7 @@
 
 package SNMP::Info::CiscoStack;
 BEGIN {
-  $SNMP::Info::CiscoStack::VERSION = '2.03_03';
+  $SNMP::Info::CiscoStack::VERSION = '2.03_04';
 }
 
 use strict;
@@ -289,12 +289,11 @@ __END__
 
 =head1 NAME
 
+SNMP::Info::CiscoStack - SNMP Interface to data from F<CISCO-STACK-MIB> and F<CISCO-PORT-SECURITY-MIB>
 
 =head1 VERSION
 
-version 2.03_03
-SNMP::Info::CiscoStack - SNMP Interface to data from F<CISCO-STACK-MIB> and
-F<CISCO-PORT-SECURITY-MIB>
+version 2.03_04
 
 =head1 AUTHOR
 

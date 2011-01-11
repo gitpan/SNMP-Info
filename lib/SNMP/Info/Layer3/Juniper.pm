@@ -30,7 +30,7 @@
 
 package SNMP::Info::Layer3::Juniper;
 BEGIN {
-  $SNMP::Info::Layer3::Juniper::VERSION = '2.03_03';
+  $SNMP::Info::Layer3::Juniper::VERSION = '2.03_04';
 }
 
 use strict;
@@ -193,7 +193,7 @@ SNMP::Info::Layer3::Juniper - SNMP Interface to L3 Juniper Devices
 
 =head1 VERSION
 
-version 2.03_03
+version 2.03_04
 
 =head1 AUTHOR
 
