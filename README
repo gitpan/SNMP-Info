@@ -3,7 +3,7 @@ NAME
     through SNMP.
 
 VERSION
-    version 2.03_04
+    SNMP::Info - Version 2.04
 
 AUTHOR
     SNMP::Info is maintained by team of Open Source authors headed by Eric
@@ -1349,12 +1349,10 @@ EXTENDING SNMP::INFO
      # SNMP::Info::Layer2::Sample
 
      package SNMP::Info::Layer2::Sample;
-     
- BEGIN {
-        $SNMP::Info::Layer2::Sample::VERSION = 0.1;
-     }
-     
- use strict;
+
+     $VERSION = 0.1;
+
+     use strict;
 
      use Exporter;
      use SNMP::Info::Layer2;

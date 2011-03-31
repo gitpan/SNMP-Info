@@ -1,31 +1,24 @@
----
-abstract: 'Object Oriented Perl5 Interface to Network devices and MIBs through SNMP. '
+--- #YAML:1.0
+name:               SNMP-Info
+version:            2.04
+abstract:           Object Oriented Perl5 Interface to Network devices and MIBs through SNMP. 
 author:
-  - 'Oliver Gorwits <oliver@cpan.org>'
-build_requires:
-  File::Glob: 0
-  FindBin: 0
-  Getopt::Long: 0
-  Test::More: 0
+    - Eric A. Miller <emiller@cpan.org>
+license:            bsd
+distribution_type:  module
 configure_requires:
-  ExtUtils::MakeMaker: 6.31
-dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.200000, CPAN::Meta::Converter version 2.102400'
-license: bsd
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
-name: SNMP-Info
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
 requires:
-  Carp: 0
-  Data::Dumper: 0
-  Exporter: 0
-  Math::BigInt: 0
-  SNMP: 0
-  constant: 0
-  vars: 0
-resources:
-  bugtracker: https://sourceforge.net/tracker/?group_id=70362&atid=527527
-  homepage: http://snmp-info.sourceforge.net/
-  repository: cvs://pserver:anonymous@snmp-info.cvs.sourceforge.net:/cvsroot/snmp-info
-version: 2.03_04
+    Math::BigInt:  0
+    SNMP:          0
+    Test::More:    0
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.56
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4

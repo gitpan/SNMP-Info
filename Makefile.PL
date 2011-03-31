@@ -1,62 +1,39 @@
+# Module makefile for SNMP::Info (using ExtUtils::MakeMaker)
+# $Id: Makefile.PL,v 1.7 2008/07/20 03:46:08 jeneric Exp $
+
+require 5.006;
 
 use strict;
 use warnings;
+use ExtUtils::MakeMaker;
 
+WriteMakefile(
+    NAME          => 'SNMP::Info',
+    AUTHOR        => 'Eric A. Miller <emiller@cpan.org>',
+    VERSION_FROM  => 'Info.pm',
+    ABSTRACT_FROM => 'Info.pm',
+    PREREQ_PM     => {
+        'Test::More'   => 0,
+        'Math::BigInt' => 0,
+        'SNMP'         => 0,
+    },
+    PMLIBDIRS => [ 'Info', '$(BASEEXT)' ],
+    dist      => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    clean     => { FILES    => 'SNMP-Info-*' },
+    realclean => { FILES    => 'Makefile.old' },
+    (     ( ExtUtils::MakeMaker->VERSION() lt '6.25' ) ? ( 'PL_FILES' => {} )
+        : ()
+    ),
+    (   ( ExtUtils::MakeMaker->VERSION() gt '6.30' ) ? ( 'LICENSE' => 'bsd' )
+        : ()
+    ),
 
-
-use ExtUtils::MakeMaker 6.31;
-
-
-
-my %WriteMakefileArgs = (
-  'ABSTRACT' => 'Object Oriented Perl5 Interface to Network devices and MIBs through SNMP. ',
-  'AUTHOR' => 'Oliver Gorwits <oliver@cpan.org>',
-  'BUILD_REQUIRES' => {
-    'File::Glob' => '0',
-    'FindBin' => '0',
-    'Getopt::Long' => '0',
-    'Test::More' => '0'
-  },
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.31'
-  },
-  'DISTNAME' => 'SNMP-Info',
-  'EXE_FILES' => [],
-  'LICENSE' => 'bsd',
-  'NAME' => 'SNMP::Info',
-  'PREREQ_PM' => {
-    'Carp' => '0',
-    'Data::Dumper' => '0',
-    'Exporter' => '0',
-    'Math::BigInt' => '0',
-    'SNMP' => '0',
-    'constant' => '0',
-    'vars' => '0'
-  },
-  'VERSION' => '2.03_04',
-  'test' => {
-    'TESTS' => 't/*.t'
-  }
 );
 
-
-unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
-  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
-  my $pp = $WriteMakefileArgs{PREREQ_PM};
-  for my $mod ( keys %$br ) {
-    if ( exists $pp->{$mod} ) {
-      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
-    }
-    else {
-      $pp->{$mod} = $br->{$mod};
-    }
-  }
+sub MY::postamble {
+    "
+.PHONY: readme
+readme: README
+README: Info.pm
+	pod2text -l Info.pm > README";
 }
-
-delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
-  unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
-
-WriteMakefile(%WriteMakefileArgs);
-
-
-
