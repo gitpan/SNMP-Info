@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # 00-load.t - Test loading of SNMP::Info 
-# $Id: 00-load.t,v 1.1 2008/07/07 03:59:47 jeneric Exp $
+# $Id$
 
 use strict;
 use warnings;

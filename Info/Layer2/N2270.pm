@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::N2270
-# $Id: N2270.pm,v 1.14 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -43,7 +43,7 @@ use SNMP::Info::Airespace;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::MIBS,        %SNMP::Info::Bridge::MIBS,

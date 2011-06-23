@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::HP - SNMP Interface to HP ProCurve Switches
-# $Id: HP.pm,v 1.54 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008-2009 Max Baker changes from version 0.8 and beyond.
 #
@@ -46,7 +46,7 @@ use SNMP::Info::CDP;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %PORTSTAT %MODEL_MAP %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,

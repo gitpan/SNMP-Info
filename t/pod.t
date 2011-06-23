@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # pod.t - Test to check for POD errors in SNMP::Info
-# $Id: pod.t,v 1.1 2008/07/07 04:12:07 jeneric Exp $
+# $Id$
 
 use strict;
 use warnings;

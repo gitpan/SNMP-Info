@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Bay
-# $Id: Bay.pm,v 1.30 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 # This module depricated.  See Layer2::BayStack
 #
 # Copyright (c) 2008 Max Baker changes from version 0.8 and beyond.
@@ -42,7 +42,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 # Set for No CDP
 %GLOBALS = (

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: make_dev_matrix.pl,v 1.8 2009/06/07 23:35:06 maxbaker Exp $
+# $Id$
 
 $DevMatrix = '../DeviceMatrix.txt';
 $DevHTML   = 'DeviceMatrix.html';

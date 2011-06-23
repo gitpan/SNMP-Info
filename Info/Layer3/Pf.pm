@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Pf
-# $Id: Pf.pm,v 1.2 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2010 Max Baker
 # All rights reserved.
@@ -41,7 +41,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,

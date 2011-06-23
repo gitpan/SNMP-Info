@@ -1,5 +1,5 @@
 # SNMP::Info::CDP
-# $Id: CDP.pm,v 1.30 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Changes since Version 0.7 Copyright (c) 2004 Max Baker
 # All rights reserved.
@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION $DEBUG %FUNCS %GLOBALS %MIBS %MUNGE $INIT/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 # Five data structures required by SNMP::Info
 %MIBS = ( 'CISCO-CDP-MIB' => 'cdpGlobalRun' );

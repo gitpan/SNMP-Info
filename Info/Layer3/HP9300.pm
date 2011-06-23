@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::HP9300 - SNMP Interface to HP Foundry OEM devices
-# $Id: HP9300.pm,v 1.8 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Eric Miller
 # All rights reserved.
@@ -42,7 +42,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,

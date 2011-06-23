@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::NetSNMP
-# $Id: NetSNMP.pm,v 1.11 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Bill Fenner
 # All rights reserved.
@@ -39,7 +39,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,

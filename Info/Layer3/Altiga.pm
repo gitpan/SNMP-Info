@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Altiga
-# $Id: Altiga.pm,v 1.4 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Jeroen van Ingen Schenau
 # All rights reserved.
@@ -40,7 +40,7 @@ use SNMP::Info::Layer3;
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE 
             $int_include_vpn $fake_idx $type_class/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
             %SNMP::Info::Layer3::MIBS,

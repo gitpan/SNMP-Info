@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::CiscoFWSM
-# $Id: CiscoFWSM.pm,v 1.2 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2010 Brian De Wolf
 # All rights reserved.
@@ -40,7 +40,7 @@ use SNMP::Info::Layer3::Cisco;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::Layer3::Cisco::MIBS,

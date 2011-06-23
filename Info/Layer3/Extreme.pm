@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Extreme - SNMP Interface to Extreme devices
-# $Id: Extreme.pm,v 1.18 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Eric Miller
 #
@@ -43,7 +43,7 @@ use SNMP::Info::MAU;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,

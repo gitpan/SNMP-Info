@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 # prereq.t - Test file for prerequesites for SNMP::Info
-# $Id: prereq.t,v 1.2 2008/07/19 03:03:53 jeneric Exp $
+# $Id$
 
 use strict;
 use warnings;

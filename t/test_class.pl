@@ -6,7 +6,7 @@
 #
 # Max Baker
 #
-# $Id: test_class.pl,v 1.11 2009/03/09 19:12:55 maxbaker Exp $
+# $Id$
 #
 
 use FindBin;

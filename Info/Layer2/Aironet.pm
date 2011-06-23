@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Aironet
-# $Id: Aironet.pm,v 1.31 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008-2009 Max Baker changes from version 0.8 and beyond.
 #
@@ -49,7 +49,7 @@ use SNMP::Info::IEEE802dot11;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %GLOBALS = (
     %SNMP::Info::IEEE802dot11::GLOBALS,
@@ -193,7 +193,7 @@ sub _aironet_breakout_dot11idx {
 sub fw_mac {
     my $aironet = shift;
 
-    return qb_fw_mac($aironet) unless _aironet_special($aironet);
+    return $aironet->qb_fw_mac() unless _aironet_special($aironet);
     my $c_dot11subif = $aironet->c_dot11subif();
     my $fw_mac       = {};
 

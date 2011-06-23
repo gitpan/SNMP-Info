@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3 - SNMP Interface to Layer3 devices
-# $Id: Layer3.pm,v 1.41 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Max Baker -- All changes from Version 0.7 on
 #
@@ -49,7 +49,7 @@ use SNMP::Info::IPv6;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::MIBS,

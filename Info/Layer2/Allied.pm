@@ -1,5 +1,5 @@
 # SNMP::Info::Layer2::Allied
-# $Id: Allied.pm,v 1.19 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Max Baker
 # All rights reserved.
@@ -40,7 +40,7 @@ use SNMP::Info::Layer1;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %GLOBALS = ( %SNMP::Info::Layer2::GLOBALS );
 

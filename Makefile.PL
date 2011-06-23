@@ -1,5 +1,5 @@
 # Module makefile for SNMP::Info (using ExtUtils::MakeMaker)
-# $Id: Makefile.PL,v 1.7 2008/07/20 03:46:08 jeneric Exp $
+# $Id$
 
 require 5.006;
 

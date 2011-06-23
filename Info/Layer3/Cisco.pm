@@ -1,5 +1,5 @@
 # SNMP::Info::Layer3::Cisco
-# $Id: Cisco.pm,v 1.25 2011/03/31 08:34:57 olly_g Exp $
+# $Id$
 #
 # Copyright (c) 2008 Max Baker
 # All rights reserved.
@@ -52,7 +52,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.04';
+$VERSION = '2.05';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,

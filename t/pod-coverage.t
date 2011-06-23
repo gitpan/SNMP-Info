@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # pod-coverage.t - Test to check POD coverage of SNMP::Info
-# $Id: pod-coverage.t,v 1.1 2008/07/19 02:44:42 jeneric Exp $
+# $Id$
 
 use strict;
 use warnings;
