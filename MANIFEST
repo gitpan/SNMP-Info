@@ -3,6 +3,7 @@ COPYRIGHT
 DEVELOP
 DeviceMatrix.txt
 Info.pm
+Info/AdslLine.pm
 Info/Airespace.pm
 Info/Bridge.pm
 Info/CDP.pm
@@ -41,6 +42,7 @@ Info/Layer2/Cisco.pm
 Info/Layer2/Foundry.pm
 Info/Layer2/HP.pm
 Info/Layer2/HP4000.pm
+Info/Layer2/HPVC.pm
 Info/Layer2/N2270.pm
 Info/Layer2/NAP222x.pm
 Info/Layer2/Netgear.pm
@@ -67,9 +69,11 @@ Info/Layer3/Foundry.pm
 Info/Layer3/HP9300.pm
 Info/Layer3/Juniper.pm
 Info/Layer3/Microsoft.pm
+Info/Layer3/Mikrotik.pm
 Info/Layer3/N1600.pm
 Info/Layer3/Netscreen.pm
 Info/Layer3/NetSNMP.pm
+Info/Layer3/PacketFront.pm
 Info/Layer3/Passport.pm
 Info/Layer3/Pf.pm
 Info/Layer3/Sun.pm

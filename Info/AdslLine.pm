@@ -1,7 +1,6 @@
-# SNMP::Info::CiscoRTT
-# $Id$
+# SNMP::Info::AdslLine
 #
-# Copyright (c) 2005 Alexander Hartmaier
+# Copyright (c) 2009 Alexander Hartmaier
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,28 +27,35 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::CiscoRTT;
+package SNMP::Info::AdslLine;
 
 use strict;
 use Exporter;
 use SNMP::Info;
 
-@SNMP::Info::CiscoRTT::ISA       = qw/SNMP::Info Exporter/;
-@SNMP::Info::CiscoRTT::EXPORT_OK = qw//;
+@SNMP::Info::AdslLine::ISA       = qw/SNMP::Info Exporter/;
+@SNMP::Info::AdslLine::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
 $VERSION = '2.06';
 
-%MIBS = ( 'CISCO-RTTMON-MIB' => 'rttMonCtrlAdminOwner', );
+%MIBS = ( 'ADSL-LINE-MIB' => 'adslLineType' );
 
 %GLOBALS = ();
 
 %FUNCS = (
-
-    # CISCO-RTTMON-MIB
-    'rtt_desc' => 'rttMonCtrlAdminOwner',
-    'rtt_last' => 'rttMonLatestRttOperCompletionTime',
+    # ADSL-LINE-MIB::adslAtucChanTable
+    'adsl_atuc_interleave_delay'    => 'adslAtucChanInterleaveDelay',
+    'adsl_atuc_curr_tx_rate'        => 'adslAtucChanCurrTxRate',
+    'adsl_atuc_prev_tx_rate'        => 'adslAtucChanPrevTxRate',
+    'adsl_atuc_crc_block_len'       => 'adslAtucChanCrcBlockLength',
+    
+    # ADSL-LINE-MIB::adslAturChanTable
+    'adsl_atur_interleave_delay'    => 'adslAturChanInterleaveDelay',
+    'adsl_atur_curr_tx_rate'        => 'adslAturChanCurrTxRate',
+    'adsl_atur_prev_tx_rate'        => 'adslAturChanPrevTxRate',
+    'adsl_atur_crc_block_len'       => 'adslAturChanCrcBlockLength',
 );
 
 %MUNGE = ();
@@ -59,7 +65,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::CiscoRTT - SNMP Interface to Cisco's Round Trip Time MIBs
+SNMP::Info::AdslLine - SNMP Interface to the ADSL-LINE-MIB
 
 =head1 AUTHOR
 
@@ -68,22 +74,22 @@ Alexander Hartmaier
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $rtt = new SNMP::Info(
+ my $info = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          DestHost    => 'myswitch',
+                          DestHost    => 'myrouter',
                           Community   => 'public',
                           Version     => 2
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class = $rtt->class();
+ my $class = $info->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-SNMP::Info::CiscoRTT is a subclass of SNMP::Info that provides 
-information about a cisco device's RTT values.
+SNMP::Info::AdslLine is a subclass of SNMP::Info that provides 
+information about the adsl interfaces of a device.
 
 Use or create in a subclass of SNMP::Info.  Do not use directly.
 
@@ -95,7 +101,7 @@ none.
 
 =over
 
-=item F<CISCO-RTTMON-MIB>
+=item F<ADSL-LINE-MIB>
 
 =back
 
@@ -105,33 +111,61 @@ MIBs can be found at ftp://ftp.cisco.com/pub/mibs/v2/v2.tar.gz
 
 =over
 
-None
+=item none
 
 =back
 
 =head1 TABLE METHODS
 
-=head2 Overall Control Group Table
+=head2 ATUC channel table (C<adslAtucChanTable>)
 
-This table is from C<CISCO-RTTMAN-MIB::rttMonCtrlAdminTable>
+This table provides one row for each ATUC channel.
+ADSL channel interfaces are those ifEntries where ifType
+is equal to adslInterleave(124) or adslFast(125).
 
 =over
 
-=item $rtt->rtt_desc()
+=item $info->adsl_atuc_interleave_delay()
 
-(C<rttMonCtrlAdminOwner>)
+(C<adslAtucChanInterleaveDelay>)
+
+=item $info->adsl_atuc_curr_tx_rate()
+
+(C<adslAtucChanCurrTxRate>)
+
+=item $info->adsl_atuc_prev_tx_rate()
+
+(C<adslAtucChanPrevTxRate>)
+
+=item $info->adsl_atuc_crc_block_len()
+
+(C<adslAtucChanCrcBlockLength>)
 
 =back
 
-=head2 Overall Control Group Table
+=head2 ATUR channel table (C<adslAturChanTable>)
 
-This table is from C<CISCO-RTTMON-MIB::rttMonCtrl>
+This table provides one row for each ATUR channel.
+ADSL channel interfaces are those ifEntries where ifType
+is equal to adslInterleave(124) or adslFast(125).
 
 =over
 
-=item $rtt->rtt_last()
+=item $info->adsl_atur_interleave_delay()
 
-(C<rttMonLatestRttOperCompletionTime>)
+(C<adslAturChanInterleaveDelay>)
+
+=item $info->adsl_atur_curr_tx_rate()
+
+(C<adslAturChanCurrTxRate>)
+
+=item $info->adsl_atur_prev_tx_rate()
+
+(C<adslAturChanPrevTxRate>)
+
+=item $info->adsl_atur_crc_block_len()
+
+(C<adslAturChanCrcBlockLength>)
 
 =back
 

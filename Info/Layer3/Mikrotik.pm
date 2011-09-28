@@ -1,7 +1,7 @@
-# SNMP::Info::Layer3::Sun
+# SNMP::Info::Layer3::Mikrotik
 # $Id$
 #
-# Copyright (c) 2008 Eric Miller
+# Copyright (c) 2011 Jeroen van Ingen
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,25 +28,29 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::Sun;
+package SNMP::Info::Layer3::Mikrotik;
 
 use strict;
 use Exporter;
 use SNMP::Info::Layer3;
 
-@SNMP::Info::Layer3::Sun::ISA       = qw/SNMP::Info::Layer3 Exporter/;
-@SNMP::Info::Layer3::Sun::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::Mikrotik::ISA       = qw/SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::Mikrotik::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '2.06';
 
-%MIBS = ( %SNMP::Info::Layer3::MIBS, );
+%MIBS = (
+    %SNMP::Info::Layer3::MIBS,
+    'HOST-RESOURCES-MIB'       => 'hrSystem',
+    'MIKROTIK-MIB'             => 'mtxrLicVersion',
+);
 
 %GLOBALS = (
     %SNMP::Info::Layer3::GLOBALS,
-    'sun_hostid' => '.1.3.6.1.4.1.42.3.1.2.0',
-    'motd'       => '.1.3.6.1.4.1.42.3.1.3.0',
+    'hrSystemUptime' => 'hrSystemUptime',
+    'os_ver'         => 'mtxrLicVersion',
 );
 
 %FUNCS = ( %SNMP::Info::Layer3::FUNCS, );
@@ -54,81 +58,51 @@ $VERSION = '2.06';
 %MUNGE = ( %SNMP::Info::Layer3::MUNGE, );
 
 sub vendor {
-    return 'sun';
-}
-
-sub os {
-    return 'sun';
-}
-
-sub os_ver {
-    my $sun   = shift;
-    my $descr = $sun->motd();
-    return unless defined $descr;
-
-    if ( $descr =~ m/SunOS (\S+)/ ) {
-        return $1;
-    }
-    return;
+    return 'mikrotik';
 }
 
 sub model {
-    return 'Solaris Router';
+    my $mikrotik = shift;
+    my $descr = $mikrotik->description() || '';
+    my $model = undef;
+    $model = $1 if ( $descr =~ /^RouterOS\s+(\S+)$/i );
+    return $model;
 }
 
-sub serial {
-    my $sun = shift;
-    my $serial = unpack( "H*", $sun->sun_hostid() );
-    return $serial;
-}
-
-sub i_ignore {
-    my $l3      = shift;
-    my $partial = shift;
-
-    my $interfaces = $l3->interfaces($partial) || {};
-
-    my %i_ignore;
-    foreach my $if ( keys %$interfaces ) {
-
-        # lo0
-        if ( $interfaces->{$if} =~ /\blo0\b/i ) {
-            $i_ignore{$if}++;
-        }
-    }
-    return \%i_ignore;
+sub os {
+    return 'routeros';
 }
 
 1;
-
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::Sun - SNMP Interface to L3 Sun Solaris
+SNMP::Info::Layer3::Mikrotik - SNMP Interface to Mikrotik devices
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-begemot
+Jeroen van Ingen
+initial version based on SNMP::Info::Layer3::NetSNMP by Bradley Baetz and Bill Fenner
 
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $sun = new SNMP::Info(
+ my $mikrotik = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          DestHost    => 'mysunrouter',
+                          DestHost    => 'myrouter',
                           Community   => 'public',
-                          Version     => 1
+                          Version     => 2
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $sun->class();
+ my $class      = $mikrotik->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Generic Sun Routers running SunOS
+Subclass for Mikrotik devices
 
 =head2 Inherited Classes
 
@@ -142,9 +116,13 @@ Subclass for Generic Sun Routers running SunOS
 
 =over
 
+=item F<HOST-RESOURCES-MIB>
+
+=item F<MIKROTIK-MIB>
+
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
+See L<SNMP::Info::Layer3> for its own MIB requirements.
 
 =back
 
@@ -154,51 +132,44 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $sun->vendor()
+=item $mikrotik->vendor()
 
-Returns 'sun'
+Returns 'mikrotik'.
 
-=item $sun->os()
+=item $mikrotik->os()
 
-Returns 'sun'
+Returns 'routeros'.
 
-=item $sun->os_ver()
+=item $mikrotik->model()
 
-Returns the software version extracted from message of the day.
+Tries to extract the device model from C<sysDescr>.
 
-=item $sun->model()
+=item $mikrotik->os_ver()
 
-Returns 'Solaris Router'
-
-=item $sun->serial()
-
-Returns serial number
+Returns the value of C<mtxrLicVersion>.
 
 =back
 
 =head2 Globals imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+See documentation in L<SNMP::Info::Layer3> for details.
 
-=head1 TABLE METHODS
+=head1 TABLE ENTRIES
 
 These are methods that return tables of information in the form of a reference
 to a hash.
 
 =head2 Overrides
 
+None.
+
 =over
-
-=item $sun->i_ignore()
-
-Returns reference to hash.  Increments value of IID if port is to be ignored.
-
-Ignores loopback
 
 =back
 
 =head2 Table Methods imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
+See documentation in L<SNMP::Info::Layer3> for details.
+
 
 =cut

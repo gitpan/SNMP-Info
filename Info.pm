@@ -20,11 +20,10 @@ use Math::BigInt;
 @SNMP::Info::EXPORT_OK = qw//;
 
 use vars
-    qw/$VERSION $VERSION_CVS %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
+    qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '2.05';
-$VERSION_CVS = '$Id$';
+$VERSION = '2.06';
 
 =head1 NAME
 
@@ -32,7 +31,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 2.05
+SNMP::Info - Version 2.06
 
 =head1 AUTHOR
 
@@ -226,6 +225,14 @@ used directly, but rather inherited from device subclasses.
 For more info run C<perldoc> on any of the following module names.
 
 =over
+
+=item SNMP::Info::AdslLine
+
+SNMP Interface to the ADSL-LINE-MIB for ADSL interfaces.
+
+Requires the F<ADSL-LINE-MIB>, downloadable from Cisco.
+
+See documentation in L<SNMP::Info::AdslLine> for details.
 
 =item SNMP::Info::Airespace
 
@@ -539,6 +546,12 @@ Requires F<HP-ICF-OID> and F<ENTITY-MIB> downloaded from HP.
 
 See documentation in L<SNMP::Info::Layer2::HP4000> for details.
 
+=item SNMP::Info::Layer2::HPVC
+
+Subclass for HP VirtualConnect Switches
+
+See documentation in L<SNMP::Info::Layer2::HPVC> for details.
+
 =item SNMP::Info::Layer2::N2270
 
 Subclass for Nortel 2270 wireless switches.
@@ -706,6 +719,12 @@ Subclass for Generic Microsoft Routers running Microsoft Windows OS.
 
 See documentation in L<SNMP::Info::Layer3::Microsoft> for details.
 
+=item SNMP::Info::Layer3::Mikrotik
+
+Subclass for Mikrotik devices running RouterOS.
+
+See documentation in L<SNMP::Info::Layer3::Mikrotik> for details.
+
 =item SNMP::Info::Layer3::N1600
 
 Subclass for Nortel Ethernet Routing Switch 1600 series.
@@ -723,6 +742,12 @@ See documentation in L<SNMP::Info::Layer3::NetSNMP> for details.
 Subclass for Juniper NetScreen.
 
 See documentation in L<SNMP::Info::Layer3::Netscreen> for details.
+
+=item SNMP::Info::Layer3::PacketFront
+
+Subclass for PacketFront DRG series CPE.
+
+See documentation in L<SNMP::Info::Layer3::PacketFront> for details.
 
 =item SNMP::Info::Layer3::Passport
 
@@ -1218,7 +1243,9 @@ sub device_type {
         6486 => 'SNMP::Info::Layer3::AlcatelLucent',
         6527 => 'SNMP::Info::Layer3::Timetra',
         8072 => 'SNMP::Info::Layer3::NetSNMP',
+        9303 => 'SNMP::Info::Layer3::PacketFront',
         12325 => 'SNMP::Info::Layer3::Pf',
+        14988 => 'SNMP::Info::Layer3::Mikrotik',
         30065 => 'SNMP::Info::Layer3::Arista',
     );
 
@@ -1243,7 +1270,7 @@ sub device_type {
     $id = $1 if ( defined($id) && $id =~ /^\.1\.3\.6\.1\.4\.1\.(\d+)/ );
 
     if ($info->debug()) {
-        print "SNMP::Info $VERSION ($VERSION_CVS)\n";
+        print "SNMP::Info $VERSION\n";
         print "SNMP::Info::device_type() layers:$layers id:$id sysDescr:\"$desc\"\n";
     }
 
@@ -1318,6 +1345,10 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::CiscoFWSM'
             if ( $desc =~ /Cisco Firewall Services Module/i );
 
+        # HP VirtualConnect blade switches
+        $objtype = 'SNMP::Info::Layer2::HPVC'
+            if ( $desc =~ /HP\sVC\s/ );
+
         # Generic device classification based upon sysObjectID
         if (    ( $objtype eq 'SNMP::Info::Layer3' )
             and ( defined($id) )
@@ -1350,6 +1381,10 @@ sub device_type {
         #   Cisco 3400 w/ MetroBase Image
         $objtype = 'SNMP::Info::Layer3::C3550'
             if ( $desc =~ /(C3550|ME340x)/ );
+
+        # Cisco blade switches, CBS30x0 and CBS31x0 models with L2 only
+        $objtype = 'SNMP::Info::Layer3::C6500'
+            if ( $desc =~ /cisco/i and $desc =~ /CBS3[0-9A-Za-z]{3}/ );
 
         #   Cisco 2970
         $objtype = 'SNMP::Info::Layer3::C6500'
@@ -1415,6 +1450,10 @@ sub device_type {
             if (
             $desc =~ /Nortel\s+(Networks\s+)??WLAN\s+-\s+Security\s+Switch/ );
 
+        # HP VirtualConnect blade switches
+        $objtype = 'SNMP::Info::Layer2::HPVC'
+            if ( $desc =~ /HP\sVC\s/ );
+
         # Generic device classification based upon sysObjectID
         if (    ( $objtype eq 'SNMP::Info::Layer2' )
             and ( defined($id) )
@@ -1468,8 +1507,12 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Cisco'
             if ( $desc =~ /Cisco Adaptive Security Appliance/i );
 
+        # HP VirtualConnect blade switches
+        $objtype = 'SNMP::Info::Layer2::HPVC'
+            if ( $desc =~ /HP\sVC\s/ );
+
         # Generic device classification based upon sysObjectID
-        if ( defined($id) ) {
+        if ( defined($id) and $objtype eq 'SNMP::Info') {
             if ( defined $l3sysoidmap{$id} ) {
                 $objtype = $l3sysoidmap{$id};
             } elsif ( defined $l2sysoidmap{$id}) {
@@ -2269,6 +2312,9 @@ ALTEON-TS-PHYSICAL-MIB::agPortCurCfgPortName.
     'i_qlen_out'        => 'ifOutQLen',
     'i_specific'        => 'ifSpecific',
 
+    # IF-MIB::IfStackTable
+    'i_stack_status'    => 'ifStackStatus',
+
     # IP Address Table
     'ip_index'     => 'ipAdEntIfIndex',
     'ip_table'     => 'ipAdEntAddr',
@@ -2554,6 +2600,11 @@ Makes human friendly speed ratings using %SPEED_MAP
                 '1000000000' => '1.0 Gbps',
                 '2488000000' => 'OC-48',
              )
+
+Note: high speed interfaces (usually 1 Gbps or faster) have their link 
+speed in C<ifHighSpeed>. i_speed() automatically determines whether to use 
+C<ifSpeed> or C<ifHighSpeed>; if the latter is used, the value is munged by 
+munge_highspeed(). SNMP::Info can return speeds up to terabit levels this way.
 
 =cut
 

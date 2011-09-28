@@ -1,7 +1,7 @@
-# SNMP::Info::Layer3::Sun
-# $Id$
+# SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
 #
-# Copyright (c) 2008 Eric Miller
+# Copyright (c) 2011 Jeroen van Ingen
+#
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,113 +28,103 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::Sun;
+package SNMP::Info::Layer2::HPVC;
 
 use strict;
 use Exporter;
-use SNMP::Info::Layer3;
+use SNMP::Info::Layer2;
 
-@SNMP::Info::Layer3::Sun::ISA       = qw/SNMP::Info::Layer3 Exporter/;
-@SNMP::Info::Layer3::Sun::EXPORT_OK = qw//;
+@SNMP::Info::Layer2::HPVC::ISA
+    = qw/SNMP::Info::Layer2 Exporter/;
+@SNMP::Info::Layer2::HPVC::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '2.06';
 
-%MIBS = ( %SNMP::Info::Layer3::MIBS, );
-
-%GLOBALS = (
-    %SNMP::Info::Layer3::GLOBALS,
-    'sun_hostid' => '.1.3.6.1.4.1.42.3.1.2.0',
-    'motd'       => '.1.3.6.1.4.1.42.3.1.3.0',
+%MIBS = (
+    %SNMP::Info::Layer2::MIBS,
+    'HPVC-MIB'       => 'vcDomainName',
+    'CPQSINFO-MIB'   => 'cpqSiSysSerialNum',
+    'HPVCMODULE-MIB' => 'vcModuleDomainName',
 );
 
-%FUNCS = ( %SNMP::Info::Layer3::FUNCS, );
+%GLOBALS = (
+    %SNMP::Info::Layer2::GLOBALS,
+    'serial1'      => 'cpqSiSysSerialNum.0',
+    'os_ver'       => 'cpqHoSWRunningVersion.1',
+    'os_bin'       => 'cpqHoFwVerVersion.1',
+    'productname'  => 'cpqSiProductName.0',
+);
 
-%MUNGE = ( %SNMP::Info::Layer3::MUNGE, );
+%FUNCS = (
+    %SNMP::Info::Layer2::FUNCS,
+    
+);
 
-sub vendor {
-    return 'sun';
-}
+%MUNGE = (
+    # Inherit all the built in munging
+    %SNMP::Info::Layer2::MUNGE,
+);
+
+
+# Method Overrides
 
 sub os {
-    return 'sun';
+    return 'hpvc';
 }
 
-sub os_ver {
-    my $sun   = shift;
-    my $descr = $sun->motd();
-    return unless defined $descr;
-
-    if ( $descr =~ m/SunOS (\S+)/ ) {
-        return $1;
-    }
-    return;
+sub vendor {
+    return 'hp';
 }
 
 sub model {
-    return 'Solaris Router';
+    my $hp = shift;
+    return $hp->productname();
 }
 
-sub serial {
-    my $sun = shift;
-    my $serial = unpack( "H*", $sun->sun_hostid() );
-    return $serial;
-}
-
-sub i_ignore {
-    my $l3      = shift;
-    my $partial = shift;
-
-    my $interfaces = $l3->interfaces($partial) || {};
-
-    my %i_ignore;
-    foreach my $if ( keys %$interfaces ) {
-
-        # lo0
-        if ( $interfaces->{$if} =~ /\blo0\b/i ) {
-            $i_ignore{$if}++;
-        }
-    }
-    return \%i_ignore;
-}
 
 1;
-
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::Sun - SNMP Interface to L3 Sun Solaris
+SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
 
 =head1 AUTHOR
 
-begemot
+Jeroen van Ingen
 
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $sun = new SNMP::Info(
+ my $hp = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          DestHost    => 'mysunrouter',
+                          DestHost    => 'myswitch',
                           Community   => 'public',
-                          Version     => 1
+                          Version     => 2
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $sun->class();
+ my $class      = $hp->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Generic Sun Routers running SunOS
+Provides abstraction to the configuration information obtainable from a 
+HP VirtualConnect Switch via SNMP. 
+
+For speed or debugging purposes you can call the subclass directly, but not
+after determining a more specific class using the method above. 
+
+ my $hp = new SNMP::Info::Layer2::HPVC(...);
 
 =head2 Inherited Classes
 
 =over
 
-=item SNMP::Info::Layer3
+=item SNMP::Info::Layer2
 
 =back
 
@@ -142,11 +132,15 @@ Subclass for Generic Sun Routers running SunOS
 
 =over
 
-=item Inherited Classes' MIBs
+=item F<HPVC-MIB>
 
-See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
+=item F<CPQSINFO-MIB>
+
+=item F<HPVCMODULE-MIB>
 
 =back
+
+All required MIBs can be found in the netdisco-mibs package.
 
 =head1 GLOBALS
 
@@ -154,31 +148,35 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $sun->vendor()
+=item $hp->os()
 
-Returns 'sun'
+Returns hpvc
 
-=item $sun->os()
+=item $hp->os_bin()
 
-Returns 'sun'
+C<cpqHoFwVerVersion.1>
 
-=item $sun->os_ver()
+=item $hp->os_ver()
 
-Returns the software version extracted from message of the day.
+C<cpqHoSWRunningVersion.1>
 
-=item $sun->model()
+=item $hp->serial()
 
-Returns 'Solaris Router'
+C<cpqSiSysSerialNum.0>
 
-=item $sun->serial()
+=item $hp->vendor()
 
-Returns serial number
+hp
+
+=item $hp->model()
+
+C<cpqSiProductName.0>
 
 =back
 
-=head2 Globals imported from SNMP::Info::Layer3
+=head2 Globals imported from SNMP::Info::Layer2
 
-See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+See documentation in L<SNMP::Info::Layer2/"GLOBALS"> for details.
 
 =head1 TABLE METHODS
 
@@ -189,16 +187,23 @@ to a hash.
 
 =over
 
-=item $sun->i_ignore()
+=back
 
-Returns reference to hash.  Increments value of IID if port is to be ignored.
+=head2 Table Methods imported from SNMP::Info::Layer2
 
-Ignores loopback
+See documentation in L<SNMP::Info::Layer2/"TABLE METHODS"> for details.
+
+=head1 MUNGES
+
+=over
 
 =back
 
-=head2 Table Methods imported from SNMP::Info::Layer3
+=head1 SET METHODS
 
-See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
+These are methods that provide SNMP set functionality for overridden methods
+or provide a simpler interface to complex set operations.  See
+L<SNMP::Info/"SETTING DATA VIA SNMP"> for general information on set
+operations. 
 
 =cut
