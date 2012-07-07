@@ -40,7 +40,7 @@ use SNMP::Info::Layer1;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 %GLOBALS = ( %SNMP::Info::Layer2::GLOBALS );
 
@@ -129,7 +129,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::Allied - SNMP Interface to Allied Telesyn switches
+SNMP::Info::Layer2::Allied - SNMP Interface to Allied Telesis switches
 
 =head1 AUTHOR
 

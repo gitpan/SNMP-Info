@@ -51,7 +51,7 @@ use SNMP::Info::AdslLine;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 %MIBS = (
     %SNMP::Info::MIBS,
@@ -163,6 +163,14 @@ sub root_ip {
     my $router_ip = $l3->router_ip();
     my $ospf_ip   = $l3->ospf_ip();
 
+    # if the router ip exists and is a route advertised by the device we prefer
+    # it over the others
+    return $router_ip
+        if (( defined $router_ip )
+        and ( $router_ip ne '0.0.0.0' )
+        and ( grep { $ospf_ip->{$_} eq $router_ip } (keys %$ospf_ip))
+        and ( $l3->snmp_connect_ip($router_ip) ) );
+
     # return the first one found here (should be only one)
     if ( defined $ospf_ip and scalar( keys %$ospf_ip ) ) {
         foreach my $key ( keys %$ospf_ip ) {
@@ -174,10 +182,6 @@ sub root_ip {
         }
     }
 
-    return $router_ip
-        if (( defined $router_ip )
-        and ( $router_ip ne '0.0.0.0' )
-        and ( $l3->snmp_connect_ip($router_ip) ) );
     return;
 }
 

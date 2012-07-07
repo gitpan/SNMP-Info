@@ -1,6 +1,6 @@
 # SNMP::Info
 #
-# Copyright (c) 2003-2010 Max Baker and SNMP::Info Developers
+# Copyright (c) 2003-2012 Max Baker and SNMP::Info Developers
 # All rights reserved.
 #
 # Portions Copyright (c) 2002-2003, Regents of the University of California
@@ -23,7 +23,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 =head1 NAME
 
@@ -31,7 +31,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 2.06
+SNMP::Info - Version 2.07_001
 
 =head1 AUTHOR
 
@@ -417,7 +417,7 @@ See documentation in L<SNMP::Info::Layer1> for details.
 
 =item SNMP::Info::Layer1::Allied
 
-Subclass for Allied Telesys Repeaters / Hubs.  
+Subclass for Allied Telesis Repeaters / Hubs.  
 
 Requires F<ATI-MIB>
 
@@ -476,7 +476,7 @@ See documentation in L<SNMP::Info::Layer2::Aironet> for details.
 
 =item SNMP::Info::Layer2::Allied
 
-Allied Telesys switches.
+Allied Telesis switches.
 
 See documentation in L<SNMP::Info::Layer2::Allied> for details.
 
@@ -492,6 +492,10 @@ Subclass for Nortel/Bay Ethernet Switch/Baystack switches.  This includes 303,
 and probably others.
 
 See documentation in L<SNMP::Info::Layer2::Baystack> for details.
+
+=item SNMP::Info::Layer2::Kentrox
+
+Class for Kentrox DataSMART DSU/CSU. See L<SNMP::Info::Layer2::Kentrox> for details.
 
 =item SNMP::Info::Layer2::C1900
 
@@ -637,6 +641,12 @@ ARN, AN, 2430, and 5430 routers.
 
 See documentation in L<SNMP::Info::Layer3::BayRS> for details.
 
+=item SNMP::Info::Layer3::BlueCoatSG
+
+Subclass for Blue Coat SG series proxy devices.
+
+See documentation in L<SNMP::Info::Layer3::BlueCoatSG> for details.
+
 =item SNMP::Info::Layer3::C3550
 
 Subclass for Cisco Catalyst 3550,3540,3560 2/3 switches running IOS.
@@ -762,6 +772,11 @@ Subclass for FreeBSD-Based Firewalls using Pf /Pf Sense
 
 See documentation in L<SNMP::Info::Layer3::Pf> for details.
 
+=item SNMP::Info::Layer3::SonicWALL
+
+Subclass for generic SonicWALL devices. See documentation in
+L<SNMP::Info::Layer3::SonicWALL> for details.
+
 =item SNMP::Info::Layer3::Sun
 
 Subclass for Generic Sun Routers running SunOS.
@@ -773,6 +788,26 @@ See documentation in L<SNMP::Info::Layer3::Sun> for details.
 Alcatel-Lucent SR Class.
 
 See documentation in L<SNMP::Info::Layer3::Timetra> for details.
+
+=back
+
+=back
+
+=over 4
+
+=item SNMP::Info::Layer7
+
+Generic Layer7 Devices.
+
+See documentation in L<SNMP::Info::Layer7> for details.
+
+=over 4
+
+=item SNMP::Info::Layer7::APC
+
+SNMP Interface to APC UPS devices
+
+See documentation in L<SNMP::Info::Layer7::APC> for details.
 
 =back
 
@@ -819,14 +854,14 @@ SNMP::Info Specific Arguments :
 
 Returns an object of a more specific device class
 
-(default on)
+(default 0, which means "off")
 
 =item BigInt
 
 Return Math::BigInt objects for 64 bit counters.  Sets on a global scope,
 not object.
 
-(default off)
+(default 0, which means "off")
 
 =item BulkWalk
 
@@ -834,7 +869,7 @@ Set to C<0> to turn off BULKWALK commands for SNMPv2 connections.
 
 Note that BULKWALK is turned off for Net-SNMP versions 5.1.x because of a bug.
 
-(default on)
+(default 1, which means "on")
 
 =item BulkRepeaters
 
@@ -852,14 +887,14 @@ operation, Net-SNMP's internal bulkwalk function must detect the loop.
 
 Set to C<0> to turn off loop detection.
 
-(default on)
+(default 1, which measn "on")
 
 =item Debug
 
 Prints Lots of debugging messages.
 Pass 2 to print even more debugging messages.
 
-(default off)
+(default 0, which means "off")
 
 =item DebugSNMP
 
@@ -881,7 +916,7 @@ such variable in this MIB".  Set to false if so desired.  This feature lets
 you read SNMPv2 data from an SNMP version 1 connection, and should probably
 be left on.
 
-(default true)
+(default 1, which means "on")
 
 =item Session
 
@@ -1216,7 +1251,7 @@ sub device_type {
             carp("Device doesn't implement sysServices but did return sysDescr. Might give unexpected results.\n") if $info->debug();
         } else {
             # No sysServices, no sysDescr 
-            return undef;
+            return;
         }
     }
 
@@ -1239,6 +1274,8 @@ sub device_type {
         2636 => 'SNMP::Info::Layer3::Juniper',
         2925 => 'SNMP::Info::Layer1::Cyclades',
         3076 => 'SNMP::Info::Layer3::Altiga',
+        3417 => 'SNMP::Info::Layer3::BlueCoatSG',
+        4526 => 'SNMP::Info::Layer2::Netgear',
         5624 => 'SNMP::Info::Layer3::Enterasys',
         6486 => 'SNMP::Info::Layer3::AlcatelLucent',
         6527 => 'SNMP::Info::Layer3::Timetra',
@@ -1264,6 +1301,10 @@ sub device_type {
         11898 => 'SNMP::Info::Layer2::Orinoco',
         14179 => 'SNMP::Info::Layer2::Airespace',
         14823 => 'SNMP::Info::Layer3::Aruba',
+    );
+
+    my %l7sysoidmap = (
+        318   => 'SNMP::Info::Layer7::APC',
     );
 
     # Get just the enterprise number for generic mapping
@@ -1293,13 +1334,17 @@ sub device_type {
             and $desc =~ /\D(CAP340|AP340|CAP350|350|1200)\D/ );
         $objtype = 'SNMP::Info::Layer3::Aironet'
             if ( $desc =~ /Aironet/ and $desc =~ /\D(AP4800)\D/ );
+
+	# Cat6k with older SUPs (hybrid CatOS/IOS?)
         $objtype = 'SNMP::Info::Layer3::C6500' if $desc =~ /(c6sup2|c6sup1)/;
+
+	# Cat6k with Sup720, Sup720 or Sup2T (and Sup2 running native IOS?)
+        $objtype = 'SNMP::Info::Layer3::C6500'
+            if $desc =~ /(s72033_rp|s3223_rp|s32p3_rp|s222_rp|s2t54)/;
 
         # Next one untested. Reported working by DA
         $objtype = 'SNMP::Info::Layer3::C6500'
             if ( $desc =~ /cisco/i and $desc =~ /3750/ );
-        $objtype = 'SNMP::Info::Layer3::C6500'
-            if $desc =~ /(s72033_rp|s3223_rp|s32p3_rp|s222_rp)/;
 
         #   Cisco 2970
         $objtype = 'SNMP::Info::Layer3::C6500'
@@ -1337,7 +1382,10 @@ sub device_type {
         # Nortel Contivity
         $objtype = 'SNMP::Info::Layer3::Contivity' if $desc =~ /(\bCES\b|\bNVR\sV\d)/;
 
-        # Allied Telesyn Layer2 managed switches. They report they have L3 support
+        # SonicWALL
+        $objtype = 'SNMP::Info::Layer3::SonicWALL' if $desc =~ /SonicWALL/i;
+
+        # Allied Telesis Layer2 managed switches. They report they have L3 support
         $objtype = 'SNMP::Info::Layer2::Allied'
             if ( $desc =~ /Allied.*AT-80\d{2}\S*/i );
 
@@ -1420,6 +1468,10 @@ sub device_type {
             =~ /^(BayStack|Ethernet\s+(Routing\s+)??Switch)\s[2345](\d){2,3}/i
             );
 
+        # Kentrox DataSMART DSU/CSU
+        $objtype = 'SNMP::Info::Layer2::Kentrox'
+            if ( $desc =~ /^DataSMART/i );
+
         #  Nortel Business Ethernet Switch
         $objtype = 'SNMP::Info::Layer2::Baystack'
             if ( $desc =~ /^Business Ethernet Switch\s[12]\d\d/i );
@@ -1497,7 +1549,7 @@ sub device_type {
 
         #Juniper NetScreen
         $objtype = 'SNMP::Info::Layer3::Netscreen'
-            if ( $desc =~ /NetScreen/i );
+            if ( $desc =~ /NetScreen|SSG/i );
 
         # Cisco PIX
         $objtype = 'SNMP::Info::Layer3::Cisco'
@@ -1517,6 +1569,10 @@ sub device_type {
                 $objtype = $l3sysoidmap{$id};
             } elsif ( defined $l2sysoidmap{$id}) {
                 $objtype = $l2sysoidmap{$id};
+            } elsif ( defined $l7sysoidmap{$id}) {
+                $objtype = $l7sysoidmap{$id};
+            } elsif ($info->has_layer(7)) {
+                $objtype = 'SNMP::Info::Layer7'
             }
         }
     }

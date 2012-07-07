@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 %MIBS = (
     'LLDP-MIB'          => 'lldpLocSysCapEnabled',
@@ -95,14 +95,25 @@ sub hasLLDP {
 
 sub lldp_if {
     my $lldp    = shift;
-    my $partial = shift;
+    my $partial = shift || 0;
 
-    my $addr = $lldp->lldp_rem_pid($partial) || {};
-
+    my $addr    = $lldp->lldp_rem_pid($partial) || {};
+    my $i_descr = $lldp->i_description() || {};
+    my %r_i_descr = reverse %$i_descr;
+    
     my %lldp_if;
     foreach my $key ( keys %$addr ) {
         my @aOID = split( '\.', $key );
         my $port = $aOID[1];
+        # Local LLDP port may not equate to ifIndex
+        # Cross reference lldpLocPortDesc with ifDescr to get ifIndex
+        my $lldp_desc = $lldp->lldpLocPortDesc($port);
+        my $desc = $lldp_desc->{$port};
+        # If cross reference is successful use it, otherwise stick with lldpRemLocalPortNum
+        if ( exists $r_i_descr{$desc} ) {
+            $port = $r_i_descr{$desc};
+        }
+        
         $lldp_if{$key} = $port;
     }
     return \%lldp_if;
@@ -110,7 +121,7 @@ sub lldp_if {
 
 sub lldp_ip {
     my $lldp    = shift;
-    my $partial = shift;
+    my $partial = shift || 0;
 
     my $rman_addr = $lldp->lldp_rman_addr($partial) || {};
 
@@ -126,7 +137,7 @@ sub lldp_ip {
 
 sub lldp_addr {
     my $lldp    = shift;
-    my $partial = shift;
+    my $partial = shift || 0;
 
     my $rman_addr = $lldp->lldp_rman_addr($partial) || {};
 
@@ -141,7 +152,7 @@ sub lldp_addr {
 
 sub lldp_port {
     my $lldp    = shift;
-    my $partial = shift;
+    my $partial = shift || 0;
 
     my $pdesc = $lldp->lldp_rem_desc($partial)     || {};
     my $pid   = $lldp->lldp_rem_pid($partial)      || {};
@@ -176,7 +187,7 @@ sub lldp_port {
 
 sub lldp_id {
     my $lldp    = shift;
-    my $partial = shift;
+    my $partial = shift || 0;
 
     my $ch_type = $lldp->lldp_rem_id_type($partial) || {};
     my $ch      = $lldp->lldp_rem_id($partial)      || {};
@@ -191,13 +202,14 @@ sub lldp_id {
         # May need to format other types in the future
         if ( $type =~ /mac/ ) {
             $id = join( ':', map { sprintf "%02x", $_ } unpack( 'C*', $id ) );
-        }elsif ($type eq 'networkAddress'){
- 	    if ( length(unpack('H*', $id)) == 10 ){
- 		# IP address (first octet is sign, I guess)
- 		my @octets = (map { sprintf "%02x",$_ } unpack('C*', $id))[1..4];
- 		$id = join '.', map { hex($_) } @octets;
- 	    }
-	}
+        }
+        elsif ($type eq 'networkAddress') {
+            if ( length(unpack('H*', $id)) == 10 ) {
+                # IP address (first octet is sign, I guess)
+                my @octets = (map { sprintf "%02x",$_ } unpack('C*', $id))[1..4];
+                $id = join '.', map { hex($_) } @octets;
+            }
+        }
         $lldp_id{$key} = $id;
     }
     return \%lldp_id;
@@ -343,7 +355,7 @@ Nulls are removed before the value is returned.
 The string value used to identify the system description of the local system.
 If the local agent supports IETF RFC 3418, C<lldpLocSysDesc> object should
 have the same value of C<sysDesc> object.
- 
+
 Nulls are removed before the value is returned.
 
 (C<lldpLocSysDesc>)
@@ -387,18 +399,24 @@ capability and nothing else."
 These are methods that return tables of information in the form of a reference
 to a hash.
 
+Methods accessing the (C<lldpRemTable>) table use a partial value of zero if 
+not provided to set the (C<lldpRemTimeMark>) TimeMark instance to a known value
+as per RFC 2021.
+
 =over
 
 =item $lldp->lldp_id()
 
-Returns the string value used to identify the chassis component	associated
+Returns the string value used to identify the chassis component associated
 with the remote system.
 
 (C<lldpRemChassisId>)
 
 =item $lldp->lldp_if()
 
-Returns the mapping to the SNMP Interface Table.
+Returns the mapping to the SNMP Interface Table.  Trys to cross reference 
+(C<lldpLocPortDesc>) with (C<ifDescr>) to get (C<ifIndex>), if unable 
+defaults to (C<lldpRemLocalPortNum>).
 
 =item  $lldp->lldp_ip()
 
@@ -429,7 +447,7 @@ the remote system.
 
 =item $lldp->lldp_rem_id()
 
-Returns the string value used to identify the chassis component	associated
+Returns the string value used to identify the chassis component    associated
 with the remote system.
 
 (C<lldpRemChassisId>)

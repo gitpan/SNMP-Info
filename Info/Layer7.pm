@@ -1,4 +1,4 @@
-# SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
+# SNMP::Info::Layer7 - SNMP Interface to Layer7 Devices
 #
 # Copyright (c) 2011 Jeroen van Ingen
 #
@@ -28,68 +28,77 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer2::HPVC;
+package SNMP::Info::Layer7;
 
 use strict;
 use Exporter;
-use SNMP::Info::Layer2;
+use SNMP::Info;
 
-@SNMP::Info::Layer2::HPVC::ISA
-    = qw/SNMP::Info::Layer2 Exporter/;
-@SNMP::Info::Layer2::HPVC::EXPORT_OK = qw//;
+@SNMP::Info::Layer7::ISA       = qw/SNMP::Info Exporter/;
+@SNMP::Info::Layer7::EXPORT_OK = qw//;
 
-use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
+use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %PORTSTAT %MUNGE/;
 
 $VERSION = '2.07_001';
 
 %MIBS = (
-    %SNMP::Info::Layer2::MIBS,
-    'HPVC-MIB'       => 'vcDomainName',
-    'CPQSINFO-MIB'   => 'cpqSiSysSerialNum',
-    'HPVCMODULE-MIB' => 'vcModuleDomainName',
+    %SNMP::Info::MIBS,
 );
 
 %GLOBALS = (
-    %SNMP::Info::Layer2::GLOBALS,
-    'serial1'      => 'cpqSiSysSerialNum.0',
-    'os_ver'       => 'cpqHoSWRunningVersion.1',
-    'os_bin'       => 'cpqHoFwVerVersion.1',
-    'productname'  => 'cpqSiProductName.0',
+    %SNMP::Info::GLOBALS,
 );
 
 %FUNCS = (
-    %SNMP::Info::Layer2::FUNCS,
-    
+    %SNMP::Info::FUNCS,
 );
 
 %MUNGE = (
     # Inherit all the built in munging
-    %SNMP::Info::Layer2::MUNGE,
+    %SNMP::Info::MUNGE,
 );
 
 
-# Method Overrides
-
-sub os {
-    return 'hpvc';
+# $l7->model() - Looks at sysObjectID which gives the oid of the system
+#       name, contained in a propriatry MIB.
+sub model {
+    my $l7    = shift;
+    my $id    = $l7->id();
+    my $model = &SNMP::translateObj($id);
+    return $model;
 }
 
 sub vendor {
-    return 'hp';
+    my $l7    = shift;
+    my $id    = $l7->id();
+    my $vendor = 'unknown';
+    if ( defined($id) && $id =~ /^(\.1\.3\.6\.1\.4\.1\.\d+)/ ) {
+        my $enterprise = &SNMP::translateObj($1);
+        $vendor = $enterprise if defined $enterprise;
+    }
+    return $vendor;
 }
 
-sub model {
-    my $hp = shift;
-    return $hp->productname();
-}
+# By Default we'll use the description field
+sub interfaces {
+    my $l7      = shift;
+    my $partial = shift;
 
+    my $interfaces = $l7->i_index($partial)   || {};
+    my $rptr_port  = $l7->rptr_port($partial) || {};
+
+    foreach my $port ( keys %$rptr_port ) {
+        $interfaces->{$port} = $port;
+    }
+    return $interfaces;
+}
 
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
+SNMP::Info::Layer7 - SNMP Interface to network devices serving Layer7 only.
 
 =head1 AUTHOR
 
@@ -98,49 +107,63 @@ Jeroen van Ingen
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $hp = new SNMP::Info(
+ my $l7 = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           DestHost    => 'myswitch',
                           Community   => 'public',
-                          Version     => 2
+                          Version     => 1
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $hp->class();
+ my $class = $l7->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
+
+ # Let's get some basic Port information
+ my $interfaces = $l7->interfaces();
+ my $i_up       = $l7->i_up();
+ my $i_speed    = $l7->i_speed();
+
+ foreach my $iid (keys %$interfaces) {
+    my $port  = $interfaces->{$iid};
+    my $up    = $i_up->{$iid};
+    my $speed = $i_speed->{$iid}
+    print "Port $port is $up. Port runs at $speed.\n";
+ }
 
 =head1 DESCRIPTION
 
+This class is usually used as a superclass for more specific device classes
+listed under SNMP::Info::Layer7::*   Please read all docs under SNMP::Info
+first.
+
 Provides abstraction to the configuration information obtainable from a 
-HP VirtualConnect Switch via SNMP. 
+Layer7 device through SNMP.  Information is stored in a number of MIBs.
 
 For speed or debugging purposes you can call the subclass directly, but not
 after determining a more specific class using the method above. 
 
- my $hp = new SNMP::Info::Layer2::HPVC(...);
+ my $l7 = new SNMP::Info::Layer7(...);
 
-=head2 Inherited Classes
-
-=over
-
-=item SNMP::Info::Layer2
-
-=back
-
-=head2 Required MIBs
+=head2 Inherited Classes 
 
 =over
 
-=item F<HPVC-MIB>
-
-=item F<CPQSINFO-MIB>
-
-=item F<HPVCMODULE-MIB>
+=item SNMP::Info
 
 =back
 
-All required MIBs can be found in the netdisco-mibs package.
+=head2 Required MIBs 
+
+=over
+
+=item None
+
+=back
+
+MIBs required for L<SNMP::Info/"Required MIBs">
+
+See L<SNMP::Info/"Required MIBs"> for its MIB requirements.
 
 =head1 GLOBALS
 
@@ -148,35 +171,27 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $hp->os()
+=back
 
-Returns hpvc
+=head2 Overrides
 
-=item $hp->os_bin()
+=over
 
-C<cpqHoFwVerVersion.1>
+=item $l7->model()
 
-=item $hp->os_ver()
+Cross references $l7->id() with product IDs.
 
-C<cpqHoSWRunningVersion.1>
+=item $l7->vendor()
 
-=item $hp->serial()
+Tries to discover the vendor by looking up the enterprise number in
+C<sysObjectID>.
 
-C<cpqSiSysSerialNum.0>
-
-=item $hp->vendor()
-
-hp
-
-=item $hp->model()
-
-C<cpqSiProductName.0>
 
 =back
 
-=head2 Globals imported from SNMP::Info::Layer2
+=head2 Global Methods imported from SNMP::Info
 
-See documentation in L<SNMP::Info::Layer2/"GLOBALS"> for details.
+See documentation in L<SNMP::Info/"GLOBALS"> for details.
 
 =head1 TABLE METHODS
 
@@ -187,23 +202,14 @@ to a hash.
 
 =over
 
-=back
+=item $l7->interfaces()
 
-=head2 Table Methods imported from SNMP::Info::Layer2
-
-See documentation in L<SNMP::Info::Layer2/"TABLE METHODS"> for details.
-
-=head1 MUNGES
-
-=over
+Returns reference to the map between IID and physical Port.
 
 =back
 
-=head1 SET METHODS
+=head2 Table Methods imported from SNMP::Info
 
-These are methods that provide SNMP set functionality for overridden methods
-or provide a simpler interface to complex set operations.  See
-L<SNMP::Info/"SETTING DATA VIA SNMP"> for general information on set
-operations. 
+See documentation in L<SNMP::Info/"TABLE METHODS"> for details.
 
 =cut

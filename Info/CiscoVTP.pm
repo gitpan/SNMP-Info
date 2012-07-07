@@ -41,7 +41,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 %MIBS = (
     'CISCO-VTP-MIB'                       => 'vtpVlanName',
@@ -244,6 +244,7 @@ sub i_vlan_membership {
                 next unless $list;
                 my $vlanlist = [ split( //, unpack( "B*", $list ) ) ];
                 foreach my $vlan ( keys %oper_vlans ) {
+                    next if (($vlan < $offset) or ($vlan - $offset > 1024));
                     push( @{ $i_vlan_membership->{$port} }, $vlan )
                         if ( @$vlanlist[ $vlan - $offset ] );
                 }

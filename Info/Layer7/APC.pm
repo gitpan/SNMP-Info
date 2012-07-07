@@ -1,4 +1,4 @@
-# SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
+# SNMP::Info::Layer7::APC - SNMP Interface to APC UPS devices
 #
 # Copyright (c) 2011 Jeroen van Ingen
 #
@@ -28,68 +28,83 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer2::HPVC;
+package SNMP::Info::Layer7::APC;
 
 use strict;
 use Exporter;
-use SNMP::Info::Layer2;
+use SNMP::Info::Layer7;
 
-@SNMP::Info::Layer2::HPVC::ISA
-    = qw/SNMP::Info::Layer2 Exporter/;
-@SNMP::Info::Layer2::HPVC::EXPORT_OK = qw//;
+@SNMP::Info::Layer7::APC::ISA
+    = qw/SNMP::Info::Layer7 Exporter/;
+@SNMP::Info::Layer7::APC::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '2.07_001';
 
 %MIBS = (
-    %SNMP::Info::Layer2::MIBS,
-    'HPVC-MIB'       => 'vcDomainName',
-    'CPQSINFO-MIB'   => 'cpqSiSysSerialNum',
-    'HPVCMODULE-MIB' => 'vcModuleDomainName',
+    %SNMP::Info::Layer7::MIBS,
+    'PowerNet-MIB' => 'upsBasicIdentModel',
 );
 
 %GLOBALS = (
-    %SNMP::Info::Layer2::GLOBALS,
-    'serial1'      => 'cpqSiSysSerialNum.0',
-    'os_ver'       => 'cpqHoSWRunningVersion.1',
-    'os_bin'       => 'cpqHoFwVerVersion.1',
-    'productname'  => 'cpqSiProductName.0',
+    %SNMP::Info::Layer7::GLOBALS,
+    'ups_serial'   => 'upsAdvIdentSerialNumber.0',
+    'mgmt_serial'  => 'experimental.2.4.1.2.1',
+    'os_ver'       => 'experimental.2.4.1.4.1',
+    'os_bin'       => 'experimental.2.4.1.4.2',
+    'ups_model'    => 'upsBasicIdentModel.0',
+    'ps1_status'   => 'upsBasicOutputStatus.0',
+    'ps2_status'   => 'upsBasicBatteryStatus.0',
 );
 
 %FUNCS = (
-    %SNMP::Info::Layer2::FUNCS,
+    %SNMP::Info::Layer7::FUNCS,
     
 );
 
 %MUNGE = (
     # Inherit all the built in munging
-    %SNMP::Info::Layer2::MUNGE,
+    %SNMP::Info::Layer7::MUNGE,
 );
 
 
 # Method Overrides
 
 sub os {
-    return 'hpvc';
+    return 'aos';
 }
 
 sub vendor {
-    return 'hp';
+    return 'apc';
 }
 
 sub model {
-    my $hp = shift;
-    return $hp->productname();
+    my $apc = shift;
+    return $apc->ups_model();
 }
 
+sub serial {
+    my $apc = shift;
+    my $ups = $apc->ups_serial() || 'unknown';
+    my $mgmt = $apc->mgmt_serial() || 'unknown';
+    return sprintf("UPS: %s, management card: %s", $ups, $mgmt);
+}
+
+sub ps1_type {
+    return 'UPS status';
+}
+
+sub ps2_type {
+    return 'Battery status';
+}
 
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
+SNMP::Info::Layer7::APC - SNMP Interface to APC UPS devices
 
 =head1 AUTHOR
 
@@ -98,7 +113,7 @@ Jeroen van Ingen
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $hp = new SNMP::Info(
+ my $apc = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           DestHost    => 'myswitch',
@@ -107,24 +122,24 @@ Jeroen van Ingen
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $hp->class();
+ my $class      = $apc->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
 Provides abstraction to the configuration information obtainable from a 
-HP VirtualConnect Switch via SNMP. 
+APC UPS via SNMP. 
 
 For speed or debugging purposes you can call the subclass directly, but not
 after determining a more specific class using the method above. 
 
- my $hp = new SNMP::Info::Layer2::HPVC(...);
+ my $apc = new SNMP::Info::Layer7::APC(...);
 
 =head2 Inherited Classes
 
 =over
 
-=item SNMP::Info::Layer2
+=item SNMP::Info::Layer7
 
 =back
 
@@ -132,11 +147,7 @@ after determining a more specific class using the method above.
 
 =over
 
-=item F<HPVC-MIB>
-
-=item F<CPQSINFO-MIB>
-
-=item F<HPVCMODULE-MIB>
+=item F<POWERNET-MIB>
 
 =back
 
@@ -148,35 +159,52 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $hp->os()
+=item $apc->os()
 
-Returns hpvc
+Returns 'aos'
 
-=item $hp->os_bin()
+=item $apc->os_bin()
 
-C<cpqHoFwVerVersion.1>
+C<POWERNET-MIB::experimental.2.4.1.4.2>
 
-=item $hp->os_ver()
+=item $apc->os_ver()
 
-C<cpqHoSWRunningVersion.1>
+C<POWERNET-MIB::experimental.2.4.1.4.1>
 
-=item $hp->serial()
+=item $apc->serial()
 
-C<cpqSiSysSerialNum.0>
+Combines the UPS serial C<upsAdvIdentSerialNumber.0> with the managment
+card serial C<POWERNET-MIB::experimental.2.4.1.2.1> into a pretty string.
 
-=item $hp->vendor()
+=item $apc->vendor()
 
-hp
+apc
 
-=item $hp->model()
+=item $apc->model()
 
-C<cpqSiProductName.0>
+C<upsBasicIdentModel.0>
+
+=item $apc->ps1_type()
+
+Returns 'UPS status'
+
+=item $apc->ps1_status()
+
+Returns the main UPS status from C<upsBasicOutputStatus.0>
+
+=item $apc->ps2_type()
+
+Returns 'Battery status'
+
+=item $apc->ps2_status()
+
+Returns the battery status from C<upsBasicBatteryStatus.0>
 
 =back
 
-=head2 Globals imported from SNMP::Info::Layer2
+=head2 Globals imported from SNMP::Info::Layer7
 
-See documentation in L<SNMP::Info::Layer2/"GLOBALS"> for details.
+See documentation in L<SNMP::Info::Layer7/"GLOBALS"> for details.
 
 =head1 TABLE METHODS
 
@@ -189,9 +217,9 @@ to a hash.
 
 =back
 
-=head2 Table Methods imported from SNMP::Info::Layer2
+=head2 Table Methods imported from SNMP::Info::Layer7
 
-See documentation in L<SNMP::Info::Layer2/"TABLE METHODS"> for details.
+See documentation in L<SNMP::Info::Layer7/"TABLE METHODS"> for details.
 
 =head1 MUNGES
 

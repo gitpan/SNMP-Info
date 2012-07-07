@@ -1,7 +1,6 @@
-# SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
-#
-# Copyright (c) 2011 Jeroen van Ingen
-#
+package SNMP::Info::Layer2::Kentrox;
+
+# Copyright (c) 2011 Netdisco Project
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,97 +27,97 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer2::HPVC;
-
 use strict;
 use Exporter;
 use SNMP::Info::Layer2;
 
-@SNMP::Info::Layer2::HPVC::ISA
-    = qw/SNMP::Info::Layer2 Exporter/;
-@SNMP::Info::Layer2::HPVC::EXPORT_OK = qw//;
+@SNMP::Info::Layer2::Kentrox::ISA       = qw/SNMP::Info::Layer2 Exporter/;
+@SNMP::Info::Layer2::Kentrox::EXPORT_OK = qw//;
 
-use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
+use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD/;
 
 $VERSION = '2.07_001';
 
 %MIBS = (
     %SNMP::Info::Layer2::MIBS,
-    'HPVC-MIB'       => 'vcDomainName',
-    'CPQSINFO-MIB'   => 'cpqSiSysSerialNum',
-    'HPVCMODULE-MIB' => 'vcModuleDomainName',
 );
 
 %GLOBALS = (
     %SNMP::Info::Layer2::GLOBALS,
-    'serial1'      => 'cpqSiSysSerialNum.0',
-    'os_ver'       => 'cpqHoSWRunningVersion.1',
-    'os_bin'       => 'cpqHoFwVerVersion.1',
-    'productname'  => 'cpqSiProductName.0',
+        #from DATASMART-MIB
+        # MIB isn't yet in netdisco-mibs (not clear permission)
+        # ... when it is, this can change to dsScWyv
+        'ds_sysinfo' => '.1.3.6.1.4.1.181.2.2.12.15.0',
 );
 
 %FUNCS = (
     %SNMP::Info::Layer2::FUNCS,
-    
 );
 
-%MUNGE = (
-    # Inherit all the built in munging
-    %SNMP::Info::Layer2::MUNGE,
-);
-
-
-# Method Overrides
+%MUNGE = ( %SNMP::Info::Layer2::MUNGE, );
 
 sub os {
-    return 'hpvc';
+    return 'Kentrox';
 }
 
+sub os_ver {
+    my $dsver = shift;
+    my $descr = $dsver->description();
+    if ( $descr =~ /^\S+\s\S+\s\S+\s(\S+)/){
+        return $1;
+    }
+}
+
+sub serial {
+    my $dsserial = shift;
+    my $serial = $dsserial->ds_sysinfo();
+    if ( $serial =~ /SERIAL\s(\S+)/){
+        my $str = substr($1,8,10);
+        return $str;
+    }
+
+}
 sub vendor {
-    return 'hp';
+    return 'Kentrox';
 }
 
 sub model {
-    my $hp = shift;
-    return $hp->productname();
+    my $dsmodel = shift;
+    my $descr = $dsmodel->description();
+    if ( $descr =~ /^(\S+\s\S+)/){
+        return $1;
+    }
 }
-
 
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
+SNMP::Info::Layer2::Kentrox - SNMP Interface to L2 Kentrox DataSMART DSU/CSU
 
 =head1 AUTHOR
 
-Jeroen van Ingen
+phishphreek@gmail.com
 
 =head1 SYNOPSIS
 
- # Let SNMP::Info determine the correct subclass for you. 
- my $hp = new SNMP::Info(
+ # Let SNMP::Info determine the correct subclass for you.
+ my $router = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          DestHost    => 'myswitch',
+                          DestHost    => 'myrouter',
                           Community   => 'public',
-                          Version     => 2
-                        ) 
+                          Version     => 1
+                        )
     or die "Can't connect to DestHost.\n";
 
- my $class      = $hp->class();
+ my $class      = $router->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Provides abstraction to the configuration information obtainable from a 
-HP VirtualConnect Switch via SNMP. 
-
-For speed or debugging purposes you can call the subclass directly, but not
-after determining a more specific class using the method above. 
-
- my $hp = new SNMP::Info::Layer2::HPVC(...);
+Subclass for Kentrox DataSMART DSU/CSU
 
 =head2 Inherited Classes
 
@@ -132,45 +131,29 @@ after determining a more specific class using the method above.
 
 =over
 
-=item F<HPVC-MIB>
+=item Inherited Classes' MIBs
 
-=item F<CPQSINFO-MIB>
-
-=item F<HPVCMODULE-MIB>
+See L<SNMP::Info::Layer2/"Required MIBs"> for its own MIB requirements.
 
 =back
-
-All required MIBs can be found in the netdisco-mibs package.
 
 =head1 GLOBALS
 
 These are methods that return scalar value from SNMP
 
+=head2 Overrides
+
 =over
 
-=item $hp->os()
+=item $router->vendor()
 
-Returns hpvc
+=item $router->os()
 
-=item $hp->os_bin()
+=item $router->os_ver()
 
-C<cpqHoFwVerVersion.1>
+=item $router->model()
 
-=item $hp->os_ver()
-
-C<cpqHoSWRunningVersion.1>
-
-=item $hp->serial()
-
-C<cpqSiSysSerialNum.0>
-
-=item $hp->vendor()
-
-hp
-
-=item $hp->model()
-
-C<cpqSiProductName.0>
+=item $router->serial()
 
 =back
 
@@ -193,17 +176,5 @@ to a hash.
 
 See documentation in L<SNMP::Info::Layer2/"TABLE METHODS"> for details.
 
-=head1 MUNGES
-
-=over
-
-=back
-
-=head1 SET METHODS
-
-These are methods that provide SNMP set functionality for overridden methods
-or provide a simpler interface to complex set operations.  See
-L<SNMP::Info/"SETTING DATA VIA SNMP"> for general information on set
-operations. 
-
 =cut
+

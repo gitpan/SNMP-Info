@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE %PORTSTAT/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 %MIBS = ( 'CISCO-STACK-MIB' => 'ciscoStackMIB', );
 
@@ -65,6 +65,7 @@ $VERSION = '2.06';
     'm_type'         => 'moduleType',
     'm_model'        => 'moduleModel',
     'm_serial'       => 'moduleSerialNumber',
+    'm_serial_string' => 'moduleSerialNumberString',
     'm_status'       => 'moduleStatus',
     'm_name'         => 'moduleName',
     'm_ports'        => 'moduleNumPorts',
@@ -159,7 +160,7 @@ sub i_duplex {
         next if ( defined $partial and $iid !~ /^$partial$/ );
 
         # Test for gigabit
-        if ( $p_duplex_cap->{$port} && $p_duplex_cap->{$port} == 0 ) {
+        if ( defined $p_duplex_cap->{$port} and $p_duplex_cap->{$port} == 0 ) {
             $i_duplex->{$iid} = 'full';
         }
 
@@ -194,7 +195,7 @@ sub i_duplex_admin {
         next if ( defined $partial and $iid !~ /^$partial$/ );
 
         # Test for gigabit
-        if ( $p_duplex_cap->{$port} && $p_duplex_cap->{$port} == 1 ) {
+        if ( defined $p_duplex_cap->{$port} and $p_duplex_cap->{$port} == 1 ) {
             $i_duplex_admin->{$iid} = 'full';
         }
 

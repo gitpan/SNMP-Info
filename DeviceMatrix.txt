@@ -45,7 +45,7 @@ device: All
 #
 # Allied
 #
-device-vendor: Allied Telesyn
+device-vendor: Allied Telesis
 cdp:no
 class: Layer1::Allied
 ver: 1
@@ -638,6 +638,14 @@ device-family: BSD
 device:  BSD routers
 
 #
+# Kentrox
+#
+device-vendor: Kentrox
+note: MIB not yet shipped
+
+device: Kentrox DataSMART DSU/CSU
+
+#
 # NORTEL
 #
 device-vendor: Nortel
@@ -836,6 +844,12 @@ device-family: Orinoco
 device: AP-1000,AP-2000,AP-4000
 
 device: WavePOINT-II
+
+# 
+# SonicWALL
+# 
+device-vendor: SonicWALL
+class: Layer3::SonicWALL
 
 #
 # Sun

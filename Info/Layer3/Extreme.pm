@@ -43,7 +43,7 @@ use SNMP::Info::MAU;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -137,7 +137,7 @@ sub os_ver {
     my $descr   = $extreme->description();
     return unless defined $descr;
 
-    if ( $descr =~ m/Version ([\d.]*)/ ) {
+    if ( $descr =~ m/Version\s+([^ ]+)/ ) {
         return $1;
     }
 

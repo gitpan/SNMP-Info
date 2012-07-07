@@ -1,7 +1,6 @@
-# SNMP::Info::Layer3::Mikrotik
-# $Id$
-#
-# Copyright (c) 2011 Jeroen van Ingen
+package SNMP::Info::Layer3::BlueCoatSG;
+
+# Copyright (c) 2011 Netdisco Project
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,81 +27,81 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::Mikrotik;
-
 use strict;
 use Exporter;
 use SNMP::Info::Layer3;
 
-@SNMP::Info::Layer3::Mikrotik::ISA       = qw/SNMP::Info::Layer3 Exporter/;
-@SNMP::Info::Layer3::Mikrotik::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::BlueCoatSG::ISA       = qw/SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::BlueCoatSG::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '2.07_001';
 
 %MIBS = (
-    %SNMP::Info::Layer3::MIBS,
-    'HOST-RESOURCES-MIB'       => 'hrSystem',
-    'MIKROTIK-MIB'             => 'mtxrLicVersion',
+    %SNMP::Info::Layer2::MIBS, %SNMP::Info::Layer3::MIBS,
+    'BLUECOAT-SG-PROXY-MIB' => 'sgProxyAdmin',
 );
 
 %GLOBALS = (
-    %SNMP::Info::Layer3::GLOBALS,
-    'hrSystemUptime' => 'hrSystemUptime',
-    'os_ver'         => 'mtxrLicVersion',
+    %SNMP::Info::Layer2::GLOBALS, %SNMP::Info::Layer3::GLOBALS,
+    #From BLUECOAT-SG-PROXY-MIB
+    'serial' => 'sgProxySerialNumber',
+    'sw_ver' => 'sgProxyVersion',
 );
 
-%FUNCS = ( %SNMP::Info::Layer3::FUNCS, );
+%FUNCS = ( %SNMP::Info::Layer2::FUNCS, %SNMP::Info::Layer3::FUNCS, );
 
-%MUNGE = ( %SNMP::Info::Layer3::MUNGE, );
+%MUNGE = ( %SNMP::Info::Layer2::MUNGE, %SNMP::Info::Layer3::MUNGE, );
 
 sub vendor {
-    return 'mikrotik';
-}
-
-sub model {
-    my $mikrotik = shift;
-    my $descr = $mikrotik->description() || '';
-    my $model = undef;
-    $model = $1 if ( $descr =~ /^RouterOS\s+(\S+)$/i );
-    return $model;
+    return 'Blue Coat';
 }
 
 sub os {
-    return 'routeros';
+    return 'sgos';
+}
+
+sub os_ver {
+    my $sg = shift;
+    my $os_string = $sg->sw_ver();
+    if ($os_string =~ /^Version:\s(\w+)\s([\d\.]+)/) {
+        return $2;
+    } else {
+        return ''; # perhaps we can try sysDescr or some other object...
+    }
 }
 
 1;
+
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::Mikrotik - SNMP Interface to Mikrotik devices
+SNMP::Info::Layer3::BlueCoatSG - SNMP Interface to Blue Coat SG Series proxy devices
 
-=head1 AUTHORS
+=head1 AUTHOR
 
 Jeroen van Ingen
-initial version based on SNMP::Info::Layer3::NetSNMP by Bradley Baetz and Bill Fenner
 
 =head1 SYNOPSIS
 
- # Let SNMP::Info determine the correct subclass for you. 
- my $mikrotik = new SNMP::Info(
+ # Let SNMP::Info determine the correct subclass for you.
+ my $router = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           DestHost    => 'myrouter',
                           Community   => 'public',
-                          Version     => 2
-                        ) 
+                          Version     => 1
+                        )
     or die "Can't connect to DestHost.\n";
 
- my $class      = $mikrotik->class();
+ my $class      = $router->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Mikrotik devices
+Subclass for Blue Coat SG Series proxy devices
 
 =head2 Inherited Classes
 
@@ -114,15 +113,13 @@ Subclass for Mikrotik devices
 
 =head2 Required MIBs
 
+BLUECOAT-SG-PROXY-MIB
+
 =over
-
-=item F<HOST-RESOURCES-MIB>
-
-=item F<MIKROTIK-MIB>
 
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::Layer3> for its own MIB requirements.
+See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
 
 =back
 
@@ -130,38 +127,34 @@ See L<SNMP::Info::Layer3> for its own MIB requirements.
 
 These are methods that return scalar value from SNMP
 
+=head2 Overrides
+
 =over
 
-=item $mikrotik->vendor()
+=item $router->vendor()
 
-Returns 'mikrotik'.
+Returns C<'Blue Coat'>
 
-=item $mikrotik->os()
+=item $router->os()
 
-Returns 'routeros'.
+Returns C<'sgos'>
 
-=item $mikrotik->model()
+=item $router->os_ver()
 
-Tries to extract the device model from C<sysDescr>.
-
-=item $mikrotik->os_ver()
-
-Returns the value of C<mtxrLicVersion>.
+Tries to resolve version string from "sgProxyVersion"
 
 =back
 
 =head2 Globals imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3> for details.
+See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
 
-=head1 TABLE ENTRIES
+=head1 TABLE METHODS
 
 These are methods that return tables of information in the form of a reference
 to a hash.
 
 =head2 Overrides
-
-None.
 
 =over
 
@@ -169,7 +162,7 @@ None.
 
 =head2 Table Methods imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3> for details.
-
+See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
 
 =cut
+

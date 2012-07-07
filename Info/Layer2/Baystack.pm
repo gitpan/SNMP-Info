@@ -46,7 +46,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.06';
+$VERSION = '2.07_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,    %SNMP::Info::LLDP::MIBS,
@@ -162,7 +162,7 @@ sub interfaces {
         next unless defined $index;
 
         # Ignore cascade ports
-        next if $index > 513;
+        next if $index > $index_factor * 8;
 
         my $port = ( $index % $index_factor );
         my $slot = ( int( $index / $index_factor ) ) + $slot_offset;
@@ -452,6 +452,23 @@ sub e_vendor {
     return $stack->SUPER::e_vendor($partial) || $stack->ns_e_vendor($partial);
 }
 
+# fix for stack of switches without POE on module 1
+# https://sourceforge.net/tracker/?func=detail&aid=3317739&group_id=70362&atid=527529
+sub peth_port_ifindex {
+    my $stack = shift;
+    my $partial = shift;
+
+    my %peth_port_ifindex = ();
+    my $poe_port_st = $stack->peth_port_status($partial);
+    my $if_index = $stack->interfaces($partial);
+
+    foreach my $i (keys %$if_index) {
+        next unless defined $poe_port_st->{$if_index->{$i}};
+        $peth_port_ifindex{$if_index->{$i}} = $i;
+    }
+    return \%peth_port_ifindex;
+}
+
 1;
 
 __END__
@@ -627,6 +644,10 @@ revisions of Baystack firmware report all zeros for each port mac.
 
 Crosses C<ifName> with C<ifAlias> and returns the human set port name if
 exists.
+
+=item $poe->peth_port_ifindex()
+
+Maps the C<pethPsePortTable> to C<ifIndex> by way of the F<ENTITY-MIB>.
 
 =back
 

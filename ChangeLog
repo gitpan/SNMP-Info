@@ -1,6 +1,45 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
-version 2.07 ()
+version 2.08 ()
+
+    [NEW FEATURES]
+
+    * Basic support for APC UPS devices
+    * [2993691] Support for SonicWALL devices in new class L3::SonicWALL (phishphreek)
+    * [2996795] Support for Kentrox devices in new class L2::Kentrox (phishphreek)
+    * [] Basic support for Blue Coat proxy devices in new class L3::BlueCoatSG (jeroenvi)
+    * [] Support Cisco 6500 / Sup2T in L3::C6500 class (jeroenvi)
+
+    [ENHANCEMENTS]
+
+    * Pseudo ENTITY-MIB methods added to L3::Juniper for hardware information
+    * Add method to report current transmit power of the radio interface,
+      dot11_cur_tx_pwr_mw(), in Airespace class 
+    * [3085411] Activate L3 properties for Netgear GSM7224v2 (phishphreek)
+    * [3085413] SNMP OIDs for Netgear Serial and OS Ver (phishphreek)
+    * [3286549] Dell LLDP Support (Nico Giefing)
+    * [3469527] Netgear LLDP Support (Nic Bernstein)
+    * [3472052] moduleSerialNumber support for Cisco Stack (Slava)
+    * [3523320] Better VLAN support in Juniper class (Web Bulley)
+    * [3532261] LLDP support in C6500 and related (Carlos Vicente)
+    * [3538949] Updated switch models in L2::HP (jeroenvi)
+
+    [BUG FIXES]
+
+    * Get OS version for Juniper devices not reporting in sysDescr
+    * Correct base MAC reporting for Juniper devices
+    * Correct reporting of SSID broadcast status in Airespace class
+    * [2929883] [3413999] LLDP interface mapping issue
+    * [3297786] LLDP TimeMark component defaults to zero (David Baldwin)
+    * [2988163] Detect Juniper SSG firewalls as Layer3::Netscreen (R. Kerr)
+    * [3317739] Fix for Baystack without POE on stack member 1 (David Baldwin)
+    * [2037444] os_ver fails on some Extreme versions (Robert Kerr)
+    * [2980789] Fix root_ip to try OSPF RouterID first (Brian De Wolf)
+    * [2986858] Fix the patch from this ticket (Oliver Gorwits)
+    * [3136084] Rename Allied Telesyn to Allied Telesis (Oliver Gorwits)
+    * [3268104] CiscoVTP.pm i_vlan_membership() array bounds (Michael Sanderson)
+    * [3497004] Clarify POD description of default values (a2w)
+    * [3502533] Layer2/Baystack interface indexes > 513 (Robert Nyqvist)
 
 version 2.06 (2011-09-28)
 
