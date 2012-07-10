@@ -49,7 +49,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.07_001';
+$VERSION = '2.07_002';
 
 %MIBS = (
     %SNMP::Info::Layer2::MIBS,     %SNMP::Info::CiscoPortSecurity::MIBS,
@@ -148,7 +148,9 @@ sub interfaces {
     foreach my $iid ( keys %$i_index ) {
         next unless defined $iid;
         my $if   = $i_index->{$iid};
+        $if =~ s/\./\// if $if;
         my $port = $portmap{$iid};
+        $port =~ s/\./\// if $port;
         $interfaces{$iid} = $port || $if;
     }
     return \%interfaces;

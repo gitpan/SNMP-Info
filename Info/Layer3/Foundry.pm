@@ -44,7 +44,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.07_001';
+$VERSION = '2.07_002';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -192,6 +192,9 @@ sub os_ver {
         }
     }
 
+    # See if we report from Flash if wouldn't report from running above
+    return $foundry->snAgFlashImgVer() if ( defined $foundry->snAgFlashImgVer() );
+    
     # Last resort
     return $foundry->SUPER::os_ver();
 
