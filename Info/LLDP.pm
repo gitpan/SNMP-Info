@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.07_002';
+$VERSION = '2.08';
 
 %MIBS = (
     'LLDP-MIB'          => 'lldpLocSysCapEnabled',
@@ -105,6 +105,7 @@ sub lldp_if {
     foreach my $key ( keys %$addr ) {
         my @aOID = split( '\.', $key );
         my $port = $aOID[1];
+        next unless $port;
         # Local LLDP port may not equate to ifIndex
         # Cross reference lldpLocPortDesc with ifDescr to get ifIndex
         my $lldp_desc = $lldp->lldpLocPortDesc($port);
