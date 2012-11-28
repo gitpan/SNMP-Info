@@ -1,7 +1,6 @@
-# SNMP::Info::CiscoRTT
-# $Id$
+# SNMP::Info::Layer7::Neoteris
 #
-# Copyright (c) 2005 Alexander Hartmaier
+# Copyright (c) 2012 Eric Miller
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,111 +27,138 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::CiscoRTT;
+package SNMP::Info::Layer7::Neoteris;
 
 use strict;
 use Exporter;
-use SNMP::Info;
+use SNMP::Info::Layer7;
 
-@SNMP::Info::CiscoRTT::ISA       = qw/SNMP::Info Exporter/;
-@SNMP::Info::CiscoRTT::EXPORT_OK = qw//;
+@SNMP::Info::Layer7::Neoteris::ISA       = qw/SNMP::Info::Layer7 Exporter/;
+@SNMP::Info::Layer7::Neoteris::EXPORT_OK = qw//;
 
-use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
+use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '2.09';
 
-%MIBS = ( 'CISCO-RTTMON-MIB' => 'rttMonCtrlAdminOwner', );
-
-%GLOBALS = ();
-
-%FUNCS = (
-
-    # CISCO-RTTMON-MIB
-    'rtt_desc' => 'rttMonCtrlAdminOwner',
-    'rtt_last' => 'rttMonLatestRttOperCompletionTime',
+%MIBS = (
+    %SNMP::Info::Layer7::MIBS,
+    'UCD-SNMP-MIB'       => 'versionTag',
+    'JUNIPER-IVE-MIB'    => 'productVersion',
 );
 
-%MUNGE = ();
+%GLOBALS = (
+    %SNMP::Info::Layer7::GLOBALS,
+    'os_ver' => 'productVersion',
+    'cpu'    => 'iveCpuUtil',
+);
+
+%FUNCS = ( %SNMP::Info::Layer7::FUNCS, );
+
+%MUNGE = ( %SNMP::Info::Layer7::MUNGE, );
+
+sub vendor {
+    return 'juniper';
+}
+
+sub os {
+    return 'ive';
+}
+
+sub serial {
+    return '';
+}
 
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::CiscoRTT - SNMP Interface to Cisco's Round Trip Time MIBs
+SNMP::Info::Layer7::Neoteris - SNMP Interface to Juniper SSL VPN appliances
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Alexander Hartmaier
+Eric Miller
 
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $rtt = new SNMP::Info(
+ my $neoteris = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          DestHost    => 'myswitch',
+                          DestHost    => 'myrouter',
                           Community   => 'public',
                           Version     => 2
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class = $rtt->class();
+ my $class      = $neoteris->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-SNMP::Info::CiscoRTT is a subclass of SNMP::Info that provides 
-information about a cisco device's RTT values.
-
-Use or create in a subclass of SNMP::Info.  Do not use directly.
+Subclass for Juniper SSL VPN appliances
 
 =head2 Inherited Classes
 
-none.
+=over
+
+=item SNMP::Info::Layer7
+
+=back
 
 =head2 Required MIBs
 
 =over
 
-=item F<CISCO-RTTMON-MIB>
+=item F<UCD-SNMP-MIB>
+
+=item F<JUNIPER-IVE-MIB>
+
+=item Inherited Classes' MIBs
+
+See L<SNMP::Info::Layer7> for its own MIB requirements.
 
 =back
-
-MIBs can be found at ftp://ftp.cisco.com/pub/mibs/v2/v2.tar.gz
 
 =head1 GLOBALS
 
-=over
-
-None
-
-=back
-
-=head1 TABLE METHODS
-
-=head2 Overall Control Group Table
-
-This table is from C<CISCO-RTTMAN-MIB::rttMonCtrlAdminTable>
+These are methods that return scalar value from SNMP
 
 =over
 
-=item $rtt->rtt_desc()
+=item $neoteris->vendor()
 
-(C<rttMonCtrlAdminOwner>)
+Returns 'juniper'.
+
+=item $neoteris->os()
+
+Returns 'ive'.
+
+=item $neoteris->os_ver()
+
+C<productVersion>
+
+=item $neoteris->cpu()
+
+C<iveCpuUtil>
+
+=item $neoteris->serial()
+
+Returns ''.
 
 =back
 
-=head2 Overall Control Group Table
+=head2 Globals imported from SNMP::Info::Layer7
 
-This table is from C<CISCO-RTTMON-MIB::rttMonCtrl>
+See documentation in L<SNMP::Info::Layer7> for details.
 
-=over
+=head1 TABLE ENTRIES
 
-=item $rtt->rtt_last()
+These are methods that return tables of information in the form of a reference
+to a hash.
 
-(C<rttMonLatestRttOperCompletionTime>)
+=head2 Table Methods imported from SNMP::Info::Layer7
 
-=back
+See documentation in L<SNMP::Info::Layer7> for details.
 
 =cut

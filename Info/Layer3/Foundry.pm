@@ -44,7 +44,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.08';
+$VERSION = '2.09';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -273,7 +273,7 @@ sub stp_p_state {
 sub hasCDP {
     my $foundry = shift;
 
-    return $foundry->hasLLDP() || $foundry->SUPER::hasCDP();
+    return $foundry->hasLLDP() || $foundry->hasFDP();
 }
 
 sub c_ip {

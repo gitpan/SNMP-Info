@@ -23,7 +23,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '2.08';
+$VERSION = '2.09';
 
 =head1 NAME
 
@@ -31,7 +31,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 2.08
+SNMP::Info - Version 2.09
 
 =head1 AUTHOR
 
@@ -320,6 +320,12 @@ F<CISCO-VTP-MIB>, F<CISCO-VLAN-MEMBERSHIP-MIB>,
 F<CISCO-VLAN-IFTABLE-RELATIONSHIP-MIB>
 
 See documentation in L<SNMP::Info::CiscoVTP> for details.
+
+=item SNMP::Info::EDP
+
+Extreme Discovery Protocol.  F<EXTREME-EDP-MIB>
+
+See documentation in L<SNMP::Info::EDP> for details.
 
 =item SNMP::Info::Entity
 
@@ -753,6 +759,12 @@ Subclass for Juniper NetScreen.
 
 See documentation in L<SNMP::Info::Layer3::Netscreen> for details.
 
+=item SNMP::Info::Layer3::Nexus
+
+Subclass for Cisco Nexus devices running NX-OS
+
+See documentation in L<SNMP::Info::Layer3::Nexus> for details.
+
 =item SNMP::Info::Layer3::PacketFront
 
 Subclass for PacketFront DRG series CPE.
@@ -783,6 +795,12 @@ Subclass for Generic Sun Routers running SunOS.
 
 See documentation in L<SNMP::Info::Layer3::Sun> for details.
 
+=item SNMP::Info::Layer3::Tasman
+
+Subclass for Avaya Secure Routers.
+
+See documentation in L<SNMP::Info::Layer3::Tasman> for details.
+
 =item SNMP::Info::Layer3::Timetra
 
 Alcatel-Lucent SR Class.
@@ -808,6 +826,12 @@ See documentation in L<SNMP::Info::Layer7> for details.
 SNMP Interface to APC UPS devices
 
 See documentation in L<SNMP::Info::Layer7::APC> for details.
+
+=item SNMP::Info::Layer7::Neoteris
+
+SNMP Interface to Juniper SSL VPN appliances
+
+See documentation in L<SNMP::Info::Layer7::Neoteris> for details.
 
 =back
 
@@ -1305,6 +1329,7 @@ sub device_type {
 
     my %l7sysoidmap = (
         318   => 'SNMP::Info::Layer7::APC',
+        12532 => 'SNMP::Info::Layer7::Neoteris',
     );
 
     # Get just the enterprise number for generic mapping
@@ -1358,6 +1383,10 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::C6500'
             if ( $desc =~ /cisco/i and $desc =~ /CBS3[0-9A-Za-z]{3}/ );
 
+        # Cisco Nexus running NX-OS
+        $objtype = 'SNMP::Info::Layer3::Nexus'
+            if ( $desc =~ /^Cisco\s+NX-OS/ );
+
         # HP, older ProCurve models (1600, 2400, 2424m, 4000, 8000)
         $objtype = 'SNMP::Info::Layer2::HP4000'
             if $desc =~ /\b(J4093A|J4110A|J4120A|J4121A|J4122A|J4122B)\b/;
@@ -1392,6 +1421,10 @@ sub device_type {
         # Cisco FWSM
         $objtype = 'SNMP::Info::Layer3::CiscoFWSM'
             if ( $desc =~ /Cisco Firewall Services Module/i );
+        
+        # Avaya Secure Router
+        $objtype = 'SNMP::Info::Layer3::Tasman'
+            if ( $desc =~ /^(avaya|nortel)\s+(SR|secure\srouter)\s+\d{4}/i );
 
         # HP VirtualConnect blade switches
         $objtype = 'SNMP::Info::Layer2::HPVC'
@@ -1450,10 +1483,10 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Dell'
             if ( $desc =~ /^IBM Gigabit Ethernet Switch Module$/ );
 
-        # Linksys 2048
+        # Linksys 2024/2048
         $objtype = 'SNMP::Info::Layer3::Dell'
             if (
-            $desc =~ /^48-Port 10\/100\/1000 Gigabit Switch with WebView$/ );
+            $desc =~ /^(24|48)-Port 10\/100\/1000 Gigabit Switch (with |w\/)WebView$/ );
 
         #  Centillion ATM
         $objtype = 'SNMP::Info::Layer2::Centillion' if ( $desc =~ /MCP/ );
@@ -3825,11 +3858,11 @@ sub AUTOLOAD {
     # Load data if it both not cached and we are not requesting partial info.
     if ( defined $funcs{$attr} ) {
         return $self->_load_attr( $attr, $funcs{$attr}, @_ )
-            unless ( defined $self->{"_${attr}"} and !scalar(@_) );
+            unless ( defined $self->{"_${attr}"} and !defined $_[0] );
     }
     if ($table_leaf) {
         return $self->_load_attr( $attr, $attr, @_ )
-            unless ( defined $self->{"_${attr}"} and !scalar(@_) );
+            unless ( defined $self->{"_${attr}"} and !defined $_[0] );
     }
 
     return $self->_show_attr($attr);

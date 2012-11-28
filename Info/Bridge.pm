@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 
-$VERSION = '2.08';
+$VERSION = '2.09';
 
 %MIBS = (
     'BRIDGE-MIB'   => 'dot1dBaseBridgeAddress',
@@ -631,7 +631,7 @@ identifier (iid)
 
 Returns reference to hash of forwarding table entries status
 
-(C<dot2dTpFdbStatus>)
+(C<dot1dTpFdbStatus>)
 
 =back
 

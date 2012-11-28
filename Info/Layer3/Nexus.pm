@@ -1,7 +1,6 @@
-# SNMP::Info::Layer3::C6500
-# $Id$
+# SNMP::Info::Layer3::Nexus
 #
-# Copyright (c) 2008-2009 Max Baker
+# Copyright (c) 2012 Eric Miller
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,14 +27,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::C6500;
+package SNMP::Info::Layer3::Nexus;
 
 use strict;
 use Exporter;
-use SNMP::Info::CiscoStack;
 use SNMP::Info::LLDP;
 use SNMP::Info::CDP;
-use SNMP::Info::CiscoStats;
 use SNMP::Info::CiscoImage;
 use SNMP::Info::CiscoPortSecurity;
 use SNMP::Info::CiscoConfig;
@@ -47,14 +44,12 @@ use SNMP::Info::CiscoVTP;
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 # NOTE : Top-most items gets precedence for @ISA
-@SNMP::Info::Layer3::C6500::ISA = qw/
+@SNMP::Info::Layer3::Nexus::ISA = qw/
     SNMP::Info::CiscoVTP 
     SNMP::Info::CiscoStpExtensions
-    SNMP::Info::CiscoStack
     SNMP::Info::LLDP
     SNMP::Info::CDP 
     SNMP::Info::CiscoImage
-    SNMP::Info::CiscoStats
     SNMP::Info::CiscoPortSecurity
     SNMP::Info::CiscoConfig
     SNMP::Info::CiscoPower
@@ -62,7 +57,7 @@ use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
     Exporter
 /;
 
-@SNMP::Info::Layer3::C6500::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::Nexus::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
@@ -72,15 +67,19 @@ $VERSION = '2.09';
 #       Example: v_name exists in Bridge.pm and CiscoVTP.pm
 #       Bridge is called from Layer3 and CiscoStpExtensions
 #       So we want CiscoVTP to come last to get the right one.
-# The @ISA order should match these orders.
+# The @ISA order should be reverse of these orders.
 
 %MIBS = (
-    %SNMP::Info::Layer3::MIBS,             %SNMP::Info::CiscoPower::MIBS,
-    %SNMP::Info::CiscoConfig::MIBS,        %SNMP::Info::CiscoPortSecurity::MIBS,
-    %SNMP::Info::CiscoImage::MIBS,         %SNMP::Info::CiscoStats::MIBS,
-    %SNMP::Info::CDP::MIBS,                %SNMP::Info::LLDP::MIBS,
-    %SNMP::Info::CiscoStack::MIBS,         %SNMP::Info::CiscoStpExtensions::MIBS, 
-    %SNMP::Info::CiscoVTP::MIBS,    
+    %SNMP::Info::Layer3::MIBS,
+    %SNMP::Info::CiscoPower::MIBS,
+    %SNMP::Info::CiscoConfig::MIBS,
+    %SNMP::Info::CiscoPortSecurity::MIBS,
+    %SNMP::Info::CiscoImage::MIBS,
+    %SNMP::Info::CDP::MIBS,
+    %SNMP::Info::LLDP::MIBS,
+    %SNMP::Info::CiscoStpExtensions::MIBS, 
+    %SNMP::Info::CiscoVTP::MIBS,
+    'CISCO-ENTITY-VENDORTYPE-OID-MIB' => 'cevMIBObjects',
 );
 
 %GLOBALS = (
@@ -89,137 +88,105 @@ $VERSION = '2.09';
     %SNMP::Info::CiscoConfig::GLOBALS,
     %SNMP::Info::CiscoPortSecurity::GLOBALS,
     %SNMP::Info::CiscoImage::GLOBALS,
-    %SNMP::Info::CiscoStats::GLOBALS,
     %SNMP::Info::CDP::GLOBALS,
     %SNMP::Info::LLDP::GLOBALS,
-    %SNMP::Info::CiscoStack::GLOBALS,
     %SNMP::Info::CiscoStpExtensions::GLOBALS,
     %SNMP::Info::CiscoVTP::GLOBALS,
+    'mac' => 'dot1dBaseBridgeAddress',
 );
 
 %FUNCS = (
-    %SNMP::Info::Layer3::FUNCS,             %SNMP::Info::CiscoPower::FUNCS,
-    %SNMP::Info::CiscoConfig::FUNCS,        %SNMP::Info::CiscoPortSecurity::FUNCS,
-    %SNMP::Info::CiscoImage::FUNCS,         %SNMP::Info::CiscoStats::FUNCS,
-    %SNMP::Info::CDP::FUNCS,                %SNMP::Info::LLDP::FUNCS,
-    %SNMP::Info::CiscoStack::FUNCS,         %SNMP::Info::CiscoStpExtensions::FUNCS, 
+    %SNMP::Info::Layer3::FUNCS,
+    %SNMP::Info::CiscoPower::FUNCS,
+    %SNMP::Info::CiscoConfig::FUNCS,
+    %SNMP::Info::CiscoPortSecurity::FUNCS,
+    %SNMP::Info::CiscoImage::FUNCS,
+    %SNMP::Info::CDP::FUNCS,
+    %SNMP::Info::LLDP::FUNCS,
+    %SNMP::Info::CiscoStpExtensions::FUNCS, 
     %SNMP::Info::CiscoVTP::FUNCS,    
 );
 
 
 %MUNGE = (
-    %SNMP::Info::Layer3::MUNGE,             %SNMP::Info::CiscoPower::MUNGE,
-    %SNMP::Info::CiscoConfig::MUNGE,        %SNMP::Info::CiscoPortSecurity::MUNGE,
-    %SNMP::Info::CiscoImage::MUNGE,         %SNMP::Info::CiscoStats::MUNGE,
-    %SNMP::Info::CDP::MUNGE,                %SNMP::Info::LLDP::MUNGE,
-    %SNMP::Info::CiscoStack::MUNGE,         %SNMP::Info::CiscoStpExtensions::MUNGE, 
+    %SNMP::Info::Layer3::MUNGE,
+    %SNMP::Info::CiscoPower::MUNGE,
+    %SNMP::Info::CiscoConfig::MUNGE,
+    %SNMP::Info::CiscoPortSecurity::MUNGE,
+    %SNMP::Info::CiscoImage::MUNGE,         
+    %SNMP::Info::CDP::MUNGE,
+    %SNMP::Info::LLDP::MUNGE,
+    %SNMP::Info::CiscoStpExtensions::MUNGE, 
     %SNMP::Info::CiscoVTP::MUNGE,    
 );
+
+sub cisco_comm_indexing { return 1; }
 
 sub vendor {
     return 'cisco';
 }
 
-sub cisco_comm_indexing { return 1; }
-
-#  Newer versions use the ETHERLIKE-MIB to report operational duplex.
-
-sub i_duplex {
-    my $c6500   = shift;
-    my $partial = shift;
-
-    my $el_duplex = $c6500->el_duplex($partial);
-
-    # Newer software
-    if ( defined $el_duplex and scalar( keys %$el_duplex ) ) {
-        my %i_duplex;
-        foreach my $el_port ( keys %$el_duplex ) {
-            my $duplex = $el_duplex->{$el_port};
-            next unless defined $duplex;
-
-            $i_duplex{$el_port} = 'half' if $duplex =~ /half/i;
-            $i_duplex{$el_port} = 'full' if $duplex =~ /full/i;
-        }
-        return \%i_duplex;
-    }
-
-    # Fall back to CiscoStack method
-    else {
-        return $c6500->SUPER::i_duplex($partial);
-    }
+sub os {
+    return 'nx-os';
 }
 
-# Newer software uses portDuplex as admin setting
-
-sub i_duplex_admin {
-    my $c6500   = shift;
-    my $partial = shift;
-
-    my $el_duplex = $c6500->el_duplex($partial);
-
-    # Newer software
-    if ( defined $el_duplex and scalar( keys %$el_duplex ) ) {
-        my $p_port   = $c6500->p_port()   || {};
-        my $p_duplex = $c6500->p_duplex() || {};
-
-        my $i_duplex_admin = {};
-        foreach my $port ( keys %$p_duplex ) {
-            my $iid = $p_port->{$port};
-            next unless defined $iid;
-            next if ( defined $partial and $iid !~ /^$partial$/ );
-
-            $i_duplex_admin->{$iid} = $p_duplex->{$port};
-        }
-        return $i_duplex_admin;
-    }
-
-    # Fall back to CiscoStack method
-    else {
-        return $c6500->SUPER::i_duplex_admin($partial);
-    }
+sub os_ver {
+    my $nexus = shift; 
+    my $descr = $nexus->description();
+    
+    return $1 if ( $descr =~ /\),\s+Version\s+(.+?),/ );
+    return $descr;
 }
 
-sub set_i_duplex_admin {
+sub serial {
+    my $nexus = shift;
 
-    # map a textual duplex to an integer one the switch understands
-    my %duplexes = qw/half 1 full 2 auto 4/;
+    my $e_class = $nexus->e_class();
 
-    my $c6500 = shift;
-    my ( $duplex, $iid ) = @_;
+    foreach my $iid ( keys %$e_class ) {
+        my $class = $e_class->{$iid} || '';
+        if ($class =~ /chassis/) {
+	    my $serial = $nexus->e_serial($iid);
+	    return $serial->{$iid};
+	}
+    }    
+    return;
+}
 
-    my $el_duplex = $c6500->el_duplex($iid);
+# sysObjectID returns an IID to an entry in the CISCO-ENTITY-VENDORTYPE-OID-MIB.
+# Look it up and return it.
+sub model {
+    my $nexus = shift;
+    my $id    = $nexus->id();
 
-    # Auto duplex only supported on newer software
-    if ( defined $el_duplex and scalar( keys %$el_duplex ) ) {
-        my $p_port = $c6500->p_port() || {};
-        my %reverse_p_port = reverse %$p_port;
-
-        $duplex = lc($duplex);
-
-        return 0 unless defined $duplexes{$duplex};
-
-        $iid = $reverse_p_port{$iid};
-
-        return $c6500->set_p_duplex( $duplexes{$duplex}, $iid );
+    unless ( defined $id ) {
+        print
+            " SNMP::Info::Layer3::Nexus::model() - Device does not support sysObjectID\n"
+            if $nexus->debug();
+        return;
     }
-    else {
-        return $c6500->SUPER::set_i_duplex_admin;
-    }
+
+    my $model = &SNMP::translateObj($id);
+
+    return $id unless defined $model;
+
+    $model =~ s/^cevChassis//i;
+    return $model;
 }
 
 #  Use CDP and/or LLDP
 sub hasCDP {
-    my $c6500 = shift;
+    my $nexus = shift;
 
-    return $c6500->hasLLDP() || $c6500->SUPER::hasCDP();
+    return $nexus->hasLLDP() || $nexus->SUPER::hasCDP();
 }
 
 sub c_ip {
-    my $c6500   = shift;
+    my $nexus   = shift;
     my $partial = shift;
 
-    my $cdp  = $c6500->SUPER::c_ip($partial) || {};
-    my $lldp = $c6500->lldp_ip($partial)     || {};
+    my $cdp  = $nexus->SUPER::c_ip($partial) || {};
+    my $lldp = $nexus->lldp_ip($partial)     || {};
 
     my %c_ip;
     foreach my $iid ( keys %$cdp ) {
@@ -239,11 +206,11 @@ sub c_ip {
 }
 
 sub c_if {
-    my $c6500   = shift;
+    my $nexus   = shift;
     my $partial = shift;
 
-    my $lldp = $c6500->lldp_if($partial)     || {};
-    my $cdp  = $c6500->SUPER::c_if($partial) || {};
+    my $lldp = $nexus->lldp_if($partial)     || {};
+    my $cdp  = $nexus->SUPER::c_if($partial) || {};
 
     my %c_if;
     foreach my $iid ( keys %$cdp ) {
@@ -263,11 +230,11 @@ sub c_if {
 }
 
 sub c_port {
-    my $c6500   = shift;
+    my $nexus   = shift;
     my $partial = shift;
 
-    my $lldp = $c6500->lldp_port($partial)     || {};
-    my $cdp  = $c6500->SUPER::c_port($partial) || {};
+    my $lldp = $nexus->lldp_port($partial)     || {};
+    my $cdp  = $nexus->SUPER::c_port($partial) || {};
 
     my %c_port;
     foreach my $iid ( keys %$cdp ) {
@@ -286,11 +253,11 @@ sub c_port {
 }
 
 sub c_id {
-    my $c6500   = shift;
+    my $nexus   = shift;
     my $partial = shift;
 
-    my $lldp = $c6500->lldp_id($partial)     || {};
-    my $cdp  = $c6500->SUPER::c_id($partial) || {};
+    my $lldp = $nexus->lldp_id($partial)     || {};
+    my $cdp  = $nexus->SUPER::c_id($partial) || {};
 
     my %c_id;
     foreach my $iid ( keys %$cdp ) {
@@ -310,11 +277,11 @@ sub c_id {
 }
 
 sub c_platform {
-    my $c6500   = shift;
+    my $nexus   = shift;
     my $partial = shift;
 
-    my $lldp = $c6500->lldp_rem_sysdesc($partial)  || {};
-    my $cdp  = $c6500->SUPER::c_platform($partial) || {};
+    my $lldp = $nexus->lldp_rem_sysdesc($partial)  || {};
+    my $cdp  = $nexus->SUPER::c_platform($partial) || {};
 
     my %c_platform;
     foreach my $iid ( keys %$cdp ) {
@@ -333,23 +300,22 @@ sub c_platform {
     return \%c_platform;
 }
 
-
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::C6500 - SNMP Interface to Cisco Catalyst 6500 Layer 2/3
-Switches running IOS and/or CatOS
+SNMP::Info::Layer3::Nexus - SNMP Interface to Cisco Nexus Switches running
+NX-OS
 
 =head1 AUTHOR
 
-Max Baker
+Eric Miller
 
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $c6500 = new SNMP::Info(
+ my $nexus = new SNMP::Info(
                         AutoSpecify => 1,
                         Debug       => 1,
                         # These arguments are passed directly to SNMP::Session
@@ -359,33 +325,27 @@ Max Baker
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $c6500->class();
+ my $class      = $nexus->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Abstraction subclass for Cisco Catalyst 6500 Layer 2/3 Switches.  
-
-These devices run IOS but have some of the same characteristics as the
-Catalyst WS-C family (5xxx). For example, forwarding tables are held in
-VLANs, and extended interface information is gleaned from F<CISCO-SWITCH-MIB>.
+Abstraction subclass for Cisco Nexus Switches running NX-OS.  
 
 For speed or debugging purposes you can call the subclass directly, but not
 after determining a more specific class using the method above. 
 
- my $c6500 = new SNMP::Info::Layer3::C6500(...);
+ my $nexus = new SNMP::Info::Layer3::Nexus(...);
 
 =head2 Inherited Classes
 
 =over
 
+=item SNMP::Info::Layer3
+
 =item SNMP::Info::CiscoVTP
 
-=item SNMP::Info::CiscoStack
-
 =item SNMP::Info::CDP
-
-=item SNMP::Info::CiscoStats
 
 =item SNMP::Info::CiscoImage
 
@@ -395,9 +355,9 @@ after determining a more specific class using the method above.
 
 =item SNMP::Info::CiscoPower
 
-=item SNMP::Info::Layer3
-
 =item SNMP::Info::CiscoStpExtensions
+
+=item SNMP::Info::LLDP
 
 =back
 
@@ -405,15 +365,19 @@ after determining a more specific class using the method above.
 
 =over
 
+=item F<CISCO-ENTITY-VENDORTYPE-OID-MIB>
+
+=back
+
+=over
+
 =item Inherited Classes' MIBs
+
+See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
 
 See L<SNMP::Info::CiscoVTP/"Required MIBs"> for its own MIB requirements.
 
-See L<SNMP::Info::CiscoStack/"Required MIBs"> for its own MIB requirements.
-
 See L<SNMP::Info::CDP/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::CiscoStats/"Required MIBs"> for its own MIB requirements.
 
 See L<SNMP::Info::CiscoImage/"Required MIBs"> for its own MIB requirements.
 
@@ -424,43 +388,61 @@ See L<SNMP::Info::CiscoConfig/"Required MIBs"> for its own MIB requirements.
 
 See L<SNMP::Info::CiscoPower/"Required MIBs"> for its own MIB requirements.
 
-See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
-
 See L<SNMP::Info::CiscoStpExtensions/"Required MIBs"> for its own MIB requirements.
+
+See L<SNMP::Info::LLDP/"Required MIBs"> for its own MIB requirements.
 
 =back
 
 =head1 GLOBALS
 
-These are methods that return scalar value from SNMP
+These are methods that return a scalar value from SNMP
 
 =over
 
-=item $c6500->vendor()
+=item $nexus->vendor()
 
-    Returns 'cisco'
+Returns 'cisco'
 
-=item $c6500->cisco_comm_indexing()
+=item $nexus->os()
+
+Returns 'nx-os'
+
+=item $nexus->os_ver()
+
+Returns operating system version extracted fron C<sysDescr>.
+
+=item $nexus->serial()
+
+Returns the serial number of the chassis from F<ENTITY-MIB>.
+
+=item $nexus->model()
+
+Tries to reference $nexus->id() to F<CISCO-ENTITY-VENDORTYPE-OID-MIB>
+
+Removes 'cevChassis' for readability.
+
+=item $nexus->mac()
+
+C<dot1dBaseBridgeAddress>
+
+=item $nexus->cisco_comm_indexing()
 
 Returns 1.  Use vlan indexing.
 
 =back
 
+=head2 Globals imported from SNMP::Info::Layer3
+
+See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+
 =head2 Global Methods imported from SNMP::Info::CiscoVTP
 
 See documentation in L<SNMP::Info::CiscoVTP/"GLOBALS"> for details.
 
-=head2 Global Methods imported from SNMP::Info::CiscoStack
-
-See documentation in L<SNMP::Info::CiscoStack/"GLOBALS"> for details.
-
 =head2 Globals imported from SNMP::Info::CDP
 
 See documentation in L<SNMP::Info::CDP/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::CiscoStats
-
-See documentation in L<SNMP::Info::CiscoStats/"GLOBALS"> for details.
 
 =head2 Globals imported from SNMP::Info::CiscoImage
 
@@ -478,58 +460,18 @@ See documentation in L<SNMP::Info::CiscoConfig/"GLOBALS"> for details.
 
 See documentation in L<SNMP::Info::CiscoPower/"GLOBALS"> for details.
 
-=head2 Globals imported from SNMP::Info::Layer3
-
-See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
-
 =head2 Globals imported from SNMP::Info::CiscoStpExtensions
 
 See documentation in L<SNMP::Info::CiscoStpExtensions/"GLOBALS"> for details.
+
+=head2 Globals imported from SNMP::Info::LLDP
+
+See documentation in L<SNMP::Info::LLDP/"GLOBALS"> for details.
 
 =head1 TABLE METHODS
 
 These are methods that return tables of information in the form of a reference
 to a hash.
-
-=head2 Overrides
-
-=over
-
-=item $c6500->i_duplex()
-
-Returns reference to hash of iid to current link duplex setting.
-
-Newer software versions return duplex based upon the result of
-$c6500->el_duplex().  Otherwise it uses the result of the call to
-CiscoStack::i_duplex().
-
-See L<SNMP::Info::Etherlike> for el_duplex() method and
-L<SNMP::Info::CiscoStack> for its i_duplex() method.
-
-=item $c6500->i_duplex_admin()
-
-Returns reference to hash of iid to administrative duplex setting.
-
-Newer software versions return duplex based upon the result of
-$c6500->p_duplex().  Otherwise it uses the result of the call to
-CiscoStack::i_duplex().
-
-See L<SNMP::Info::CiscoStack> for its i_duplex() and p_duplex() methods.
-
-=item $c6500->set_i_duplex_admin(duplex, ifIndex)
-
-Sets port duplex, must be supplied with duplex and port C<ifIndex>.
-
-Speed choices are 'auto', 'half', 'full'.
-
-Crosses $c6500->p_port() with $c6500->p_duplex() to utilize port C<ifIndex>.
-
-    Example:
-    my %if_map = reverse %{$c6500->interfaces()};
-    $c6500->set_i_duplex_admin('auto', $if_map{'FastEthernet0/1'}) 
-        or die "Couldn't change port duplex. ",$c6500->error(1);
-
-=back
 
 =head2 Topology information
 
@@ -542,15 +484,15 @@ identify any duplicate entries and remove duplicates if necessary.
 
 =over
 
-=item $c6500->hasCDP()
+=item $nexus->hasCDP()
 
 Returns true if the device is running either CDP or LLDP.
 
-=item $c6500->c_if()
+=item $nexus->c_if()
 
 Returns reference to hash.  Key: iid Value: local device port (interfaces)
 
-=item $c6500->c_ip()
+=item $nexus->c_ip()
 
 Returns reference to hash.  Key: iid Value: remote IPv4 address
 
@@ -563,28 +505,28 @@ or more devices or multiple devices which are not directly connected.
 
 Use the data from the Layer2 Topology Table below to dig deeper.
 
-=item $c6500->c_port()
+=item $nexus->c_port()
 
 Returns reference to hash. Key: iid Value: remote port (interfaces)
 
-=item $c6500->c_id()
+=item $nexus->c_id()
 
 Returns reference to hash. Key: iid Value: string value used to identify the
 chassis component associated with the remote system.
 
-=item $c6500->c_platform()
+=item $nexus->c_platform()
 
 Returns reference to hash.  Key: iid Value: Remote Device Type
 
 =back
 
+=head2 Table Methods imported from SNMP::Info::Layer3
+
+See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
+
 =head2 Table Methods imported from SNMP::Info::CiscoVTP
 
 See documentation in L<SNMP::Info::CiscoVTP/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::CiscoStack
-
-See documentation in L<SNMP::Info::CiscoStack/"TABLE METHODS"> for details.
 
 =head2 Table Methods imported from SNMP::Info::CDP
 
@@ -613,11 +555,10 @@ See documentation in L<SNMP::Info::CiscoPower/"TABLE METHODS"> for details.
 
 =head2 Table Methods imported from SNMP::Info::CiscoStpExtensions
 
-=head2 Table Methods imported from SNMP::Info::Layer3
-
-See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
-
 See documentation in L<SNMP::Info::CiscoStpExtensions/"TABLE METHODS"> for details.
 
-=cut
+=head2 Table Methods imported from SNMP::Info::LLDP
 
+See documentation in L<SNMP::Info::LLDP/"TABLE METHODS"> for details.
+
+=cut

@@ -39,7 +39,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.08';
+$VERSION = '2.09';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -90,6 +90,26 @@ sub serial {
         return $1;
     }
     return;
+}
+
+sub model {
+    my $netscreen = shift;
+
+    my $id = $netscreen->id();
+
+    unless ( defined $id ) {
+        print
+            " SNMP::Info::Layer3::model() - Device does not support sysObjectID\n"
+            if $netscreen->debug();
+        return;
+    }
+
+    my $model = &SNMP::translateObj($id);
+
+    return $id unless defined $model;
+
+    $model =~ s/^netscreen//i;
+    return $model;
 }
 
 1;
@@ -160,6 +180,10 @@ See L<SNMP::Info::Layer3/"Required MIBs"> and its inherited classes.
 These are methods that return scalar value from SNMP
 
 =over
+
+=item $netscreen->model()
+
+(C<chassisModel>)
 
 =item $netscreen->vendor()
 

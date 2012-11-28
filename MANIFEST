@@ -17,6 +17,7 @@ Info/CiscoStack.pm
 Info/CiscoStats.pm
 Info/CiscoStpExtensions.pm
 Info/CiscoVTP.pm
+Info/EDP.pm
 Info/Entity.pm
 Info/EtherLike.pm
 Info/FDP.pm
@@ -75,14 +76,17 @@ Info/Layer3/Mikrotik.pm
 Info/Layer3/N1600.pm
 Info/Layer3/Netscreen.pm
 Info/Layer3/NetSNMP.pm
+Info/Layer3/Nexus.pm
 Info/Layer3/PacketFront.pm
 Info/Layer3/Passport.pm
 Info/Layer3/Pf.pm
 Info/Layer3/SonicWALL.pm
 Info/Layer3/Sun.pm
+Info/Layer3/Tasman.pm
 Info/Layer3/Timetra.pm
 Info/Layer7.pm
 Info/Layer7/APC.pm
+Info/Layer7/Neoteris.pm
 Info/LLDP.pm
 Info/MAU.pm
 Info/NortelStack.pm
