@@ -23,7 +23,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '2.10';
+$VERSION = '2.11';
 
 =head1 NAME
 
@@ -31,7 +31,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 2.10
+SNMP::Info - Version 2.11
 
 =head1 AUTHOR
 
@@ -1307,6 +1307,7 @@ sub device_type {
         3417 => 'SNMP::Info::Layer3::BlueCoatSG',
         4526 => 'SNMP::Info::Layer2::Netgear',
         5624 => 'SNMP::Info::Layer3::Enterasys',
+        6027 => 'SNMP::Info::Layer3::Force10',
         6486 => 'SNMP::Info::Layer3::AlcatelLucent',
         6527 => 'SNMP::Info::Layer3::Timetra',
         8072 => 'SNMP::Info::Layer3::NetSNMP',

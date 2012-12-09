@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               SNMP-Info
-version:            2.10
+version:            2.11
 abstract:           Object Oriented Perl5 Interface to Network devices and MIBs through SNMP. 
 author:
     - Eric A. Miller <emiller@cpan.org>
