@@ -38,7 +38,7 @@ use SNMP::Info::Layer7;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer7::MIBS,
@@ -132,7 +132,7 @@ Returns 'juniper'.
 
 =item $neoteris->os()
 
-Returns 'ive'.
+Returns C<'ive'>.
 
 =item $neoteris->os_ver()
 

@@ -1,5 +1,59 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
+version 3.00
+
+    [API Changes]
+
+    * The methods c_ip(), c_if(), c_port(), c_id(), and c_platform() now
+      represent common topology methods and will try to return a combined
+      hash of data from all L2 topology protocols either running on the
+      device or specified in the method call.  The topology specific methods
+      have been been prefixed with the protocol name in lowercase so that
+      they can be called directly, sonmp_ip(), cdp_ip(), etc.
+    * L2::Bay and L2::Foundry have been removed from the distribution.  Both
+      classes were depreciated and all functionality is available through
+      L2::Baystack and L3::Foundry. 
+
+    [NEW FEATURES]
+
+    * [3160037] - Support _raw suffix on methods to skip munging
+    * [3185391] - Support for F5 devices in new class L3::F5
+    * [3323814] - Arp support for Netscreen (David Baldwin)
+    * [3323821] - Support for Netscreen w/ WLAN (eg SSG5) (David Baldwin)
+    * [3599277] - Q-BRIDGE Support to collect VLAN in macsuck
+    * [3033731] - Alcatel-Lucent OmniSwich AMAP Support in new AMAP class
+    * [3598896] - Lantronix device support (J R Binks)
+    * [3598337] - Lantronix SLC support
+    * Support for Avaya VSP 9000 series in L3::Passport
+    * Support for Avaya VSP 7000 series in L2::Baystack
+    * Support Avaya (Trapeze) Wireless Controllers in new class L2::NWSS2300
+    * Support Juniper (Trapeze) Wireless Controllers in new class L2::Trapeze
+    * Support for newer Radware Alteon ADC switches 4408/4416/5412/5224 and
+      older AWS 2000/3000 series in existing L3::AlteonAD
+    * Support for H3C & HP A-series in new class L3::H3C
+    * Support for Citrix Netscaler appliances in new class L7::Netscaler
+    * New configuration option IgnoreNetSNMPConf will ignore Net-SNMP
+      configuration files on object initialization
+    * Two new utilities added in t/util to assist in developing device
+      support; make_snmpdata.pl gathers SNMP data (snmpwalk) in a format that
+      can be used with test_class_mocked.pl which mocks an SNMP agent to
+      enable testing with no network access to a device.
+
+    [ENHANCEMENTS]
+
+    * UNIVERSAL::can() now works with dynamic methods 
+    * Dynamically generated methods are added to symbol table to avoid
+      AUTOLOAD on subsequent calls
+    * L2::Airespace now supports 802.11n client tx rates
+    * L2::Airespace now reports AP Ethernet MAC as port MAC for radio ports
+    * CiscoStats improvements to determine os versions, eg IOS XE ver on Sup7L-E
+    * CiscoStats now reports 'ios-xe' if the device runs IOS XE (used to be 'ios')
+    * Improved support of XOS based Extreme devices
+
+    [BUG FIXES]
+
+    * [3564920] - lldp_if gives wrong data for Enterasys
+
 version 2.11 (2012-12-09)
 
     [BUG FIXES]

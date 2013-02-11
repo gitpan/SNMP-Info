@@ -41,7 +41,7 @@ use SNMP::Info::MAU;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -55,10 +55,14 @@ $VERSION = '2.11';
 %GLOBALS = (
     %SNMP::Info::Layer3::GLOBALS,
     %SNMP::Info::MAU::GLOBALS,
-    'ps1_type'   => 'nnenvPwrsupType.1',
-    'ps1_status' => 'nnenvPwrsupStatus.1',
-    'ps2_type'   => 'nnenvPwrsupType.2',
-    'ps2_status' => 'nnenvPwrsupStatus.2',
+    'ps1_type'      => 'nnenvPwrsupType.1',
+    'ps1_status'    => 'nnenvPwrsupStatus.1',
+    'ps2_type'      => 'nnenvPwrsupType.2',
+    'ps2_status'    => 'nnenvPwrsupStatus.2',
+    'nn_sys_ver'    => 'nnsysVersion',
+    'nn_ch_model'   => 'nnchassisModel',
+    'nn_ch_op_stat' => 'nnchassisOperStatus',
+    'nn_ch_serial'  => 'nnchassisSerialNumber',
 );
 
 %FUNCS = (
@@ -87,7 +91,7 @@ sub os {
 
 sub os_ver {
     my $tasman  = shift;
-    my $version = $tasman->nnsysVersion() || "";
+    my $version = $tasman->nn_sys_ver() || "";
     my $descr   = $tasman->description()  || "";
 
     # Newer versions
@@ -102,7 +106,7 @@ sub model {
     my $tasman = shift;
 
     my $id        = $tasman->id();
-    my $ch_model = $tasman->nnchassisModel();
+    my $ch_model = $tasman->nn_ch_model();
     
     return $ch_model if $ch_model;
 
@@ -118,12 +122,12 @@ sub serial {
 
     # Newer versions of the software redefined the MIB in a non-backwards
     # compatible manner.  Try the old OID first.
-    my $serial = $tasman->nnchassisOperStatus();
+    my $serial = $tasman->nn_ch_op_stat();
     # Newer versions populate status, serial should contain some numbers
     return $serial if ($serial !~ /^\D+$/);
 
     # Unfortunately newer versions don't seem to populate the newer OID.
-    return $tasman->nnchassisSerialNumber();
+    return $tasman->nn_ch_serial();
 }
 
 1;
@@ -195,18 +199,18 @@ These are methods that return scalar values from SNMP
 
 =item $tasman->vendor()
 
-Returns 'avaya'
+Returns C<'avaya'>
 
 =item $tasman->model()
 
 Tries to get the model from C<nnchassisModel> and if not available 
 cross references $tasman->id() to F<NT-ENTERPRISE-DATA-MIB>.
 
-Substitutes 'SR' for 'ntSecureRouter' in the name for readability.
+Substitutes 'SR' for C<'ntSecureRouter'> in the name for readability.
 
 =item $tasman->os()
 
-Returns 'tasman'
+Returns C<'tasman'>
 
 =item $tasman->os_ver()
 
@@ -225,13 +229,29 @@ Grabs the os version from C<nnsysVersion>
 (C<nnenvPwrsupType.2>)
 
 =item $tasman->ps2_status()
-
+ 
 (C<nnenvPwrsupStatus.2>)
+
+=item $tasman->nn_sys_ver()
+
+(C<nnsysVersion.0>)
+
+=item $tasman->nn_ch_model()
+
+(C<nnchassisModel.0>)
+
+=item $tasman->nn_ch_op_stat()
+
+(C<nnchassisOperStatus.0>)
+
+=item $tasman->nn_ch_serial()
+
+(C<nnchassisSerialNumber.0>)
 
 =item $tasman->serial()
 
-Tries both (C<nnchassisOperStatus>) and (C<nnchassisSerialNumber>) as OID's
-were redefined between versions.
+Tries both (C<nnchassisOperStatus>) and (C<nnchassisSerialNumber>) as oid
+was redefined between versions.
 
 =back
 

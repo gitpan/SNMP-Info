@@ -5,6 +5,7 @@ DeviceMatrix.txt
 Info.pm
 Info/AdslLine.pm
 Info/Airespace.pm
+Info/AMAP.pm
 Info/Bridge.pm
 Info/CDP.pm
 Info/CiscoConfig.pm
@@ -33,14 +34,12 @@ Info/Layer2.pm
 Info/Layer2/Airespace.pm
 Info/Layer2/Aironet.pm
 Info/Layer2/Allied.pm
-Info/Layer2/Bay.pm
 Info/Layer2/Baystack.pm
 Info/Layer2/C1900.pm
 Info/Layer2/C2900.pm
 Info/Layer2/Catalyst.pm
 Info/Layer2/Centillion.pm
 Info/Layer2/Cisco.pm
-Info/Layer2/Foundry.pm
 Info/Layer2/HP.pm
 Info/Layer2/HP4000.pm
 Info/Layer2/HPVC.pm
@@ -48,7 +47,9 @@ Info/Layer2/Kentrox.pm
 Info/Layer2/N2270.pm
 Info/Layer2/NAP222x.pm
 Info/Layer2/Netgear.pm
+Info/Layer2/NWSS2300.pm
 Info/Layer2/Orinoco.pm
+Info/Layer2/Trapeze.pm
 Info/Layer2/ZyXEL_DSLAM.pm
 Info/Layer3.pm
 Info/Layer3/Aironet.pm
@@ -68,10 +69,13 @@ Info/Layer3/Contivity.pm
 Info/Layer3/Dell.pm
 Info/Layer3/Enterasys.pm
 Info/Layer3/Extreme.pm
+Info/Layer3/F5.pm
 Info/Layer3/Force10.pm
 Info/Layer3/Foundry.pm
+Info/Layer3/H3C.pm
 Info/Layer3/HP9300.pm
 Info/Layer3/Juniper.pm
+Info/Layer3/Lantronix.pm
 Info/Layer3/Microsoft.pm
 Info/Layer3/Mikrotik.pm
 Info/Layer3/N1600.pm
@@ -88,6 +92,7 @@ Info/Layer3/Timetra.pm
 Info/Layer7.pm
 Info/Layer7/APC.pm
 Info/Layer7/Neoteris.pm
+Info/Layer7/Netscaler.pm
 Info/LLDP.pm
 Info/MAU.pm
 Info/NortelStack.pm
@@ -106,4 +111,6 @@ t/prereq.t
 t/push_ver
 t/run_test
 t/test_class.pl
+t/util/make_snmpdata.pl
+t/util/test_class_mocked.pl
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -49,7 +49,7 @@ use SNMP::Info::IEEE802dot11;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %GLOBALS = (
     %SNMP::Info::IEEE802dot11::GLOBALS,
@@ -576,7 +576,7 @@ Returns radio interfaces.
 
 =item $aironet->cd11_mac()
 
-Returns radio interface MAC addresses.
+Returns client radio interface MAC addresses.
 
 =item $aironet->cd11_ssid()
 

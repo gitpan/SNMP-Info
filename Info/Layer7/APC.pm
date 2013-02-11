@@ -40,7 +40,7 @@ use SNMP::Info::Layer7;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer7::MIBS,
@@ -161,7 +161,7 @@ These are methods that return scalar value from SNMP
 
 =item $apc->os()
 
-Returns 'aos'
+Returns C<'aos'>
 
 =item $apc->os_bin()
 
@@ -173,12 +173,12 @@ C<POWERNET-MIB::experimental.2.4.1.4.1>
 
 =item $apc->serial()
 
-Combines the UPS serial C<upsAdvIdentSerialNumber.0> with the managment
+Combines the UPS serial C<upsAdvIdentSerialNumber.0> with the management
 card serial C<POWERNET-MIB::experimental.2.4.1.2.1> into a pretty string.
 
 =item $apc->vendor()
 
-apc
+Returns C<'apc'>
 
 =item $apc->model()
 

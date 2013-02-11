@@ -51,7 +51,7 @@ use SNMP::Info::AdslLine;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::MIBS,
@@ -318,7 +318,7 @@ sub vendor {
     return 'cisco'   if $id =~ /^\Q.1.3.6.1.4.1.9.1.\E\d+$/;
     return 'cisco'   if $id =~ /^\Q.1.3.6.1.4.1.9.9.368.4.\E\d+/;
     return 'cisco'   if ( $descr =~ /(cisco|\bios\b)/i );
-    return 'foundry' if ( $descr =~ /foundry/i );
+    return 'brocade' if ( $descr =~ /foundry/i );
 
     return 'unknown';
 

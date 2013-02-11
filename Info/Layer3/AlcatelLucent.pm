@@ -34,20 +34,28 @@ use strict;
 use Exporter;
 use SNMP::Info::Layer3;
 use SNMP::Info::MAU;
+use SNMP::Info::AMAP;
+# Use LLDP
+# (or at least try.  The versions I've seen have two problems:
+# 1. they report ifIndex values as 'local'; we don't support ifIndex
+#    but *could*
+# 2. They report 0.0.0.0 as the management address
+# )
 use SNMP::Info::LLDP;
 
-@SNMP::Info::Layer3::AlcatelLucent::ISA = qw/SNMP::Info::LLDP SNMP::Info::MAU
-    SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::AlcatelLucent::ISA = qw/SNMP::Info::AMAP SNMP::Info::LLDP
+    SNMP::Info::MAU SNMP::Info::Layer3 Exporter/;
 @SNMP::Info::Layer3::AlcatelLucent::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
     %SNMP::Info::MAU::MIBS,
     %SNMP::Info::LLDP::MIBS,
+    %SNMP::Info::AMAP::MIBS,
     'ALCATEL-IND1-DEVICES'     => 'familyOmniSwitch7000',
     'ALCATEL-IND1-CHASSIS-MIB' => 'chasEntPhysOperStatus',
     'ALU-POWER-ETHERNET-MIB'   => 'pethPsePortDetectionStatus',
@@ -64,17 +72,17 @@ delete $MIBS{'POWER-ETHERNET-MIB'};
 
 %GLOBALS = (
     %SNMP::Info::Layer3::GLOBALS, %SNMP::Info::MAU::GLOBALS,
-    %SNMP::Info::LLDP::GLOBALS,
+    %SNMP::Info::LLDP::GLOBALS, %SNMP::Info::AMAP::GLOBALS,
 );
 
 %FUNCS = (
     %SNMP::Info::Layer3::FUNCS, %SNMP::Info::MAU::FUNCS,
-    %SNMP::Info::LLDP::FUNCS,
+    %SNMP::Info::LLDP::FUNCS, %SNMP::Info::AMAP::FUNCS,
 );
 
 %MUNGE = (
     %SNMP::Info::Layer3::MUNGE, %SNMP::Info::MAU::MUNGE,
-    %SNMP::Info::LLDP::MUNGE,
+    %SNMP::Info::LLDP::MUNGE, %SNMP::Info::AMAP::MUNGE,
 );
 
 # use MAU-MIB for admin. duplex and admin. speed
@@ -285,53 +293,6 @@ sub bp_index {
 #    return $i_vlan;
 #}
 
-# Use LLDP
-# (or at least try.  The versions I've seen have two problems:
-# 1. they report ifIndex values as 'local'; we don't support ifIndex
-#    but *could*
-# 2. They report 0.0.0.0 as the management address
-# )
-sub hasCDP {
-    my $alu = shift;
-
-    return $alu->hasLLDP();
-}
-
-sub c_ip {
-    my $alu     = shift;
-    my $partial = shift;
-
-    return $alu->lldp_ip($partial);
-}
-
-sub c_if {
-    my $alu     = shift;
-    my $partial = shift;
-
-    return $alu->lldp_if($partial);
-}
-
-sub c_port {
-    my $alu     = shift;
-    my $partial = shift;
-
-    return $alu->lldp_port($partial);
-}
-
-sub c_id {
-    my $alu     = shift;
-    my $partial = shift;
-
-    return $alu->lldp_id($partial);
-}
-
-sub c_platform {
-    my $alu     = shift;
-    my $partial = shift;
-
-    return $alu->lldp_rem_sysdesc($partial);
-}
-
 # Power-Ethernet ifIndex mapping.  I've only seen this from a
 # fixed-config single-module system, so this is only a plausible
 # guess as to the mapping on a stack or modular system.
@@ -428,10 +389,6 @@ These are methods that return scalar value from SNMP
 
     Returns 'alcatel-lucent'
 
-=item $alu->hasCDP()
-
-    Returns whether LLDP is enabled.
-
 =item $alu->model()
 
 Tries to reference $alu->id() to one of the product MIBs listed above
@@ -501,26 +458,6 @@ Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
 Work around various bugs in the F<BRIDGE-MIB> and
 F<Q-BRIDGE-MIB> implementations, by returning both
 C<ifIndex> and C<dot1dBasePort> mappings to C<ifIndex> values.
-
-=item $alu->c_id()
-
-Returns LLDP information.
-
-=item $alu->c_if()
-
-Returns LLDP information.
-
-=item $alu->c_ip()
-
-Returns LLDP information.
-
-=item $alu->c_platform()
-
-Returns LLDP information.
-
-=item $alu->c_port()
-
-Returns LLDP information.
 
 =item $alu->i_duplex_admin()
 

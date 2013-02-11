@@ -1,7 +1,7 @@
 # SNMP::Info::Layer3::Extreme - SNMP Interface to Extreme devices
 # $Id$
 #
-# Copyright (c) 2008 Eric Miller
+# Copyright (c) 2012 Eric Miller
 #
 # Copyright (c) 2002,2003 Regents of the University of California
 # All rights reserved.
@@ -46,7 +46,7 @@ use SNMP::Info::EDP;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -80,19 +80,22 @@ $VERSION = '2.11';
     %SNMP::Info::LLDP::FUNCS,
     %SNMP::Info::EDP::FUNCS,
     'fan_state' => 'extremeFanOperational',
-
     # EXTREME-FDB-MIB:extremeFdbMacFdbTable
     'ex_fw_mac'    => 'extremeFdbMacFdbMacAddress',
     'ex_fw_port'   => 'extremeFdbMacFdbPortIfIndex',
     'ex_fw_status' => 'extremeFdbMacFdbStatus',
-
     # EXTREME-VLAN-MIB:extremeVlanIfTable
     'ex_vlan_descr'     => 'extremeVlanIfDescr',
     'ex_vlan_global_id' => 'extremeVlanIfGlobalIdentifier',
-
+    'ex_vlan_id'        => 'extremeVlanIfVlanId',
     # EXTREME-VLAN-MIB:extremeVlanEncapsIfTable
     'ex_vlan_encap_tag' => 'extremeVlanEncapsIfTag',
-
+    # EXTREME-VLAN-MIB:extremeVlanOpaqueTable
+    'ex_vlan_untagged'  => 'extremeVlanOpaqueUntaggedPorts',
+    'ex_vlan_tagged'    => 'extremeVlanOpaqueTaggedPorts',
+    # EXTREME-POE-MIB::extremePethPseSlotTable
+    'peth_power_watts'  => 'extremePethSlotPowerLimit',
+    # EXTREME-POE-MIB::extremePethPsePortTable
     'peth_port_power'   => 'extremePethPortMeasuredPower',
 );
 
@@ -103,12 +106,14 @@ $VERSION = '2.11';
     %SNMP::Info::MAU::MUNGE,
     %SNMP::Info::LLDP::MUNGE,
     %SNMP::Info::EDP::MUNGE,
-    'ex_fw_mac'      => \&SNMP::Info::munge_mac,
-    'ps1_status_old' => \&munge_true_ok,
-    'ps1_status_new' => \&munge_power_stat,
-    'ps2_status_old' => \&munge_power_stat,
-    'ps2_status_new' => \&munge_power_stat,
-    'fan_state'      => \&munge_true_ok,
+    'ex_fw_mac'        => \&SNMP::Info::munge_mac,
+    'ps1_status_old'   => \&munge_true_ok,
+    'ps1_status_new'   => \&munge_power_stat,
+    'ps2_status_old'   => \&munge_power_stat,
+    'ps2_status_new'   => \&munge_power_stat,
+    'fan_state'        => \&munge_true_ok,
+    'ex_vlan_untagged' => \&SNMP::Info::munge_port_list,
+    'ex_vlan_tagged'   => \&SNMP::Info::munge_port_list,
 );
 
 # Method OverRides
@@ -144,19 +149,20 @@ sub os {
 
     my $desc = $extreme->description();
 
-    if ($desc =~ /xos/i) {
+    if ( $desc =~ /xos/i ) {
         return 'xos';
     }
-    
+
     return 'extremeware';
 }
+
 
 sub os_ver {
     my $extreme = shift;
     my $descr   = $extreme->description();
     return unless defined $descr;
 
-    if ( $descr =~ m/Version\s+([^ ]+)/ ) {
+    if ( $descr =~ m/Version\s+([^ ]+)/i ) {
         return $1;
     }
 
@@ -197,7 +203,7 @@ sub i_ignore {
     my %i_ignore;
     foreach my $if ( keys %$i_description ) {
         if ( $i_description->{$if}
-            =~ /^(802.1Q Encapsulation Tag \d+|VLAN \d+|lo\d+)/i )
+            =~ /^(802.1Q Encapsulation Tag \d+|VLAN \d+|lo\d+|VirtualRouter\d+)/i )
         {
             $i_ignore{$if}++;
         }
@@ -210,6 +216,10 @@ sub i_ignore {
 # ifIndex.
 sub bp_index {
     my $extreme  = shift;
+
+    my $bindex = $extreme->SUPER::bp_index();
+    return $bindex if (keys %$bindex);
+
     my $if_index = $extreme->i_index();
 
     my %bp_index;
@@ -260,28 +270,54 @@ sub fan {
     return $ret;
 }
 
-# Newer versions of the Extreme firmware have vendor-specific tables
-# for this; those are ex_fw_*().  Older firmware versions don't have
-# these tables, so we use the BRIDGE-MIB tables.
+# For xos based VLAN functions we need to know how the ports are indexed
+# default is slot * 1000, but some older switches start at 1
+sub _slot_factor {
+    my $extreme = shift;
+    
+    my $index = $extreme->i_index();
+    
+    return 1 if (exists $index->{1} && $index->{1} == 1);
+    return 1000;
+}
+
+# Some versions of the Extreme firmware have vendor-specific tables
+# for this; those are ex_fw_*().  Some don't have these tables,
+# we use the BRIDGE-MIB tables if available then the ex_fw_*() methods.
 sub fw_mac {
     my $extreme = shift;
-    my $fw_mac  = $extreme->ex_fw_mac;
-    return $fw_mac if defined($fw_mac);
-    return $extreme->orig_fw_mac();
+    
+    my $b = $extreme->SUPER::fw_mac();
+    return $b if (keys %$b);
+
+    my $qb = $extreme->qb_fw_mac();
+    return $qb if (keys %$qb);
+    
+    return $extreme->ex_fw_mac();
 }
 
 sub fw_port {
     my $extreme = shift;
-    my $fw_port = $extreme->ex_fw_port;
-    return $fw_port if defined($fw_port);
-    return $extreme->orig_fw_port();
+    
+    my $b = $extreme->SUPER::fw_port();
+    return $b if (keys %$b);
+
+    my $qb = $extreme->qb_fw_port();
+    return $qb if (keys %$qb);
+    
+    return $extreme->ex_fw_port();
 }
 
 sub fw_status {
     my $extreme   = shift;
-    my $fw_status = $extreme->ex_fw_status;
-    return $fw_status if defined($fw_status);
-    return $extreme->orig_fw_status();
+
+    my $b = $extreme->SUPER::fw_status();
+    return $b if (keys %$b);
+
+    my $qb = $extreme->qb_fw_status();
+    return $qb if (keys %$qb);
+
+    return $extreme->ex_fw_status();
 }
 
 # Mapping the virtual VLAN interfaces:
@@ -322,7 +358,7 @@ sub _if2tag {
         }
     }
     if ($missed) {
-        my $global_id = $extreme->ex_vlan_global_id();
+        my $global_id = $extreme->ex_vlan_id();
         foreach my $if ( keys %if2tag ) {
             $if2tag{$if} = -$global_id->{$if}
                 if ( $if2tag{$if} == -1 && defined( $global_id->{$if} ) );
@@ -331,7 +367,7 @@ sub _if2tag {
     return \%if2tag;
 }
 
-# No partial support in v_name or v_index, because the obivous partial
+# No partial support in v_name or v_index, because the obvious partial
 # is the VLAN ID and the index here is the ifIndex of
 # the VLAN interface.
 sub v_name {
@@ -341,10 +377,64 @@ sub v_name {
 
 sub v_index {
     my $extreme = shift;
-    return $extreme->_if2tag();
+    return $extreme->ex_vlan_id || $extreme->_if2tag();
 }
 
 sub i_vlan {
+    my $extreme    = shift;
+    my $partial    = shift;
+
+    # Some devices support Q-Bridge, if so short circuit and return it
+    my $q_bridge = $extreme->SUPER::i_vlan($partial);
+    return $q_bridge if (keys %$q_bridge);
+
+    # Next we try extremeVlanOpaqueTable
+    my $xos = $extreme->_xos_i_vlan($partial);
+    return $xos if (keys %$xos);
+    
+    # Try older ifStack method
+    my $extremeware = $extreme->_extremeware_i_vlan($partial);
+    return $extremeware if (keys %$extremeware);
+    
+    return;
+}
+
+sub _xos_i_vlan {
+    my $extreme = shift;
+    my $partial = shift;
+
+    my $index   = $extreme->i_index();
+    my $vlans   = $extreme->ex_vlan_id() || {};
+    my $slotx   = $extreme->_slot_factor() || 1000;
+    my $u_ports = $extreme->ex_vlan_untagged() || {};
+
+    my $i_vlan = {};
+    foreach my $idx ( keys %$u_ports ) {
+        next unless ( defined $u_ports->{$idx} );
+        my $portlist = $u_ports->{$idx};
+        my $ret      = [];
+
+        my ( $vlan_if, $slot ) = $idx =~ /^(\d+)\.(\d+)/;
+        my $vlan = $vlans->{$vlan_if} || '';
+
+        # Convert portlist bit array to bp_index array
+        for ( my $i = 0; $i <= $#$portlist; $i++ ) {
+            push( @{$ret}, ( $slotx * $slot + $i + 1 ) )
+                if ( @$portlist[$i] );
+        }
+
+        #Create HoA ifIndex -> VLAN array
+        foreach my $port ( @{$ret} ) {
+            my $ifindex = $index->{$port};
+            next unless ( defined($ifindex) );    # shouldn't happen
+            next if ( defined $partial and $ifindex !~ /^$partial$/ );
+            $i_vlan->{$ifindex} = $vlan;
+        }
+    }
+    return $i_vlan;
+}
+
+sub _extremeware_i_vlan {
     my $extreme    = shift;
     my $partial    = shift;
     my $stack      = $extreme->ifStackStatus($partial);
@@ -370,6 +460,65 @@ sub i_vlan {
 }
 
 sub i_vlan_membership {
+    my $extreme = shift;
+    my $partial = shift;
+
+    # Some devices support Q-Bridge, if so short circuit and return it
+    my $q_bridge = $extreme->SUPER::i_vlan_membership($partial);
+    return $q_bridge if (ref {} eq ref $q_bridge and scalar keys %$q_bridge);
+
+    # Next we try extremeVlanOpaqueTable
+    my $xos = $extreme->_xos_i_vlan_membership($partial);
+    return $xos if (ref {} eq ref $xos and scalar keys %$xos);
+    
+    # Try older ifStack method
+    my $extremeware = $extreme->_extremeware_i_vlan_membership($partial);
+    return $extremeware if (ref {} eq ref $extremeware and scalar keys %$extremeware);
+    
+    return;
+}
+
+sub _xos_i_vlan_membership {
+    my $extreme = shift;
+    my $partial = shift;
+
+    my $index   = $extreme->i_index();
+    my $vlans   = $extreme->ex_vlan_id();
+    my $slotx   = $extreme->_slot_factor() || 1000;
+    my $u_ports = $extreme->ex_vlan_untagged() || {};
+    my $t_ports = $extreme->ex_vlan_tagged() || {};
+
+    my $i_vlan_membership = {};
+    foreach my $idx ( keys %$u_ports ) {
+        next unless ( defined $u_ports->{$idx} );
+        my $u_portlist = $u_ports->{$idx};
+        my $t_portlist = $t_ports->{$idx};
+        my $ret        = [];
+
+        my ( $vlan_if, $slot ) = $idx =~ /^(\d+)\.(\d+)/;
+        my $vlan = $vlans->{$vlan_if} || '';
+
+        foreach my $portlist ( $u_portlist, $t_portlist ) {
+
+            # Convert portlist bit array to bp_index array
+            for ( my $i = 0; $i <= $#$portlist; $i++ ) {
+                push( @{$ret}, ( $slotx * $slot + $i + 1 ) )
+                    if ( @$portlist[$i] );
+            }
+
+            #Create HoA ifIndex -> VLAN array
+            foreach my $port ( @{$ret} ) {
+                my $ifindex = $index->{$port};
+                next unless ( defined($ifindex) );    # shouldn't happen
+                next if ( defined $partial and $ifindex !~ /^$partial$/ );
+                push( @{ $i_vlan_membership->{$ifindex} }, $vlan );
+            }
+        }
+    }
+    return $i_vlan_membership;
+}
+
+sub _extremeware_i_vlan_membership {
     my $extreme    = shift;
     my $partial    = shift;
     my $stack      = $extreme->ifStackStatus($partial);
@@ -549,123 +698,26 @@ sub set_add_i_vlan_tagged {
     return $rv;
 }
 
-#  Use EDP and/or LLDP
-sub hasCDP {
-    my $extreme = shift;
-
-    return $extreme->hasLLDP() || $extreme->hasEDP();
-}
-
-sub c_ip {
+# LLDP uses the bridge index rather than ifIndex
+sub lldp_if {
     my $extreme = shift;
     my $partial = shift;
 
-    my $edp  = $extreme->edp_ip() || {};
-    my $lldp = $extreme->lldp_ip($partial) || {};
-
-    my %c_ip;
-    foreach my $iid ( keys %$edp ) {
-        my $ip = $edp->{$iid};
-        next unless defined $ip;
-
-        $c_ip{$iid} = $ip;
-    }
-
-    foreach my $iid ( keys %$lldp ) {
-        my $ip = $lldp->{$iid};
-        next unless defined $ip;
-
-        $c_ip{$iid} = $ip;
-    }
-    return \%c_ip;
-}
-
-sub c_if {
-    my $extreme = shift;
-    my $partial = shift;
-
-    my $lldp = $extreme->lldp_if($partial) || {};
-    my $edp  = $extreme->edp_if() || {};
-
-    my %c_if;
-    foreach my $iid ( keys %$edp ) {
-        my $if = $edp->{$iid};
-        next unless defined $if;
-
-        $c_if{$iid} = $if;
-    }
-
-    foreach my $iid ( keys %$lldp ) {
-        my $if = $lldp->{$iid};
-        next unless defined $if;
-
-        $c_if{$iid} = $if;
-    }
-    return \%c_if;
-}
-
-sub c_port {
-    my $extreme      = shift;
-    my $partial = shift;
-
-    my $lldp = $extreme->lldp_port($partial) || {};
-    my $edp  = $extreme->edp_port() || {};
-
-    my %c_port;
-    foreach my $iid ( keys %$edp ) {
-        my $port = $edp->{$iid};
-        next unless defined $port;
-
-        $c_port{$iid} = $port;
-    }
-
-    foreach my $iid ( keys %$lldp ) {
-        my $port = $lldp->{$iid};
-        next unless defined $port;
-        $c_port{$iid} = $port;
-    }
-    return \%c_port;
-}
-
-sub c_id {
-    my $extreme      = shift;
-    my $partial = shift;
-
-    my $lldp = $extreme->lldp_id($partial) || {};
-    my $edp  = $extreme->edp_id() || {};
-
-    my %c_id;
-    foreach my $iid ( keys %$edp ) {
-        my $id = $edp->{$iid};
-        next unless defined $id;
-	
-        $c_id{$iid} = $id;
-    }
+    my $addr    = $extreme->lldp_rem_pid($partial) || {};
+    my $b_index = $extreme->bp_index() || {};
+    #my %r_i_descr = reverse %$i_descr;
     
-    foreach my $iid ( keys %$lldp ) {
-	my $id = $lldp->{$iid};
-	next unless defined $id;
-	
-	$c_id{$iid} = $id;
+    my %lldp_if;
+    foreach my $key ( keys %$addr ) {
+        my @aOID = split( '\.', $key );
+        my $port = $aOID[1];
+        next unless $port;
+
+        my $idx = $b_index->{$port};
+
+        $lldp_if{$key} = $idx;
     }
-    return \%c_id;
-}
-
-sub c_platform {
-    my $extreme      = shift;
-    my $partial = shift;
-
-    my $lldp = $extreme->lldp_rem_sysdesc($partial)  || {};
-
-    my %c_platform;
-
-    foreach my $iid ( keys %$lldp ) {
-        my $platform = $lldp->{$iid};
-        next unless defined $platform;
-
-        $c_platform{$iid} = $platform;
-    }
-    return \%c_platform;
+    return \%lldp_if;
 }
 
 1;
@@ -860,6 +912,11 @@ Ignores VLAN meta interfaces and loopback
 
 (C<extremeFdbMacFdbStatus>)
 
+=item $extreme->lldp_if()
+
+Returns the mapping to the SNMP Interface Table. Extreme LLDP uses the
+bridge index rather than ifIndex.
+
 =item $extreme->i_vlan()
 
 Returns a mapping between C<ifIndex> and the VLAN.
@@ -900,59 +957,14 @@ F<EXTREME-FDB-MIB> rather than F<BRIDGE-MIB>.
 =item $extreme->peth_port_power()
 
 Power supplied by PoE ports, in milliwatts
-("extremePethPortMeasuredPower")
 
-=back
+(C<extremePethPortMeasuredPower>)
 
-=head2 Topology information
+=item $extreme->peth_power_watts()
 
-Based upon the firmware version Extreme devices may support Extreme Discovery
-Protocol (EDP), Link Layer Discovery Protocol (LLDP), or both.  These methods
-will query both and return the combination of all information.  As a result,
-there may be identical topology information returned from the two protocols
-causing duplicate entries.  It is the calling program's responsibility to
-identify any duplicate entries and remove duplicates if necessary.
+The configured maximum amount of in-line power available to the slot.
 
-=over
-
-=item $extreme->hasCDP()
-
-Returns true if the device is running either EDP or LLDP.
-
-=item $extreme->c_if()
-
-Returns reference to hash.  Key: iid Value: local device port (interfaces)
-
-=item $extreme->c_ip()
-
-Returns reference to hash.  Key: iid Value: remote IPv4 address
-
-If multiple entries exist with the same local port, c_if(), with the same IPv4
-address, c_ip(), it may be a duplicate entry.
-
-With EDP multiple entries may exist with the same local port, c_if(), and
-different IPv4 addresses, c_ip(), as EDP reports addresses for each VLAN
-transported across the trunk.  In the case of LLDP with multiple addresses
-there is either a non-LLDP device in between two or more devices or multiple
-devices which are not directly connected.  
-
-Use the data from the Layer2 Topology Table below to dig deeper.
-
-=item $extreme->c_port()
-
-Returns reference to hash. Key: iid Value: remote port (interfaces)
-
-=item $extreme->c_id()
-
-Returns reference to hash. Key: iid Value: string value used to identify the
-chassis component associated with the remote system.
-
-=item $extreme->c_platform()
-
-Returns reference to hash.  Key: iid Value: Remote Device Type
-
-This information is only available from LLDP.  EDP does not provide an 
-equivalent.
+(C<extremePethSlotPowerLimit>)
 
 =back
 

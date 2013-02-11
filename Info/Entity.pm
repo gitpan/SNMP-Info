@@ -41,7 +41,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = ( 'ENTITY-MIB' => 'entPhysicalSerialNum' );
 
@@ -138,7 +138,7 @@ Max Baker
 
 =head1 DESCRIPTION
 
-F<ENTITY-MIB> is used by Layer 2 devices from HP, Aironet, Foundry, Cisco,
+F<ENTITY-MIB> is used by Layer 2 devices from Brocade, Cisco, HP,
 and more.
 
 See RFC 2737 for full details.

@@ -1,7 +1,6 @@
 # SNMP::Info::Layer3::Passport
-# $Id$
 #
-# Copyright (c) 2008 Eric Miller
+# Copyright (c) 2012 Eric Miller
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,6 +29,7 @@
 
 package SNMP::Info::Layer3::Passport;
 
+use warnings;
 use strict;
 use Exporter;
 use SNMP::Info::SONMP;
@@ -43,7 +43,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS, %SNMP::Info::RapidCity::MIBS,
@@ -80,12 +80,12 @@ sub model {
 
     return $id unless defined $model;
 
-    $model =~ s/^rcA//i;
+    $model =~ s/^rc(A)?//i;
     return $model;
 }
 
 sub vendor {
-    return 'nortel';
+    return 'avaya';
 }
 
 sub os {
@@ -126,9 +126,9 @@ sub i_index {
 
     # Get VLAN Virtual Router Interfaces
     if (!defined $partial
-        or (defined $model
-            and (  ( $partial > 2000 and $model =~ /(86|83|81|16)/ )
-                or ( $partial > 256 and $model =~ /(105|11[05]0|12[05])/ ) )
+        || (defined $model
+            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
+                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
         )
         )
     {
@@ -182,9 +182,9 @@ sub interfaces {
     my $vlan_id = {};
 
     if (!defined $partial
-        or (defined $model
-            and (  ( $partial > 2000 and $model =~ /(86|83|81|16)/ )
-                or ( $partial > 256 and $model =~ /(105|11[05]0|12[05])/ ) )
+        || (defined $model
+            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
+                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
         )
         )
     {
@@ -214,7 +214,7 @@ sub interfaces {
             $if{$index} = 'Cpu.6';
         }
 
-        elsif (( $index > 2000 and $model =~ /(86|83|81|16)/ )
+        elsif (( $index > 2000 and $model =~ /(86|83|81|16|VSP)/ )
             or ( $index > 256 and $model =~ /(105|11[05]0|12[05])/ ) )
         {
 
@@ -255,9 +255,9 @@ sub i_mac {
 
     # Get VLAN Virtual Router Interfaces
     if (!defined $partial
-        or (defined $model
-            and (  ( $partial > 2000 and $model =~ /(86|83|81|16)/ )
-                or ( $partial > 256 and $model =~ /(105|11[05]0|12[05])/ ) )
+        || (defined $model
+            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
+                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
         )
         )
     {
@@ -329,9 +329,9 @@ sub i_description {
 
     # Get VLAN Virtual Router Interfaces
     if (!defined $partial
-        or (defined $model
-            and (  ( $partial > 2000 and $model =~ /(86|83|81|16)/ )
-                or ( $partial > 256 and $model =~ /(105|11[05]0|12[05])/ ) )
+        || (defined $model
+            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
+                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
         )
         )
     {
@@ -365,9 +365,9 @@ sub i_name {
     my %reverse_vlan;
 
     if (!defined $partial
-        or (defined $model
-            and (  ( $partial > 2000 and $model =~ /(86|83|81|16)/ )
-                or ( $partial > 256 and $model =~ /(105|11[05]0|12[05])/ ) )
+        || (defined $model
+            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
+                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
         )
         )
     {
@@ -402,8 +402,8 @@ sub i_name {
                 and $model =~ /(105|11[05]0|12[05])/ )
             )
         {
-            my $vlan_index = $reverse_vlan{$iid};
-            my $vlan_name  = $v_name->{$vlan_index};
+            my $vlan_idx = $reverse_vlan{$iid};
+            my $vlan_name  = $v_name->{$vlan_idx};
             next unless defined $vlan_name;
 
             $i_name{$iid} = $vlan_name;
@@ -510,7 +510,7 @@ sub root_ip {
     my $sonmp_topo_ip   = $passport->sonmp_topo_ip();
 
     # Only 8600 and 1600 have CLIP or Management Virtual IP
-    if ( defined $model and $model =~ /(86|16)/ ) {
+    if ( defined $model and $model =~ /(86|16|VSP)/ ) {
 
         # Return CLIP (CircuitLess IP)
         foreach my $iid ( keys %$rc_ip_type ) {
@@ -683,7 +683,7 @@ sub e_descr {
 
     my $model = $passport->model();
     my $rc_ps = $passport->rc_ps_detail() || {};
-    my $rc_ch = $passport->rcChasType();
+    my $rc_ch = $passport->chassis();
     $rc_ch =~ s/a//;
 
     my %rc_e_descr;
@@ -752,7 +752,7 @@ sub e_type {
 
     my $model = $passport->model();
     my $rc_ps = $passport->rc_ps_type() || {};
-    my $rc_ch = $passport->rcChasType();
+    my $rc_ch = $passport->chassis();
 
     my %rc_e_type;
 
@@ -927,7 +927,7 @@ sub e_vendor {
 
     my %rc_e_vendor;
     foreach my $iid ( keys %$rc_e_idx ) {
-        $rc_e_vendor{$iid} = 'nortel';
+        $rc_e_vendor{$iid} = 'avaya';
     }
     return \%rc_e_vendor;
 }
@@ -1051,8 +1051,8 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::Passport - SNMP Interface to modular Nortel Ethernet Routing
-Switches (formerly Passport / Accelar)
+SNMP::Info::Layer3::Passport - SNMP Interface to modular Avaya
+Ethernet Routing Switch 8000 Series and VSP 9000 Series switches.
 
 =head1 AUTHOR
 
@@ -1075,10 +1075,10 @@ Eric Miller
 
 =head1 DESCRIPTION
 
-Abstraction subclass for modular Nortel Ethernet Routing Switches (formerly
-Passport and Accelar Series Switches).
+Abstraction subclass for modular Avaya Ethernet Routing Switch 8000 Series
+(formerly Nortel/Bay Passport/Accelar) and VSP 9000 Series switches.
 
-These devices have some of the same characteristics as the stackable Nortel 
+These devices have some of the same characteristics as the stackable Avaya 
 Ethernet Switches (Baystack).  For example, extended interface information is 
 gleaned from F<RAPID-CITY>.
 
@@ -1126,7 +1126,7 @@ F<RAPID-CITY-MIB> and then parses out C<rcA>.
 
 =item $passport->vendor()
 
-Returns 'nortel'
+Returns 'avaya'
 
 =item $passport->os()
 
@@ -1273,7 +1273,7 @@ Returns reference to hash.  Key: IID, Value: Hardware version.
 
 =item $passport->e_vendor()
 
-Returns reference to hash.  Key: IID, Value: nortel.
+Returns reference to hash.  Key: IID, Value: avaya.
 
 =item $passport->e_serial()
 

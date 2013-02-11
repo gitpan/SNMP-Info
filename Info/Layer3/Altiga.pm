@@ -40,7 +40,7 @@ use SNMP::Info::Layer3;
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE 
             $int_include_vpn $fake_idx $type_class/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
             %SNMP::Info::Layer3::MIBS,
@@ -150,10 +150,6 @@ sub vendor {
 
 sub os {
     return 'altiga';
-}
-
-sub hasCDP {
-    return 0;
 }
 
 # $altiga->interfaces() - Map the Interfaces to their physical names
@@ -349,10 +345,6 @@ Tries to determine OS version from the C<sysDescr.0> field. Returns version or C
 =item $altiga->fan()
 
 Combines results from C<fan1_alarm>, C<fan2_alarm>, and C<fam3_alarm> methods.
-
-=item $altiga->hasCDP()
-
-No.
 
 =item $altiga->ps1_status()
 

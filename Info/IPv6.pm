@@ -44,7 +44,7 @@ use constant {
     IPV6MIB => 3,
 };
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 
 
@@ -59,7 +59,7 @@ $VERSION = '2.11';
 %FUNCS = ( 
     'ip_n2p_phys_addr'  => 'ipNetToPhysicalPhysAddress',    # IP-MIB
     'c_inet_phys_addr'  => 'cInetNetToMediaPhysAddress',    # CISCO-IETF-IP-MIB
-    'i6_n2p_phys_addr'  => 'ipv6NetToMediaNetAddress',      # IPV6-MIB
+    'i6_n2p_phys_addr'  => 'ipv6NetToMediaPhysAddress',     # IPV6-MIB
 
     'ip_n2p_phys_type'  => 'ipNetToPhysicalType',           # IP-MIB
     'c_inet_phys_type'  => 'cInetNetToMediaType',           # CISCO-IETF-IP-MIB
@@ -394,8 +394,9 @@ Jeroen van Ingen and Carlos Vicente
 =head1 DESCRIPTION
 
 The SNMP::Info::IPv6 class implements functions to for mapping IPv6 addresses 
-to MAC addresses, interfaces and more. It will use data from the IP-MIB, IPV6-MIB 
-or the CISCO-IETF-IP-MIB, whichever is supported by the device.
+to MAC addresses, interfaces and more. It will use data from the F<IP-MIB>,
+F<IPV6-MIB>, or the F<CISCO-IETF-IP-MIB>, whichever is supported by the
+device.
 
 This class is inherited by Info::Layer3 to provide IPv6 node tracking across  
 device classes.

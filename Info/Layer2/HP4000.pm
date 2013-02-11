@@ -44,7 +44,7 @@ use SNMP::Info::CDP;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %PORTSTAT %MODEL_MAP %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -652,7 +652,8 @@ Returns reference to hash of IIDs to admin duplex setting.
 
 =item $hp->vendor_i_type()
 
-Returns reference to hash of IIDs to HP specific port type (hpSwitchPortType).
+Returns reference to hash of IIDs to HP specific port type
+(C<hpSwitchPortType>).
 
 =item $hp->i_name()
 

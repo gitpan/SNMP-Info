@@ -10,6 +10,7 @@
 
 package SNMP::Info;
 
+use warnings;
 use strict;
 use Exporter;
 use SNMP;
@@ -23,7 +24,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 =head1 NAME
 
@@ -31,7 +32,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 2.11
+SNMP::Info - Version 3.00_003
 
 =head1 AUTHOR
 
@@ -230,7 +231,7 @@ For more info run C<perldoc> on any of the following module names.
 
 SNMP Interface to the ADSL-LINE-MIB for ADSL interfaces.
 
-Requires the F<ADSL-LINE-MIB>, downloadable from Cisco.
+Requires the F<ADSL-LINE-MIB>, down loadable from Cisco.
 
 See documentation in L<SNMP::Info::AdslLine> for details.
 
@@ -240,6 +241,13 @@ F<AIRESPACE-WIRELESS-MIB> and F<AIRESPACE-SWITCHING-MIB>.  Inherited by
 devices based on the Airespace wireless platform.
 
 See documentation in L<SNMP::Info::Airespace> for details.
+
+=item SNMP::Info::AMAP
+
+F<ALCATEL-IND1-INTERSWITCH-PROTOCOL-MIB>.  Alcatel Mapping Adjacency
+Protocol (AMAP) Support.
+
+See documentation in L<SNMP::Info::AMAP> for details.
 
 =item SNMP::Info::Bridge
 
@@ -342,14 +350,14 @@ See documentation in L<SNMP::Info::EtherLike> for details.
 
 =item SNMP::Info::FDP
 
-Foundry Discovery Protocol.  F<FOUNDRY-SN-SWITCH-GROUP-MIB>
+Foundry (Brocade) Discovery Protocol.  F<FOUNDRY-SN-SWITCH-GROUP-MIB>
 
 See documentation in L<SNMP::Info::FDP> for details.
 
 =item SNMP::Info::IPv6
 
 SNMP Interface for obtaining configured IPv6 addresses and mapping IPv6
-addresses to MACs and interfaces, using information from F<IP-MIB>,
+addresses to MAC addresses and interfaces, using information from F<IP-MIB>,
 F<IPV6-MIB> and/or F<CISCO-IETF-IP-MIB>.
 
 See documentation in L<SNMP::Info::IPv6> for details.
@@ -389,15 +397,15 @@ See documentation in L<SNMP::Info::PowerEthernet> for details.
 
 =item SNMP::Info::RapidCity
 
-F<RAPID-CITY>.  Inherited by Nortel switches for duplex and VLAN information.
+F<RAPID-CITY>.  Inherited by Avaya switches for duplex and VLAN information.
 
 See documentation in L<SNMP::Info::RapidCity> for details.
 
 =item SNMP::Info::SONMP
 
-F<SYNOPTICS-ROOT-MIB>, F<S5-ETH-MULTISEG-TOPOLOGY-MIB>.  Provides translation
-from Nortel Topology Table information to CDP.  Inherited by
-Nortel/Bay/Synoptics switches and hubs.
+SynOptics Network Management Protocol (SONMP) F<SYNOPTICS-ROOT-MIB>,
+F<S5-ETH-MULTISEG-TOPOLOGY-MIB>.  Inherited by 
+Avaya/Nortel/Bay/Synoptics switches and hubs.
 
 See documentation in L<SNMP::Info::SONMP> for details.
 
@@ -486,16 +494,12 @@ Allied Telesis switches.
 
 See documentation in L<SNMP::Info::Layer2::Allied> for details.
 
-=item SNMP::Info::Layer2::Bay
-
-Depreciated.  Use BayStack.
-
 =item SNMP::Info::Layer2::Baystack
 
-Subclass for Nortel/Bay Ethernet Switch/Baystack switches.  This includes 303,
-304, 350, 380, 410, 420, 425, 450, 460, 470 series, 2500 series, 4500 series,
-5500 series, Business Ethernet Switch (BES), Business Policy Switch (BPS)
-and probably others.
+Subclass for Avaya/Nortel/Bay Ethernet Switch/Baystack switches.  This
+includes 303, 304, 350, 380, 410, 420, 425, 450, 460, 470 series,
+2500 series, 4000 series, 5000 series, Business Ethernet Switch (BES),
+Business Policy Switch (BPS), VSP 7000 series, and probably others.
 
 See documentation in L<SNMP::Info::Layer2::Baystack> for details.
 
@@ -536,10 +540,6 @@ in more specific subclasses.
 
 See documentation in L<SNMP::Info::Layer2::Cisco> for details.
 
-=item SNMP::Info::Layer2::Foundry
-
-Depreciated.  Use SNMP::Info::Layer3::Foundry.
-
 =item SNMP::Info::Layer2::HP
 
 Subclass for more recent HP Procurve Switches
@@ -558,7 +558,7 @@ See documentation in L<SNMP::Info::Layer2::HP4000> for details.
 
 =item SNMP::Info::Layer2::HPVC
 
-Subclass for HP VirtualConnect Switches
+Subclass for HP Virtual Connect Switches
 
 See documentation in L<SNMP::Info::Layer2::HPVC> for details.
 
@@ -580,11 +580,23 @@ Subclass for Netgear switches
 
 See documentation in L<SNMP::Info::Layer2::Netgear> for details.
 
+=item SNMP::Info::Layer2::NWSS2300
+
+SNMP Interface to Avaya (Trapeze) Wireless Controllers
+
+See documentation in L<SNMP::Info::Layer2::NWSS2300> for details.
+
 =item SNMP::Info::Layer2::Orinoco
 
 Subclass for Orinoco/Proxim wireless access points.
 
 See documentation in L<SNMP::Info::Layer2::Orinoco> for details.
+
+=item SNMP::Info::Layer2::Trapeze
+
+SNMP Interface to Juniper (Trapeze) Wireless Controllers
+
+See documentation in L<SNMP::Info::Layer2::Trapeze> for details.
 
 =item SNMP::Info::Layer2::ZyXEL_DSLAM
 
@@ -621,8 +633,8 @@ See documentation in L<SNMP::Info::Layer3::AlcatelLucent> for details.
 
 =item SNMP::Info::Layer3::AlteonAD
 
-Subclass for Nortel Alteon Series Layer 2-7 load balancing switches
-and Nortel BladeCenter Layer2-3 GbE Switch Modules.
+Subclass for Radware Alteon Series ADC switches and Nortel BladeCenter
+Layer2-3 GbE Switch Modules.
 
 See documentation in L<SNMP::Info::Layer3::AlteonAD> for details.
 
@@ -642,8 +654,8 @@ See documentation in L<SNMP::Info::Layer3::Aruba> for details.
 
 =item SNMP::Info::Layer3::BayRS
 
-Subclass for Nortel Multiprotocol/BayRS routers.  This includes BCN, BLN, ASN,
-ARN, AN, 2430, and 5430 routers.
+Subclass for Avaya/Nortel/Bay Multiprotocol/BayRS routers.  This includes
+BCN, BLN, ASN, ARN, AN, 2430, and 5430 routers.
 
 See documentation in L<SNMP::Info::Layer3::BayRS> for details.
 
@@ -686,7 +698,7 @@ See documentation in L<SNMP::Info::Layer3::CiscoFWSM> for details.
 
 =item SNMP::Info::Layer3::Contivity
 
-Subclass for Nortel Contivity/VPN Routers.  
+Subclass for Avaya/Nortel Contivity/VPN Routers.  
 
 See documentation in L<SNMP::Info::Layer3::Contivity> for details.
 
@@ -710,6 +722,12 @@ Subclass for Extreme Networks switches.
 
 See documentation in L<SNMP::Info::Layer3::Extreme> for details.
 
+=item SNMP::Info::Layer3::F5
+
+Subclass for F5 devices.
+
+See documentation in L<SNMP::Info::Layer3::F5> for details.
+
 =item SNMP::Info::Layer3::Force10
 
 Subclass for Force10 devices.
@@ -718,9 +736,15 @@ See documentation in L<SNMP::Info::Layer3::Force10> for details.
 
 =item SNMP::Info::Layer3::Foundry
 
-Subclass for Foundry Network devices.
+Subclass for Brocade (Foundry) Network devices.
 
 See documentation in L<SNMP::Info::Layer3::Foundry> for details.
+
+=item SNMP::Info::Layer3::H3C
+
+SNMP Interface to Layer 3 Devices, H3C & HP A-series.
+
+See documentation in L<SNMP::Info::Layer3::H3C> for details.
 
 =item SNMP::Info::Layer3::HP9300
 
@@ -734,6 +758,12 @@ See documentation in L<SNMP::Info::Layer3::HP9300> for details.
 Subclass for Juniper devices
 
 See documentation in L<SNMP::Info::Layer3::Juniper> for details.
+
+=item SNMP::Info::Layer3::Lantronix
+
+Subclass for Lantronix devices
+
+See documentation in L<SNMP::Info::Layer3::Lantronix> for details.
 
 =item SNMP::Info::Layer3::Microsoft
 
@@ -749,7 +779,7 @@ See documentation in L<SNMP::Info::Layer3::Mikrotik> for details.
 
 =item SNMP::Info::Layer3::N1600
 
-Subclass for Nortel Ethernet Routing Switch 1600 series.
+Subclass for Avaya/Nortel Ethernet Routing Switch 1600 series.
 
 See documentation in L<SNMP::Info::Layer3::N1600> for details.
 
@@ -779,8 +809,8 @@ See documentation in L<SNMP::Info::Layer3::PacketFront> for details.
 
 =item SNMP::Info::Layer3::Passport
 
-Subclass for Nortel Ethernet Routing Switch/Passport 8000 series and Accelar
-series switches.
+Subclass for Avaya/Nortel Ethernet Routing Switch/Passport 8000 series,
+Accelar, and VSP 9000 series switches.
 
 See documentation in L<SNMP::Info::Layer3::Passport> for details.
 
@@ -833,6 +863,12 @@ SNMP Interface to APC UPS devices
 
 See documentation in L<SNMP::Info::Layer7::APC> for details.
 
+=item SNMP::Info::Layer7::Netscaler
+
+SNMP Interface to Citrix Netscaler appliances
+
+See documentation in L<SNMP::Info::Layer7::Netscaler> for details.
+
 =item SNMP::Info::Layer7::Neoteris
 
 SNMP Interface to Juniper SSL VPN appliances
@@ -864,16 +900,17 @@ README!
 
 Creates a new object and connects via SNMP::Session. 
 
- my $info = new SNMP::Info( 'Debug'         => 1,
-                            'AutoSpecify'   => 1,
-                            'BigInt'        => 1,
-                            'BulkWalk'      => 1,
-                            'BulkRepeaters' => 20,
-                            'LoopDetect'    => 1,
-                            'DestHost'      => 'myrouter',
-                            'Community'     => 'public',
-                            'Version'       => 2,
-                            'MibDirs'       => ['dir1','dir2','dir3'],
+ my $info = new SNMP::Info( 'Debug'             => 1,
+                            'AutoSpecify'       => 1,
+                            'BigInt'            => 1,
+                            'BulkWalk'          => 1,
+                            'BulkRepeaters'     => 20,
+                            'IgnoreNetSNMPConf' => 1,
+                            'LoopDetect'        => 1,
+                            'DestHost'          => 'myrouter',
+                            'Community'         => 'public',
+                            'Version'           => 2,
+                            'MibDirs'           => ['dir1','dir2','dir3'],
                           ) or die;
 
 SNMP::Info Specific Arguments :
@@ -917,7 +954,20 @@ operation, Net-SNMP's internal bulkwalk function must detect the loop.
 
 Set to C<0> to turn off loop detection.
 
-(default 1, which measn "on")
+(default 1, which means "on")
+
+=item IgnoreNetSNMPConf
+
+Net-SNMP version 5.0 and higher read configuration files, snmp.conf or
+snmp.local.conf, from /etc/snmp, /usr/share/snmp, /usr/lib(64)/snmp, or
+$HOME/.snmp and uses those settings to automatically parse MIB files, etc.
+
+Set to C<1> "on" to ignore Net-SNMP configuration files by overriding the
+C<SNMPCONFPATH> environmental variable during object initialization. Note:
+MibDirs must be defined or Net-SNMP will not be able to load MIBs and
+initialize the object.
+
+(default 0, which means "off")
 
 =item Debug
 
@@ -928,7 +978,7 @@ Pass 2 to print even more debugging messages.
 
 =item DebugSNMP
 
-Set $SNMP::debugging  level for Net-SNMP.
+Set $SNMP::debugging level for Net-SNMP.
 
 See F<SNMP> for more details.
 
@@ -995,7 +1045,7 @@ sub new {
 
     # load references to all the subclass data structures
     {
-        no strict 'refs';    ## no critic
+        no strict 'refs';    ## no critic (ProhibitNoStrict ProhibitProlongedStrictureOverride)
         $new_obj->{init}    = \${ $class . '::INIT' };
         $new_obj->{mibs}    = \%{ $class . '::MIBS' };
         $new_obj->{globals} = \%{ $class . '::GLOBALS' };
@@ -1036,6 +1086,11 @@ sub new {
     if ( defined $args{LoopDetect} ) {
         $new_obj->{LoopDetect} = $args{LoopDetect};
         delete $sess_args{LoopDetect};
+    }
+
+    if ( defined $args{IgnoreNetSNMPConf} ) {
+        $new_obj->{IgnoreNetSNMPConf} = $args{IgnoreNetSNMPConf} || 0;
+        delete $sess_args{IgnoreNetSNMPConf};
     }
 
     my $sess = undef;
@@ -1123,6 +1178,7 @@ sub update {
     delete $sess_args{BulkRepeaters};
     delete $sess_args{BulkWalk};
     delete $sess_args{LoopDetect};
+    delete $sess_args{IgnoreNetSNMPConf};
     delete $sess_args{BigInt};
     delete $sess_args{MibDirs};
 
@@ -1294,9 +1350,12 @@ sub device_type {
         11   => 'SNMP::Info::Layer2::HP',
         18   => 'SNMP::Info::Layer3::BayRS',
         42   => 'SNMP::Info::Layer3::Sun',
+        45   => 'SNMP::Info::Layer2::Baystack',
         171  => 'SNMP::Info::Layer3::Dell',
+        244  => 'SNMP::Info::Layer3::Lantronix',
         311  => 'SNMP::Info::Layer3::Microsoft',
         674  => 'SNMP::Info::Layer3::Dell',
+        1872 => 'SNMP::Info::Layer3::AlteonAD',
         1916 => 'SNMP::Info::Layer3::Extreme',
         1991 => 'SNMP::Info::Layer3::Foundry',
         2021 => 'SNMP::Info::Layer3::NetSNMP',
@@ -1304,6 +1363,8 @@ sub device_type {
         2636 => 'SNMP::Info::Layer3::Juniper',
         2925 => 'SNMP::Info::Layer1::Cyclades',
         3076 => 'SNMP::Info::Layer3::Altiga',
+        3224 => 'SNMP::Info::Layer3::Netscreen',
+        3375 => 'SNMP::Info::Layer3::F5',
         3417 => 'SNMP::Info::Layer3::BlueCoatSG',
         4526 => 'SNMP::Info::Layer2::Netgear',
         5624 => 'SNMP::Info::Layer3::Enterasys',
@@ -1313,29 +1374,38 @@ sub device_type {
         8072 => 'SNMP::Info::Layer3::NetSNMP',
         9303 => 'SNMP::Info::Layer3::PacketFront',
         12325 => 'SNMP::Info::Layer3::Pf',
+        14525 => 'SNMP::Info::Layer2::Trapeze',
         14988 => 'SNMP::Info::Layer3::Mikrotik',
+        25506 => 'SNMP::Info::Layer3::H3C',
         30065 => 'SNMP::Info::Layer3::Arista',
     );
 
     my %l2sysoidmap = (
         9     => 'SNMP::Info::Layer2::Cisco',
         11    => 'SNMP::Info::Layer2::HP',
+        45    => 'SNMP::Info::Layer2::Baystack',
         171   => 'SNMP::Info::Layer3::Dell',
         207   => 'SNMP::Info::Layer2::Allied',
         674   => 'SNMP::Info::Layer3::Dell',
+        1872  => 'SNMP::Info::Layer3::AlteonAD',
         1916  => 'SNMP::Info::Layer3::Extreme',
         1991  => 'SNMP::Info::Layer3::Foundry',
         2272  => 'SNMP::Info::Layer3::Passport',
         2925  => 'SNMP::Info::Layer1::Cyclades',
+        3224  => 'SNMP::Info::Layer3::Netscreen',
+        3375  => 'SNMP::Info::Layer3::F5',
         4526  => 'SNMP::Info::Layer2::Netgear',
         5624  => 'SNMP::Info::Layer3::Enterasys',
         11898 => 'SNMP::Info::Layer2::Orinoco',
         14179 => 'SNMP::Info::Layer2::Airespace',
+        14525 => 'SNMP::Info::Layer2::Trapeze',
         14823 => 'SNMP::Info::Layer3::Aruba',
     );
 
     my %l7sysoidmap = (
         318   => 'SNMP::Info::Layer7::APC',
+        5951  => 'SNMP::Info::Layer7::Netscaler',
+        14525 => 'SNMP::Info::Layer2::Trapeze',
         12532 => 'SNMP::Info::Layer7::Neoteris',
     );
 
@@ -1411,10 +1481,6 @@ sub device_type {
             if ( $desc
             =~ /^(BayStack|Ethernet\s+Routing\s+Switch)\s[2345](\d){2,3}/i );
 
-        # Nortel Alteon AD Series
-        $objtype = 'SNMP::Info::Layer3::AlteonAD'
-            if $desc =~ /Alteon\s[1A][8D]/;
-
         # Nortel Contivity
         $objtype = 'SNMP::Info::Layer3::Contivity' if $desc =~ /(\bCES\b|\bNVR\sV\d)/;
 
@@ -1433,7 +1499,7 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Tasman'
             if ( $desc =~ /^(avaya|nortel)\s+(SR|secure\srouter)\s+\d{4}/i );
 
-        # HP VirtualConnect blade switches
+        # HP Virtual Connect blade switches
         $objtype = 'SNMP::Info::Layer2::HPVC'
             if ( $desc =~ /HP\sVC\s/ );
 
@@ -1542,7 +1608,7 @@ sub device_type {
             if (
             $desc =~ /Nortel\s+(Networks\s+)??WLAN\s+-\s+Security\s+Switch/ );
 
-        # HP VirtualConnect blade switches
+        # HP Virtual Connect blade switches
         $objtype = 'SNMP::Info::Layer2::HPVC'
             if ( $desc =~ /HP\sVC\s/ );
 
@@ -1587,10 +1653,6 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Aruba'
             if ( $desc =~ /^AOS-W/ );
 
-        #Juniper NetScreen
-        $objtype = 'SNMP::Info::Layer3::Netscreen'
-            if ( $desc =~ /NetScreen|SSG/i );
-
         # Cisco PIX
         $objtype = 'SNMP::Info::Layer3::Cisco'
             if ( $desc =~ /Cisco PIX Security Appliance/i );
@@ -1599,9 +1661,13 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Cisco'
             if ( $desc =~ /Cisco Adaptive Security Appliance/i );
 
-        # HP VirtualConnect blade switches
+        # HP Virtual Connect blade switches
         $objtype = 'SNMP::Info::Layer2::HPVC'
             if ( $desc =~ /HP\sVC\s/ );
+
+        # Nortel (Trapeze) WSS 2300 Series
+        $objtype = 'SNMP::Info::Layer2::NWSS2300'    
+            if ( $desc =~ /\bWireless\sSecurity\sSwitch\s23[568][012]\b/);
 
         # Generic device classification based upon sysObjectID
         if ( defined($id) and $objtype eq 'SNMP::Info') {
@@ -1862,6 +1928,17 @@ Lans (VLANs) such as the Loopback interface, or the CPU interface.
 sub if_ignore {
     my %nothing;
     return \%nothing;
+}
+
+=item $info->bulkwalk_no()
+
+Returns 0.  Is an overridable method used for turn off bulkwalk for the
+device class. 
+
+=cut
+
+sub bulkwalk_no {
+    return 0;
 }
 
 =item $info->i_index()
@@ -2267,6 +2344,256 @@ Subnet Mask of route. 0.0.0.0 for default gateway.
 Reference to MIB definition specific to routing protocol.
 
 (C<ipRouteInfo>)
+
+=back
+
+=head2 Topology Information
+
+Based upon the manufacturer and software version devices may support some 
+combination of Layer 2 topology protocol information.  SNMP::Info
+supports querying Link Layer Discovery Protocol (LLDP), Cisco Discovery
+Protocol (CDP), SynOptics/Bay/Nortel/Avaya Network Management Protocol
+(SONMP), Foundry/Brocade Discovery Protocol (FDP), Extreme Discovery
+Protocol (EDP), and Alcatel Mapping Adjacency Protocol (AMAP). 
+
+For protocol specific information and implementation:
+
+=over
+
+=item LLDP: See L<SNMP::Info::LLDP> for details.
+
+=item CDP: See L<SNMP::Info::CDP> for details.
+
+=item SONMP: See L<SNMP::Info::SONMP> for details.
+
+=item FDP: See L<SNMP::Info::FDP> for details.
+
+=item EDP: See L<SNMP::Info::EDP> for details.
+
+=item AMAP: See L<SNMP::Info::AMAP> for details.
+
+=back
+
+=head3 Topology Capabilities
+
+=over
+
+=item $info->has_topo()
+
+Reports Layer 2 topology protocols which are supported and running on
+a device.
+
+Returns either a reference to an array of protocols, possible values
+being: C<lldp>, C<cdp>, C<sonmp>, C<fdp>, C<edp>, C<amap> or C<undef> if
+no protocols are supported or running.
+
+=back
+
+=cut
+
+sub has_topo {
+    my $self = shift;
+
+    my @topo_cap;
+    push( @topo_cap, 'lldp' )
+        if ( $self->can('hasLLDP') && $self->hasLLDP() );
+    push( @topo_cap, 'cdp' ) if $self->can('hasCDP') && $self->hasCDP();
+    push( @topo_cap, 'sonmp' )
+        if $self->can('hasSONMP') && $self->hasSONMP();
+    push( @topo_cap, 'fdp' ) if $self->can('hasFDP') && $self->hasFDP();
+    push( @topo_cap, 'edp' ) if $self->can('hasEDP') && $self->hasEDP();
+    push( @topo_cap, 'amap' ) if $self->can('hasAMAP') && $self->hasAMAP();
+
+    if (@topo_cap) {
+        return \@topo_cap;
+    }
+    else {
+        return;
+    }
+}
+
+sub _get_topo_data {
+    my $self     = shift;
+    my $partial  = shift;
+    my $topo_cap = shift;
+    my $method   = shift;
+
+    return unless $method =~ /(ip|if|port|id|platform)/;
+
+    my %t_data;
+    foreach my $proto (@$topo_cap) {
+        next unless $proto =~ /(lldp|cdp|sonmp|fdp|edp|amap)/;
+        my $method_name = "$proto" . "_$method";
+        my $cdp = $self->$method_name($partial) || {};
+
+        foreach my $iid ( keys %$cdp ) {
+            my $ip = $cdp->{$iid};
+            next unless defined $ip;
+
+            $t_data{$iid} = $ip;
+        }
+    }
+    return \%t_data; 
+}
+
+=head3 Common Topology Table Information
+
+The common topology table methods below will query the
+device for information from the specified topology protocols and return a
+single hash combining all information. As a result, there may be identical
+topology information returned from the two protocols causing duplicate
+entries.  It is the calling program's responsibility to identify any
+duplicate entries and remove duplicates if necessary.  If it is necessary
+to understand which protocol provided the information, utilize the protocol
+specific methods directly rather than the generic methods.
+
+The methods support partial table fetches by providing a partial as the
+first argument.
+
+If a reference to an array is provided as the second argument, those
+protocols will be queried for information.  The supported array values are:
+C<lldp>, C<cdp>, C<sonmp>, C<fdp>, C<edp>, C<amap>.
+
+If nothing is passed in as the second argument, the methods will call
+has_topo() to determine supported and running topology protocols on the
+device. 
+
+=over
+
+=item $info->c_ip(partial, topology_protocol_arrayref)
+
+Returns reference to hash.  Key: iid, Value: remote IPv4 address
+
+If multiple entries exist with the same local port, c_if(), with the
+same IPv4 address, c_ip(), it may be a duplicate entry.
+
+If multiple entries exist with the same local port, c_if(), with different
+IPv4 addresses, c_ip(), there is either a device in between two or
+more devices utilizing a different topology protocol or multiple devices
+which are not directly connected.  
+
+Use the protocol specific methods to dig deeper.
+
+=cut
+
+sub c_ip {
+    my $self     = shift;
+    my $partial  = shift;
+    my $topo_cap = shift;
+
+    # Default to old behavior if not called with topo_cap
+    if ( !$topo_cap ) {
+        my $topo_test = $self->has_topo();
+        if ($topo_test) {
+            $topo_cap = $topo_test;
+        }
+        else {
+            return;
+        }
+    }
+    return _get_topo_data ($self, $partial, $topo_cap, 'ip');
+}
+
+=item $info->c_if(partial, topology_protocol_arrayref)
+
+Returns reference to hash.  Key: iid, Value: local device port (interfaces)
+
+=cut
+
+sub c_if {
+    my $self     = shift;
+    my $partial  = shift;
+    my $topo_cap = shift;
+
+    # Default to old behavior if not called with topo_cap
+    if ( !$topo_cap ) {
+        my $topo_test = $self->has_topo();
+        if ($topo_test) {
+            $topo_cap = $topo_test;
+        }
+        else {
+            return;
+        }
+    }
+    return _get_topo_data ($self, $partial, $topo_cap, 'if');
+}
+
+=item $info->c_port(partial, topology_protocol_arrayref)
+
+Returns reference to hash. Key: iid, Value: remote port (interfaces)
+
+=cut
+
+sub c_port {
+    my $self     = shift;
+    my $partial  = shift;
+    my $topo_cap = shift;
+
+    # Default to old behavior if not called with topo_cap
+    if ( !$topo_cap ) {
+        my $topo_test = $self->has_topo();
+        if ($topo_test) {
+            $topo_cap = $topo_test;
+        }
+        else {
+            return;
+        }
+    }
+    return _get_topo_data ($self, $partial, $topo_cap, 'port');
+}
+
+=item $info->c_id(partial, topology_protocol_arrayref)
+
+Returns reference to hash. Key: iid, Value: string value used to identify the
+chassis component associated with the remote system.
+
+Note: SONMP does not return this information.
+
+=cut
+
+sub c_id {
+    my $self     = shift;
+    my $partial  = shift;
+    my $topo_cap = shift;
+
+    # Default to old behavior if not called with topo_cap
+    if ( !$topo_cap ) {
+        my $topo_test = $self->has_topo();
+        if ($topo_test) {
+            $topo_cap = $topo_test;
+        }
+        else {
+            return;
+        }
+    }
+    return _get_topo_data ($self, $partial, $topo_cap, 'id');
+}
+
+=item $info->c_platform(partial, topology_protocol_arrayref)
+
+Returns reference to hash.  Key: iid, Value: Remote Device Type
+
+Note:  LLDP and EDP do not provide this information.
+
+=cut
+
+sub c_platform {
+    my $self     = shift;
+    my $partial  = shift;
+    my $topo_cap = shift;
+
+    # Default to old behavior if not called with topo_cap
+    if ( !$topo_cap ) {
+        my $topo_test = $self->has_topo();
+        if ($topo_test) {
+            $topo_cap = $topo_test;
+        }
+        else {
+            return;
+        }
+    }
+    return _get_topo_data ($self, $partial, $topo_cap, 'platform');
+}
 
 =back
 
@@ -2977,7 +3304,22 @@ Used internally.  Loads all entries in %MIBS.
 sub init {
     my $self = shift;
 
-    &SNMP::initMib;
+    # Get MibDirs if provided
+    my $mibdirs = $self->{mibdirs} || [];
+    
+    # SNMP::initMib and SNMP::addMibDirs both look for some initial MIBs
+    # so if we are not using Net-SNMP configuration files we need to
+    # specify where the MIBs are before those calls.
+
+    # Ignore snmp.conf and snmp.local.conf files if IgnoreNetSNMPConf
+    # specified
+    local $ENV{'SNMPCONFPATH'} = '' if $self->{IgnoreNetSNMPConf};
+    # We need to provide MIBDIRS if we are not getting them from a
+    # configuration file
+    my $mibdir = join (':', @$mibdirs);
+    local $ENV{'MIBDIRS'} = "$mibdir" if $self->{IgnoreNetSNMPConf};
+
+    SNMP::initMib;
 
     my $version = $SNMP::VERSION;
     my ( $major, $minor, $rev ) = split( '\.', $version );
@@ -2991,16 +3333,13 @@ sub init {
 
         # This is a bug in net-snmp 5.0.1 perl module
         # see http://groups.google.com/groups?th=47aed6bf7be6a0f5
-        &SNMP::init_snmp("perl");
+        SNMP::init_snmp("perl");
     }
-
-    # Add MibDirs
-    my $mibdirs = $self->{mibdirs} || [];
 
     foreach my $d (@$mibdirs) {
         next unless -d $d;
         print "SNMP::Info::init() - Adding new mibdir:$d\n" if $self->debug();
-        &SNMP::addMibDirs($d);
+        SNMP::addMibDirs($d);
     }
 
     my $mibs = $self->mibs();
@@ -3008,7 +3347,7 @@ sub init {
     foreach my $mib ( keys %$mibs ) {
 
         #print "SNMP::Info::init() - Loading mib:$mib\n" if $self->debug();
-        &SNMP::loadModules("$mib");
+        SNMP::loadModules("$mib");
 
         unless ( defined $SNMP::MIB{ $mibs->{$mib} } ) {
             croak "The $mib did not load. See README for $self->{class}\n";
@@ -3146,96 +3485,95 @@ sub store {
 
 =item $info->_global()
 
-Used internally by AUTOLOAD to load dynamic methods from %GLOBALS. 
+Used internally by AUTOLOAD to create dynamic methods from %GLOBALS or a
+single instance MIB Leaf node name from a loaded MIB.
 
-Example: $info->name() calls autoload which calls $info->_global('name').
+Example: $info->name() on the first call dispatches to AUTOLOAD() which
+calls $info->_global('name') creating the method name().
+
+These methods return data as a scalar.
 
 =cut
 
 sub _global {
-    my $self = shift;
-    my $attr = shift;
-    my $sess = $self->session();
-    return unless defined $sess;
+    my $method = shift;
+    my $oid    = shift;
 
-    my $globals = $self->globals();
+    return sub {
+        my $self = shift;
 
-    my $oid;
-    if ( exists $globals->{$attr} ) {
-        $oid = $globals->{$attr};
-        unless ( $oid =~ /\.\d+$/ ) {
-            $oid .= ".0";
+        my $sess = $self->session();
+        return unless defined $sess;
+
+        my $load = $method =~ /^load/;
+        my $raw  = $method =~ /raw$/;
+
+        my $attr = $method;
+        $attr =~ s/^(load|orig)_//;
+        $attr =~ s/_raw$//;
+
+        # Get the callback hash for data munging
+        my $munge = $self->munge();
+
+        # Return cached data unless loading
+        # We now store in raw format so munge before returning
+        # unless expecting raw data
+        if ( defined $self->{"_$attr"} && !$load ) {
+            if ( defined $munge->{$attr} && !$raw ) {
+                my $val    = $self->{"_$attr"};
+                my $subref = $munge->{$attr};
+                return &$subref($val);
+            } else{
+                return $self->{"_$attr"};
+            } 
         }
 
-        # Check for fully qualified attr
-        if ( $oid =~ /__/ ) {
-            $oid =~ s/__/::/;
-            $oid =~ s/_/-/g;
-
-            # Need to translate fully qualified attr to full oid
-            $oid = &SNMP::translateObj($oid);
-            unless ( defined $oid ) {
-                $self->error_throw(
-                    "SNMP::Info::_load_attr: Can't translate $globals->{$attr}.  Missing MIB?\n"
-                );
-                return;
-            }
+        if ( $self->debug() ) {
+            # Let's get the MIB Module and leaf name along with the OID
+            my $qual_leaf = SNMP::translateObj($oid,0,1) || '';
+            print "SNMP::Info::_global $method : $qual_leaf : $oid\n";
         }
+        my $val = $sess->get($oid);
+
+        # Mark as gotten. Even if it fails below, we don't want to keep failing.
+        $self->{"_$attr"} = undef;
+
+        if ( $sess->{ErrorStr} ) {
+            $self->error_throw(
+                "SNMP::Info::_global($method) $sess->{ErrorStr}");
+            return;
+        }
+
+        if ( defined $val and $val eq 'NOSUCHOBJECT' ) {
+            $self->error_throw("SNMP::Info::_global($method) NOSUCHOBJECT");
+            return;
+        }
+
+        if ( defined $val and $val eq 'NOSUCHINSTANCE' ) {
+            $self->error_throw("SNMP::Info::_global($method) NOSUCHINSTANCE");
+            return;
+        }
+
+        # Save Cached Value
+        $self->{"_$attr"} = $val;
+
+        # Data Munging
+        if ( defined $munge->{$attr} && !$raw ) {
+            my $subref = $munge->{$attr};
+            $val = &$subref($val);
+        }
+
+        return $val;
     }
-    else {
-        $oid = $attr;
-    }
-
-    # Tag on .0 unless the leaf ends in .number
-    unless ( $oid =~ /\.\d+$/ ) {
-        $oid .= ".0";
-    }
-
-    print "SNMP::Info::_global $attr : $oid\n" if $self->debug();
-    my $val = $sess->get($oid);
-
-    # mark as gotten. Even if it fails below, we don't want to keep failing.
-    $self->{"_$attr"} = undef;
-
-    if ( $sess->{ErrorStr} ) {
-        $self->error_throw("SNMP::Info::_global($attr) $sess->{ErrorStr}");
-        return;
-    }
-
-    if ( defined $val and $val eq 'NOSUCHOBJECT' ) {
-        $self->error_throw("SNMP::Info::_global($attr) NOSUCHOBJECT");
-        return;
-    }
-
-    if ( defined $val and $val eq 'NOSUCHINSTANCE' ) {
-        $self->error_throw("SNMP::Info::_global($attr) NOSUCHINSTANCE");
-        return;
-    }
-
-    # Get the callback hash for data munging
-    my $munge = $self->munge();
-
-    # Data Munging
-    if ( defined $munge->{$attr} ) {
-        my $subref = $munge->{$attr};
-        $val = &$subref($val);
-    }
-
-    # Save Cached Value
-    $self->{"_$attr"} = $val;
-
-    return $val;
 }
 
 =item $info->_set(attr,val,iid,type)
 
-Used internally by AUTOLOAD to run an SNMP set command for dynamic methods
-listed in either %GLOBALS or %FUNCS or a valid mib leaf from a loaded MIB or
-the set_multi() method to set multiple variable in one command.  When run
+Used internally by set_multi() to run an SNMP set command.  When run
 clears attr cache.
 
-Attr is passed as either a scalar for dynamic methods or a reference to an
-array or array of arrays when used with set_multi().
+Attr can be passed as either a scalar or a reference to an array or array
+of arrays when used with set_multi().
 
 Example:  $info->set_name('dog',3) uses autoload to resolve to
 $info->_set('name','dog',3);
@@ -3321,6 +3659,65 @@ sub _set {
     }
 
     return $rv;
+}
+
+=item $info->_make_setter(val,iid)
+
+Used internally by AUTOLOAD to create dynamic methods from either %GLOBALS,
+%FUNCS, or a valid mib leaf from a loaded MIB which runs an SNMP set command.  
+When run clears the attribute cache.
+
+Example:  $info->set_name('dog',3) dispatches to autoload to resolve to
+$info->_set('name','dog',3) and _make_setter creates the set_name() method.
+
+=cut
+
+sub _make_setter {
+    my $method = shift;
+    my $oid    = shift;
+
+    return sub {
+        my $self = shift;
+        my $val  = shift;
+        my $iid  = shift;
+
+        my $set_oid = $oid;
+        my $globals = $self->globals();
+        my $attr = $method;
+        $attr =~ s/^set_//;
+        
+        # The only thing which may give us the iid in $oid should be
+        # a %GLOBALS entry appended with a number.  In that case strip it
+        # from the OID and use it as $iid
+        if ( defined $globals->{$attr} && $globals->{$attr} =~ /(\.\d+$)/ ) {
+            $iid = $1;
+            $set_oid =~ s/$iid//;
+        }
+
+        # If we don't have $iid now we should be a %GLOBALS entry or single
+        # instance MIB leaf so default to zero
+        $iid = defined $iid ? $iid : '.0';
+
+        # prepend dot if necessary to $iid
+        $iid = ".$iid" unless $iid =~ /^\./;
+
+        my $sess = $self->session();
+        return unless defined $sess;
+
+        $set_oid .= "$iid";
+
+        $self->debug()
+            and print "SNMP::Info::_set $method$iid ($set_oid) = $val\n";
+        delete $self->{"_$attr"};
+
+        my $rv = $sess->set( $set_oid, $val );
+
+        if ( $sess->{ErrorStr} ) {
+            $self->error_throw("SNMP::Info::_set $sess->{ErrorStr}");
+            return;
+        }
+        return $rv;
+    }
 }
 
 =item $info->set_multi(arrayref)
@@ -3416,212 +3813,230 @@ sub all {
 
 =item $info->_load_attr()
 
-Used internally by AUTOLOAD to fetch data called from methods listed in %FUNCS
-or a MIB Leaf node name.
+Used internally by AUTOLOAD to create dynamic methods from %FUNCS 
+or a MIB Leaf node name contained within a table of a loaded MIB.
 
 Supports partial table fetches and single instance table fetches.
 See L<SNMP::Info/"Partial Table Fetches">.
 
-Called from $info->load_METHOD();
+These methods return data as a reference to a hash.
 
 =cut
 
 sub _load_attr {
-    my $self = shift;
-    my ( $attr, $leaf, $partial ) = @_;
+    my $method = shift;
+    my $oid    = shift;
 
-    my $ver    = $self->snmp_ver();
-    my $nosuch = $self->nosuch();
-    my $sess   = $self->session();
-    my $store  = $self->store();
-    my $munge  = $self->munge();
-    return unless defined $sess;
+    return sub {
+        my $self    = shift;
+        my $partial = shift;
 
-    my $varleaf = $leaf;
+        my $sess = $self->session();
+        return unless defined $sess;
 
-    # Check for fully qualified attr
-    if ( $leaf =~ /__/ ) {
-        $leaf =~ s/__/::/;
-        $leaf =~ s/_/-/g;
-        $varleaf = $leaf;
-    }
+        my $ver    = $self->snmp_ver();
+        my $nosuch = $self->nosuch();
+        my $store  = $self->store();
+        my $munge  = $self->munge();
 
-    # Deal with partial entries.
-    if ( defined $partial ) {
+        my $load = $method =~ /^load/;
+        my $raw  = $method =~ /raw$/;
 
-        # If we aren't supplied an OID translate
-        if ( $leaf !~ /^[.\d]*$/ ) {
+        my $attr = $method;
+        $attr =~ s/^(load|orig)_//;
+        $attr =~ s/_raw$//;
 
-            # VarBind will not resolve mixed OID and leaf entries like
-            #   "ipRouteMask.255.255".  So we convert to full OID
-            my $oid = &SNMP::translateObj($leaf);
-            unless ( defined $oid ) {
+        # Return cached data unless loading or partial
+        # We now store in raw format so munge before returning
+        # unless expecting raw data
+        return $self->_show_attr($attr, $raw)
+            if ( defined $self->{"_${attr}"}
+            && !$load
+            && !defined $partial );
+
+        # We want the qualified leaf name so that we can
+        # specify the Module (MIB) in the case of private leaf naming
+        # conflicts.  Example: ALTEON-TIGON-SWITCH-MIB::agSoftwareVersion
+        # and ALTEON-CHEETAH-SWITCH-MIB::agSoftwareVersion
+        # Third argument to translateObj specifies the Module prefix
+        
+        my $qual_leaf = SNMP::translateObj($oid,0,1) || '';
+        
+        # We still want just the leaf since a SNMP get in the case of a
+        # partial fetch may strip the Module portion upon return.  We need
+        # the match to make sure we didn't leave the table during getnext
+        # requests
+        
+        my ($leaf) = $qual_leaf =~ /::(\w+)$/;
+
+        $self->debug()
+            and print "SNMP::Info::_load_attr $method : $qual_leaf",
+            defined $partial ? "($partial)" : '', " : $oid" ,
+            defined $partial ? ".$partial" : '', "\n";
+
+        my $var = new SNMP::Varbind( [$qual_leaf, $partial] );
+
+        # So devices speaking SNMP v.1 are not supposed to give out
+        # data from SNMP2, but most do.  Net-SNMP, being very precise
+        # will tell you that the SNMP OID doesn't exist for the device.
+        # They have a flag RetryNoSuch that is used for get() operations,
+        # but not for getnext().  We set this flag normally, and if we're
+        # using V1, let's try and fetch the data even if we get one of those.
+
+        my $localstore = undef;
+        my $errornum   = 0;
+        my %seen       = ();
+
+        my $vars = [];
+        my $bulkwalk_no
+            = $self->can('bulkwalk_no') ? $self->bulkwalk_no() : 0;
+        my $bulkwalk_on = defined $self->{BulkWalk} ? $self->{BulkWalk} : 1;
+        my $can_bulkwalk = $bulkwalk_on && !$bulkwalk_no;
+        my $repeaters = $self->{BulkRepeaters} || $REPEATERS;
+        my $bulkwalk = $can_bulkwalk && $ver != 1;
+        my $loopdetect
+            = defined $self->{LoopDetect} ? $self->{LoopDetect} : 1;
+
+        if ( defined $partial ) {
+
+            # Try a GET, in case the partial is a leaf OID.
+            # Would like to only do this if we know the OID is
+            # long enough; implementing that would require a
+            # lot of MIB mucking.
+            my $try = $sess->get($var);
+            $errornum = $sess->{ErrorNum};
+            if ( defined($try) && $errornum == 0 && $try !~ /^NOSUCH/ ) {
+                $var->[2] = $try;
+                $vars     = [$var];
+                $bulkwalk = 1;        # fake a bulkwalk return
+            }
+
+            # We want to execute the while loop below for the getnext request.
+            if (    $ver == 1
+                and $sess->{ErrorNum}
+                and $sess->{ErrorStr} =~ /nosuch/i )
+            {
+                $errornum = 0;
+            }
+        }
+
+        # Use BULKWALK if we can because its faster
+        if ( $bulkwalk && @$vars == 0 ) {
+            ($vars) = $sess->bulkwalk( 0, $repeaters, $var );
+            if ( $sess->{ErrorNum} ) {
                 $self->error_throw(
-                    "SNMP::Info::_load_attr: Can't translate $leaf.$partial.  Missing MIB?\n"
-                );
+                    "SNMP::Info::_load_atrr: BULKWALK " . $sess->{ErrorStr},
+                    "\n" );
                 return;
             }
-            $varleaf = "$oid.$partial";
-        }
-        else {
-            $varleaf = "$leaf.$partial";
-        }
-    }
-
-    $self->debug()
-        and print "SNMP::Info::_load_attr $attr : $leaf",
-        defined $partial ? "($partial / $varleaf)" : '', "\n";
-
-    my $var = new SNMP::Varbind( [$varleaf] );
-
-    # So devices speaking SNMP v.1 are not supposed to give out
-    # data from SNMP2, but most do.  Net-SNMP, being very precise
-    # will tell you that the SNMP OID doesn't exist for the device.
-    # They have a flag RetryNoSuch that is used for get() operations,
-    # but not for getnext().  We set this flag normally, and if we're
-    # using V1, let's try and fetch the data even if we get one of those.
-
-    my $localstore = undef;
-    my $errornum   = 0;
-    my %seen       = ();
-
-    my $vars         = [];
-    my $bulkwalk_no  = $self->can('bulkwalk_no') ? $self->bulkwalk_no() : 0;
-    my $bulkwalk_on  = defined $self->{BulkWalk} ? $self->{BulkWalk} : 1;
-    my $can_bulkwalk = $bulkwalk_on && !$bulkwalk_no;
-    my $repeaters    = $self->{BulkRepeaters} || $REPEATERS;
-    my $bulkwalk     = $can_bulkwalk && $ver != 1;
-    my $loopdetect   = defined $self->{LoopDetect} ? $self->{LoopDetect} : 1;
-
-    if ( defined $partial ) {
-
-        # Try a GET, in case the partial is a leaf OID.
-        # Would like to only do this if we know the OID is
-        # long enough; implementing that would require a
-        # lot of MIB mucking.
-        my $try = $sess->get($var);
-        $errornum = $sess->{ErrorNum};
-        if ( defined($try) && $errornum == 0 && $try !~ /^NOSUCH/ ) {
-            $var->[2] = $try;
-            $vars     = [$var];
-            $bulkwalk = 1;        # fake a bulkwalk return
         }
 
-        # We want to execute the while loop below for the getnext request.
-        if (    $ver == 1
-            and $sess->{ErrorNum}
-            and $sess->{ErrorStr} =~ /nosuch/i )
-        {
-            $errornum = 0;
-        }
-    }
-
-    # Use BULKWALK if we can because its faster
-    if ( $bulkwalk && @$vars == 0 ) {
-        ($vars) = $sess->bulkwalk( 0, $repeaters, $var );
-        if ( $sess->{ErrorNum} ) {
-            $self->error_throw(
-                "SNMP::Info::_load_atrr: BULKWALK " . $sess->{ErrorStr},
-                "\n" );
-            return;
-        }
-    }
-
-    while ( !$errornum ) {
-        if ($bulkwalk) {
-            $var = shift @$vars or last;
-        }
-        else {
-
-            # GETNEXT instead of BULKWALK
-            $sess->getnext($var);
-            $errornum = $sess->{ErrorNum};
-        }
-
-        if ( $self->debug() > 1 ) {
-            use Data::Dumper;
-            print "SNMP::Info::_load_attr $attr : leaf = $leaf , var = ",
-                Dumper($var);
-        }
-
-        # Check if we've left the requested subtree
-        last if $var->[0] ne $leaf;
-        my $iid = $var->[1];
-        my $val = $var->[2];
-
-        unless ( defined $iid ) {
-            $self->error_throw("SNMP::Info::_load_attr: $attr not here");
-            next;
-        }
-
-        # Check to make sure we are still in partial land
-        if (    defined $partial
-            and $iid !~ /^$partial$/
-            and $iid !~ /^$partial\./ )
-        {
-            $self->debug() and print "$iid makes us leave partial land.\n";
-            last;
-        }
-
-        # Check if last element, V2 devices may report ENDOFMIBVIEW even if
-        # instance or object doesn't exist.
-        if ( $val eq 'ENDOFMIBVIEW' ) {
-            last;
-        }
-
-        # Similarly for SNMPv1 - noSuchName return results in both $iid
-        # and $val being empty strings.
-        if ( $val eq '' and $iid eq '' ) {
-            last;
-        }
-
-        # Another check for SNMPv1 - noSuchName return may results in an $iid
-        # we've already seen and $val an empty string.  If we don't catch
-        # this here we erronously report a loop below.
-        if ( defined $seen{$iid} and $seen{$iid} and $val eq '' ) {
-            last;
-        }
-
-        if ($loopdetect) {
-
-            # Check to see if we've already seen this IID (looping)
-            if ( defined $seen{$iid} and $seen{$iid} ) {
-                $self->error_throw("Looping on: $attr iid:$iid. ");
-                last;
+        while ( !$errornum ) {
+            if ($bulkwalk) {
+                $var = shift @$vars or last;
             }
             else {
-                $seen{$iid}++;
+
+                # GETNEXT instead of BULKWALK
+                $sess->getnext($var);
+                $errornum = $sess->{ErrorNum};
             }
+
+            if ( $self->debug() > 1 ) {
+                use Data::Dumper;
+                print "SNMP::Info::_load_attr $method : leaf = $oid , var = ",
+                    Dumper($var);
+            }
+
+            # Check if we've left the requested subtree
+            last if $var->[0] !~ /$leaf$/;
+            my $iid = $var->[1];
+            my $val = $var->[2];
+
+            unless ( defined $iid ) {
+                $self->error_throw(
+                    "SNMP::Info::_load_attr: $method not here");
+                next;
+            }
+
+            # Check to make sure we are still in partial land
+            if (    defined $partial
+                and $iid !~ /^$partial$/
+                and $iid !~ /^$partial\./ )
+            {
+                $self->debug()
+                    and print "$iid makes us leave partial land.\n";
+                last;
+            }
+
+           # Check if last element, V2 devices may report ENDOFMIBVIEW even if
+           # instance or object doesn't exist.
+            if ( $val eq 'ENDOFMIBVIEW' ) {
+                last;
+            }
+
+            # Similarly for SNMPv1 - noSuchName return results in both $iid
+            # and $val being empty strings.
+            if ( $val eq '' and $iid eq '' ) {
+                last;
+            }
+
+         # Another check for SNMPv1 - noSuchName return may results in an $iid
+         # we've already seen and $val an empty string.  If we don't catch
+         # this here we erronously report a loop below.
+            if ( defined $seen{$iid} and $seen{$iid} and $val eq '' ) {
+                last;
+            }
+
+            if ($loopdetect) {
+
+                # Check to see if we've already seen this IID (looping)
+                if ( defined $seen{$iid} and $seen{$iid} ) {
+                    $self->error_throw("Looping on: $method iid:$iid. ");
+                    last;
+                }
+                else {
+                    $seen{$iid}++;
+                }
+            }
+
+            if ( $val eq 'NOSUCHOBJECT' ) {
+                $self->error_throw(
+                    "SNMP::Info::_load_attr: $method :  NOSUCHOBJECT");
+                next;
+            }
+            if ( $val eq 'NOSUCHINSTANCE' ) {
+                $self->error_throw(
+                    "SNMP::Info::_load_attr: $method :  NOSUCHINSTANCE");
+                next;
+            }
+
+            $localstore->{$iid} = $val;
+
         }
 
-        if ( $val eq 'NOSUCHOBJECT' ) {
-            $self->error_throw(
-                "SNMP::Info::_load_attr: $attr :  NOSUCHOBJECT");
-            next;
-        }
-        if ( $val eq 'NOSUCHINSTANCE' ) {
-            $self->error_throw(
-                "SNMP::Info::_load_attr: $attr :  NOSUCHINSTANCE");
-            next;
+        # Cache data if we are not getting partial data:
+        if ( !defined $partial ) {
+            $self->{"_${attr}"}++;
+            $store->{$attr} = $localstore;
         }
 
         # Data Munging
-        #   Checks for an entry in %munge and runs the subroutine
-        if ( defined $munge->{$attr} ) {
+        # Checks for an entry in %munge and munges values unless we expect
+        # raw data
+        if ( defined $munge->{$attr} && !$raw ) {
             my $subref = $munge->{$attr};
-            $val = &$subref($val);
+            my %munged;
+            foreach my $key ( keys %$localstore ) {
+                my $value = $localstore->{$key};
+                next unless $key;
+                my $munged_value = &$subref($value);
+                $munged{$key} = $munged_value;
+            }
+            return \%munged;
         }
-
-        $localstore->{$iid} = $val;
+        return $localstore;
     }
-
-    # Cache data if we are not getting partial data:
-    if ( !defined $partial ) {
-        $self->{"_${attr}"}++;
-        $store->{$attr} = $localstore;
-    }
-
-    return $localstore;
 }
 
 =item $info->_show_attr()
@@ -3638,10 +4053,28 @@ Every time after it will return cached data.
 sub _show_attr {
     my $self = shift;
     my $attr = shift;
+    my $raw  = shift;
 
     my $store = $self->store();
 
-    return $store->{$attr};
+    # Get the callback hash for data munging
+    my $munge = $self->munge();
+
+    if ( defined $munge->{$attr} && !$raw ) {
+        my $localstore = $store->{$attr};
+        my $subref = $munge->{$attr};
+        my %munged;
+        foreach my $key ( keys %$localstore ) {
+            my $value = $localstore->{$key};
+            next unless $key;
+            my $munged_value = &$subref($value);
+            $munged{$key} = $munged_value;
+        }
+        return \%munged;
+    }
+    else {
+        return $store->{$attr};
+    }
 }
 
 =item $info->snmp_connect_ip(ip) 
@@ -3711,43 +4144,185 @@ sub modify_port_list {
     return pack( "B*", join( '', @$portlist ) );
 }
 
-=back
+=item _validate_autoload_method(method)
 
-=head2 AUTOLOAD
-
-Each entry in either %FUNCS, %GLOBALS, or MIB Leaf node names present in
-loaded MIBs are used by AUTOLOAD() to create dynamic methods.
-
-Note that this AUTOLOAD is going to be run for all the classes listed in the
-@ISA array in a subclass, so will be called with a variety of package names.
-We check the %FUNCS and %GLOBALS of the package that is doing the calling at
-this given instant.
+Used internally by AUTOLOAD to validate that a dynamic method should be
+created.  Returns the OID of the MIB leaf node the method will get or set.
 
 =over 
 
 =item 1. Returns unless method is listed in %FUNCS, %GLOBALS, or is MIB Leaf
 node name in a loaded MIB for given class.
 
-=item 2. Checks for load_ prefix and if present runs $info->_global(method)
-for methods which exist in %GLOBALS or are a single instance MIB Leaf node
-name, otherwise runs $info->_load_attr(method) for methods which exist in
-%FUNCS or are MIB Leaf node name contained within a table.  This always
-forces reloading and does not use cached data.
+=item 2. Translates the MIB Leaf node name to an OID.
 
-=item 3. Check for set_ prefix and if present runs $info->_set(method).
-
-=item 4. If the method exists in %GLOBALS or is a single instance MIB Leaf
-node name it runs $info->_global(method) unless already cached.
-
-=item 5. If the method exists in %FUNCS or is MIB Leaf node name contained
-within a table it runs $info->_load_attr(method) if not cached.
-
-=item 6. Otherwise return $info->_show_attr(method).
+=item 3. Checks to see if the method access type is allowed for the resolved
+OID.  Write access for set_ methods, read access for others.
 
 =back
 
-Override any dynamic method listed in one of these hashes by creating a
-subroutine with the same name.
+=cut
+
+sub _validate_autoload_method {
+    my $self   = shift;
+    my $method = shift;
+
+    my $setter = $method =~ /^set/;
+    my $attr = $method;
+    $attr =~ s/^(load|set|orig)_//;
+    $attr =~ s/_raw$//;
+
+    my $globals = $self->globals();
+    my $funcs   = $self->funcs();
+
+    my $leaf_name = $globals->{$attr} || $funcs->{$attr} || $attr;
+
+    # Check for fully qualified name
+    if ( $leaf_name =~ /__/ ) {
+        $leaf_name =~ s/__/::/;
+        $leaf_name =~ s/_/-/g;
+    }
+
+    # Translate MIB leaf node name to OID
+    my $oid = SNMP::translateObj($leaf_name);
+
+    if ( $leaf_name =~ /^[.]?\d[\.\d]+$/ ) {
+        $oid = $leaf_name;
+    }
+
+    unless ( defined $oid ) {
+        print
+            "SNMP::Info::_validate_autoload_method($leaf_name) Unable to resolve method.\n"
+            if $self->debug();
+        return;
+    }
+
+    # Validate that we have proper access for the operation
+    my $access = $SNMP::MIB{$oid}{'access'} || '';
+
+    # If we were given a fully qualified OID because we don't have the MIB
+    # file, it will translate above but we won't be able to check access so
+    # skip the check and return
+    if ($access) {
+        unless ( ( $method =~ /^set/ && $access =~ /Write|Create/ )
+            || $access =~ /Read|Create/ )
+        {
+            print
+                "SNMP::Info::_validate_autoload_method($attr : $oid) Not accessable for requested operation.\n"
+                if $self->debug();
+            return;
+        }
+    }
+
+    # If the parent of the leaf has indexes it is contained within a table
+    my $indexes    = $SNMP::MIB{$oid}{'parent'}{'indexes'};
+    my $table_leaf = 0;
+
+    if ( !$globals->{$attr}
+        && ( defined $indexes && scalar( @{$indexes} ) > 0 ) )
+    {
+        $table_leaf = 1;
+    }
+
+    # Tag on .0 for %GLOBALS and single instance MIB leafs unless
+    # the leaf ends in a digit or we are going to use for a set operation
+    if ( $table_leaf == 0 && ( $globals->{$attr} || $leaf_name ne $oid ) ) {
+
+        unless ( $leaf_name =~ /\d$/ || $setter ) {
+            $oid .= ".0";
+        }
+    }
+
+    my $return = [ $oid, $table_leaf ];
+    return $return;
+}
+
+=item $info->can()
+
+Overrides UNIVERSAL::can() so that objects will correctly report their
+capabilities to include dynamic methods generated at run time via AUTOLOAD.
+
+Calls parent can() first to see if method exists, if not validates that a
+method should be created then dispatches to the appropriate internal method
+for creation.  The newly created method is inserted into the symbol table
+returning to AUTOLOAD only for the initial method call.
+
+Returns undef if the method does not exist and can not be created.
+
+=cut
+
+sub can {
+    my $self   = shift;
+    my $method = shift;
+
+    # use results of parent can()
+    my $meth_ref = $self->SUPER::can($method);
+
+    # Don't return if passed $super as it means we were called
+    # from AUTOLOAD for a method that hasn't been generated yet.
+    if ($meth_ref) {
+        return $meth_ref
+            unless ( defined $AUTOLOAD && $AUTOLOAD =~ /SUPER::$method$/ );
+    }
+
+    my $validated = $self->_validate_autoload_method($method);
+    return unless $validated;
+
+    my ($oid, $table) = @$validated;
+
+    # _validate_autoload_method validates, so we need to check for
+    # set_ , funcs, table leafs, and everything else goes to _global
+    my $funcs = $self->funcs();
+
+    # We need to resolve funcs with a prefix or suffix
+    my $f_method = $method;
+    $f_method =~ s/^(load|orig)_//;
+    $f_method =~ s/_raw$//;
+
+    no strict 'refs';    ## no critic (ProhibitNoStrict )
+
+    # Check for set_ ing.
+    if ( $method =~ /^set_/ ) {
+        return *{$AUTOLOAD} = _make_setter( $method, $oid, @_ );
+    }
+    elsif ( defined $funcs->{$f_method} || $table ) {
+        return *{$AUTOLOAD} = _load_attr( $method, $oid, @_ );
+    }
+    else {
+        return *{$AUTOLOAD} = _global( $method, $oid );
+    }
+}
+
+=back
+
+=head2 AUTOLOAD
+
+Each entry in either %FUNCS, %GLOBALS, or MIB Leaf node names present in
+loaded MIBs are used by AUTOLOAD() to create dynamic methods.  Generated
+methods are inserted into the symbol table so that subsequent calls can avoid
+AUTOLOAD() and dispatch directly.
+
+=over 
+
+=item 1. Returns unless method is listed in %FUNCS, %GLOBALS, or is a MIB
+Leaf node name in a loaded MIB for given class.
+
+=item 2. If the method exists in %GLOBALS or is a single instance MIB Leaf
+node name from a loaded MIB, _global() generates the method. 
+
+=item 3. If a set_ prefix is present _make_setter() generates the method.
+
+=item 4. If the method exists in %FUNCS or is a MIB Leaf node name contained
+within a table from a loaded MIB, _load_attr() generates the method.
+
+=item 5. A load_ prefix forces reloading of data and does not use cached data.
+
+=item 6. A _raw suffix returns data ignoring any munge routines.
+
+=back
+
+Override any dynamic method listed in %GLOBALS, %FUNCS, or MIB Leaf node
+name a by creating a subroutine with the same name.
 
 For example to override $info->name() create `` sub name {...}'' in your
 subclass.
@@ -3755,19 +4330,10 @@ subclass.
 =cut
 
 sub AUTOLOAD {
-    my $self     = shift;
-    my $sub_name = $AUTOLOAD;
+    my $self    = shift;
+    my ($sub_name) = $AUTOLOAD =~ /::(\w+)$/;
 
     return if $sub_name =~ /DESTROY$/;
-
-    # package is the first part
-    ( my $package = $sub_name ) =~ s/[^:]*$//;
-
-    # Sub name is the last part
-    $sub_name =~ s/.*://;
-
-    #  Enable calls to SUPER class to find autoloaded methods
-    $package =~ s/SUPER::$//;
 
     # Typos in function calls in SNMP::Info subclasses turn into
     # AUTOLOAD requests for non-methods.  While this is deprecated,
@@ -3782,97 +4348,9 @@ sub AUTOLOAD {
         );
     }
 
-    my $attr = $sub_name;
-    $attr =~ s/^(load|set)_//;
-    $attr =~ s/^orig_//;
+    return unless my $meth_ref = $self->can($sub_name, @_);
+    return $self->$meth_ref(@_);
 
-    # Let's use the %GLOBALS and %FUNCS from the class that
-    #   inherited us.
-    my ( %funcs, %globals );
-    {
-        no strict 'refs';    ## no critic
-        %funcs   = %{ $package . 'FUNCS' };
-        %globals = %{ $package . 'GLOBALS' };
-    }
-
-    # Check if we were called with a MIB leaf node name
-    my $trans = SNMP::translateObj($attr);
-
-    my $mib_leaf   = 0;
-    my $table_leaf = 0;
-    if ( defined($trans) ) {
-        my $mib = $SNMP::MIB{$trans};
-
-        # We're not a leaf if we don't have access attribute
-        # Don't bother if not-accessable
-        my $access = $$mib{'access'};
-        $mib_leaf = 1 if ( defined $access && $access !~ /NoAccess/ );
-        if ( $self->debug() and !$mib_leaf ) {
-            print "SNMP::Info::AUTOLOAD($attr) Leaf not accessable.\n";
-        }
-
-        # If we're a leaf check to see if we are in a table
-        if ($mib_leaf) {
-            my $indexes = $$mib{'parent'}{'indexes'};
-            $table_leaf = 1
-                if ( defined $indexes && scalar( @{$indexes} ) > 0 );
-        }
-    }
-
-    unless ( defined $funcs{$attr}
-        or defined $globals{$attr}
-        or defined $mib_leaf )
-    {
-        $self->error_throw(
-            "SNMP::Info::AUTOLOAD($attr) Attribute not found in this device class."
-        );
-        return;
-    }
-
-    # Check for load_ ing.
-    if ( $sub_name =~ /^load_/ ) {
-        if ( defined $globals{$attr} ) {
-            return $self->_global($attr);
-        }
-        if ( defined $funcs{$attr} ) {
-            return $self->_load_attr( $attr, $funcs{$attr}, @_ );
-        }
-        if ( $mib_leaf and !$table_leaf ) {
-            return $self->_global($attr);
-        }
-        if ($table_leaf) {
-            return $self->_load_attr( $attr, $attr, @_ );
-        }
-    }
-
-    # Check for set_ ing.
-    if ( $sub_name =~ /^set_/ ) {
-        return $self->_set( $attr, @_ );
-    }
-
-    # Next check for entry in %GLOBALS
-    if ( defined $globals{$attr} or ( $mib_leaf and !$table_leaf ) ) {
-
-        # Return Cached Value if exists
-        return $self->{"_${attr}"} if exists $self->{"_${attr}"};
-
-        # Fetch New Value
-        return $self->_global($attr);
-    }
-
-    # Otherwise we must be listed in %FUNCS
-
-    # Load data if it both not cached and we are not requesting partial info.
-    if ( defined $funcs{$attr} ) {
-        return $self->_load_attr( $attr, $funcs{$attr}, @_ )
-            unless ( defined $self->{"_${attr}"} and !defined $_[0] );
-    }
-    if ($table_leaf) {
-        return $self->_load_attr( $attr, $attr, @_ )
-            unless ( defined $self->{"_${attr}"} and !defined $_[0] );
-    }
-
-    return $self->_show_attr($attr);
 }
 1;
 

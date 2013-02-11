@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = ( 'CISCO-POWER-ETHERNET-EXT-MIB' => 'cpeExtPsePortEntPhyIndex',
           'CISCO-CDP-MIB' => 'cdpCachePowerConsumption' );
@@ -175,7 +175,7 @@ Maps the C<pethPsePortTable> to C<ifIndex> by way of the F<ENTITY-MIB>.
 =item $poe->peth_port_power()
 
 Power supplied by PoE ports, in milliwatts
-("cpeExtPsePortPwrConsumption")
+(C<cpeExtPsePortPwrConsumption>)
  
 =back
 
@@ -185,8 +185,8 @@ Power supplied by PoE ports, in milliwatts
 
 =item $poe->peth_port_neg_power()
 
-Power negotiated using CDP, in milliwats
-("cdpCachePowerConsumption")
+Power negotiated using CDP, in milliwatts
+(C<cdpCachePowerConsumption>)
 
 =back
 

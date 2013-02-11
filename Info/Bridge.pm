@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     'BRIDGE-MIB'   => 'dot1dBaseBridgeAddress',
@@ -156,6 +156,19 @@ sub qb_fw_mac {
         $qb_fw_mac->{$idx} = $mac;
     }
     return $qb_fw_mac;
+}
+
+sub qb_fw_vlan {
+    my $bridge  = shift;
+    my $partial = shift;
+
+    my $qb_fw_port = $bridge->qb_fw_port($partial);
+    my $qb_fw_vlan = {};
+    foreach my $idx ( keys %$qb_fw_port ) {
+        my ( $fdb_id, $mac ) = _qb_fdbtable_index($idx);
+        $qb_fw_vlan->{$idx} = $fdb_id;
+    }
+    return $qb_fw_vlan;
 }
 
 sub qb_i_vlan_t {
@@ -854,6 +867,10 @@ Returns reference to hash of forwarding table entries port interface
 identifier (iid)
 
 (C<dot1qTpFdbPort>)
+
+=item $bridge->qb_fw_vlan()
+
+Returns reference to hash of forwarding table entries VLAN ID
 
 =item $bridge->qb_fw_status()
 

@@ -40,7 +40,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer2::MIBS,
@@ -89,7 +89,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::HPVC - SNMP Interface to HP VirtualConnect Switches
+SNMP::Info::Layer2::HPVC - SNMP Interface to HP Virtual Connect Switches
 
 =head1 AUTHOR
 
@@ -113,7 +113,7 @@ Jeroen van Ingen
 =head1 DESCRIPTION
 
 Provides abstraction to the configuration information obtainable from a 
-HP VirtualConnect Switch via SNMP. 
+HP Virtual Connect Switch via SNMP. 
 
 For speed or debugging purposes you can call the subclass directly, but not
 after determining a more specific class using the method above. 
@@ -150,7 +150,7 @@ These are methods that return scalar value from SNMP
 
 =item $hp->os()
 
-Returns hpvc
+Returns C<'hpvc'>
 
 =item $hp->os_bin()
 

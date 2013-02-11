@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     'SNMPv2-MIB'            => 'sysDescr',
@@ -51,6 +51,7 @@ $VERSION = '2.11';
     'OLD-CISCO-SYSTEM-MIB'  => 'writeMem',
     'CISCO-PRODUCTS-MIB'    => 'sysName',
     'ENTITY-MIB'            => 'entPhysicalSoftwareRev',
+    'CISCO-IMAGE-MIB'       => 'ciscoImageString',
 
     # some older catalysts live here
     'CISCO-STACK-MIB'                 => 'wsc1900sysID',
@@ -100,13 +101,15 @@ sub os {
     my $descr = $l2->description() || '';
 
     # order here matters - there are Catalysts that run IOS and have catalyst
-    # in their description field.
+    # in their description field, as well as Catalysts that run IOS-XE.
+    return 'ios-xe'   if ( $descr =~ /IOS-XE/ );
     return 'ios'      if ( $descr =~ /IOS/ );
     return 'catalyst' if ( $descr =~ /catalyst/i );
     return 'css'      if ( $descr =~ /Content Switch SW/ );
     return 'css-sca'  if ( $descr =~ /Cisco Systems Inc CSS-SCA-/ );
     return 'pix'      if ( $descr =~ /Cisco PIX Security Appliance/ );
     return 'asa'      if ( $descr =~ /Cisco Adaptive Security Appliance/ );
+    return 'san-os'   if ( $descr =~ /Cisco SAN-OS/ );
 
     if ( $descr =~ /Application Control Engine Service Module/ ) {
         # Only the admin context implements the entity MIB
@@ -201,6 +204,15 @@ sub os_ver {
         and $descr =~ m/Version (\d+\.\d+\([^)]+\)[^,\s]*)(,|\s)+/ )
     {
         return $1;
+    }
+
+    # Generic fallback: try to determine running image from CISCO-IMAGE-MIB
+    my $image_info = $l2->ciscoImageString() || {};
+    foreach my $row (keys %$image_info) {
+        my $info_string = $image_info->{$row};
+        if ($info_string =~ /CW_VERSION\$([^\$]+)\$/) {
+            return $1;
+        }
     }
 
     return;
@@ -358,6 +370,8 @@ None.
 
 =item F<ENTITY-MIB>
 
+=item F<CISCO-IMAGE-MIB>
+
 =back
 
 MIBs can be found at ftp://ftp.cisco.com/pub/mibs/v2/v2.tar.gz
@@ -388,58 +402,34 @@ Returns mem_free() + mem_used()
 
 =item $ciscostats->os()
 
-Tries to parse if device is running IOS or CatOS from description()
+Tries to parse if device is running 'IOS', 'CatOS', 'IOS-XE' or something else
+from description()
 
-Available values :
+Available values:
 
-=over
-
-=item pix
-
-Cisco PIX
-
-=item asa
-
-Cisco ASA
-
-=item fwsm
-
-Single-mode FWSM
-
-=item fwsm-admin
-
-Admin context of multi-context FWSM
-
-=item fwsm-context
-
-Standard context of multi-context FWSM
-
-=item ace-admin
-
-Admin context of ACE module
-
-=item ace-context
-
-Standard context of ACE module (NB: No OS version detection
-is available, but will be the same as it's 'ace admin')
-
-=item css
-
-Cisco Content Switch
-
-=item css-sca
-
-Cisco Content Switch Secure Content Acceleration
-
-=back
+ 'ios'          for Cisco IOS
+ 'ios-xe'       for Cisco IOS XE
+ 'pix'          for Cisco PIX
+ 'asa'          for Cisco ASA
+ 'fwsm'         for Single-mode FWSM
+ 'fwsm-admin'   for Admin context of multi-context FWSM
+ 'fwsm-context' for Standard context of multi-context FWSM
+ 'ace-admin'    for Admin context of ACE module
+ 'ace-context'  for Standard context of ACE module (NB: No OS version
+                     detection is available, but will be the same as it's
+                     'ace admin')
+ 'css'          for Cisco Content Switch
+ 'css-sca'      for Cisco Content Switch Secure Content Acceleration
+ 'san-os'       for Cisco SAN-OS
 
 =item $ciscostats->os_ver()
 
-Tries to parse device operating system version from description()
+Tries to parse device operating system version from description(), falls back
+to parsing C<CISCO-IMAGE-MIB::ciscoImageString> if needed
 
 =item $ciscostats->os_bin()
 
-Tries to parse ROMMON version from rom_id() string
+Tries to parse C<ROMMON> version from rom_id() string
 
 =item $ciscostats->ios_cpu()
 

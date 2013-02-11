@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     'LLDP-MIB'          => 'lldpLocSysCapEnabled',
@@ -99,20 +99,26 @@ sub lldp_if {
 
     my $addr    = $lldp->lldp_rem_pid($partial) || {};
     my $i_descr = $lldp->i_description() || {};
+    my $i_alias = $lldp->i_alias() || {};
     my %r_i_descr = reverse %$i_descr;
+    my %r_i_alias = reverse %$i_alias;
     
     my %lldp_if;
     foreach my $key ( keys %$addr ) {
         my @aOID = split( '\.', $key );
         my $port = $aOID[1];
         next unless $port;
-        # Local LLDP port may not equate to ifIndex
-        # Cross reference lldpLocPortDesc with ifDescr to get ifIndex
+        # Local LLDP port may not equate to ifIndex, see LldpPortNumber TEXTUAL-CONVENTION in LLDP-MIB.
+        # Cross reference lldpLocPortDesc with ifDescr and ifAlias to get ifIndex,
+        # prefer ifDescr over ifAlias because using cross ref with description is correct behavior 
+        # according to the LLDP-MIB. Some devices (eg H3C gear) seem to use ifAlias though.
         my $lldp_desc = $lldp->lldpLocPortDesc($port);
         my $desc = $lldp_desc->{$port};
         # If cross reference is successful use it, otherwise stick with lldpRemLocalPortNum
         if ( exists $r_i_descr{$desc} ) {
             $port = $r_i_descr{$desc};
+        } elsif ( exists $r_i_alias{$desc} ) {
+            $port = $r_i_alias{$desc};
         }
         
         $lldp_if{$key} = $port;
@@ -175,7 +181,7 @@ sub lldp_port {
             }
         }
 
-        # Nortel lldpRemPortDesc doesn't match ifDescr, but we can still
+        # Avaya/Nortel lldpRemPortDesc doesn't match ifDescr, but we can still
         # figure out slot.port based upon lldpRemPortDesc
         if ( $port =~ /^(Unit\s+(\d+)\s+)?Port\s+(\d+)$/ ) {
             $port = defined $1 ? "$2.$3" : "$3";
@@ -411,9 +417,9 @@ with the remote system.
 
 =item $lldp->lldp_if()
 
-Returns the mapping to the SNMP Interface Table.  Trys to cross reference 
-(C<lldpLocPortDesc>) with (C<ifDescr>) to get (C<ifIndex>), if unable 
-defaults to (C<lldpRemLocalPortNum>).
+Returns the mapping to the SNMP Interface Table. Tries to cross reference 
+(C<lldpLocPortDesc>) with (C<ifDescr>) and (C<ifAlias>) to get (C<ifIndex>), 
+if unable defaults to (C<lldpRemLocalPortNum>).
 
 =item  $lldp->lldp_ip()
 

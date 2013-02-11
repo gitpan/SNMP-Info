@@ -1,6 +1,6 @@
-package SNMP::Info::Layer3::SonicWALL;
-
-# Copyright (c) 2011 Netdisco Project
+# SNMP::Info::Layer7::Netscaler
+#
+# Copyright (c) 2012 Eric Miller
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,102 +27,111 @@ package SNMP::Info::Layer3::SonicWALL;
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+package SNMP::Info::Layer7::Netscaler;
+
 use strict;
 use Exporter;
-use SNMP::Info::Layer3;
+use SNMP::Info::Layer7;
 
-@SNMP::Info::Layer3::SonicWALL::ISA       = qw/SNMP::Info::Layer3 Exporter/;
-@SNMP::Info::Layer3::SonicWALL::EXPORT_OK = qw//;
+@SNMP::Info::Layer7::Netscaler::ISA       = qw/SNMP::Info::Layer7 Exporter/;
+@SNMP::Info::Layer7::Netscaler::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '3.00_003';
 
 %MIBS = (
-    %SNMP::Info::Layer2::MIBS, %SNMP::Info::Layer3::MIBS,
-    'SNWL-COMMON-MIB' => 'snwlCommonModule',
+    %SNMP::Info::Layer7::MIBS,
+    'NS-ROOT-MIB' => 'sysBuildVersion',
 );
 
 %GLOBALS = (
-    %SNMP::Info::Layer2::GLOBALS, %SNMP::Info::Layer3::GLOBALS,
-    #From SNWL-COMMON-MIB
-    'sw_model' => 'snwlSysModel',
-    'sw_serial' => 'snwlSysSerialNumber',
-    'sw_firmware' => 'snwlSysFirmwareVersion',
+    %SNMP::Info::Layer7::GLOBALS,
+    'build_ver'   => 'sysBuildVersion',
+    'sys_hw_desc' => 'sysHardwareVersionDesc',
+    'cpu'         => 'resCpuUsage',
 );
 
-%FUNCS = ( %SNMP::Info::Layer2::FUNCS, %SNMP::Info::Layer3::FUNCS, );
+%FUNCS = (
+    %SNMP::Info::Layer7::FUNCS,
+    # IP Address Table - NS-ROOT-MIB::nsIpAddrTable
+    'ip_index'    => 'ipAddr',
+    'ip_netmask'  => 'ipNetmask',
+    # TODO VLAN - NS-ROOT-MIB::vlanTable
+    'ns_vid'      =>'vlanId',
+    'ns_vlan_mem' => 'vlanMemberInterfaces',
+    'ns_vtag_int' => 'vlanTaggedInterfaces',
+    );
 
-%MUNGE = ( %SNMP::Info::Layer2::MUNGE, %SNMP::Info::Layer3::MUNGE, );
+%MUNGE = ( %SNMP::Info::Layer7::MUNGE, );
 
 sub vendor {
-    return 'SonicWALL';
+    return 'citrix';
 }
 
 sub os {
-        my $sonicos = shift;
-        my $swos = $sonicos->sw_firmware();
-        if ($swos =~ /Enhanced/) {
-            return 'SonicOS Enhanced';
-        }
-        return 'SonicOS Standard';
-}
-
-sub os_ver {
-    my $sonicosver = shift;
-        my $osver = $sonicosver->sw_firmware();
-        if ( $osver =~ /\S+\s\S+\s(\S+)/) {
-            return $1
-        }
+    return 'netscaler';
 }
 
 sub serial {
-        my $sw = shift;
-        my $serial = $sw->sw_serial();
-        return $serial;
+    return '';
 }
 
 sub model {
-        my $swmodel = shift;
-        my $model = $swmodel->sw_model();
-        return $model;
+    my $ns    = shift;
+    my $desc  = $ns->sys_hw_desc() || '';
+   
+    $desc =~ s/^.+\bNS//i;
+
+    return $desc;
 }
+
+sub os_ver {
+    my $ns    = shift;
+    my $ver  = $ns->build_ver() || '';
+    
+    if ($ver =~ /^.+\bNS(\d+\.\d+)/) {
+        $ver = $1;
+    }
+    return $ver;
+}
+
 
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::SonicWALL - SNMP Interface to L3 SonicWALL Firewall
+SNMP::Info::Layer7::Netscaler - SNMP Interface to Citrix Netscaler appliances
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-phishphreek@gmail.com
+Eric Miller
 
 =head1 SYNOPSIS
 
- # Let SNMP::Info determine the correct subclass for you.
- my $router = new SNMP::Info(
+ # Let SNMP::Info determine the correct subclass for you. 
+ my $ns = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           DestHost    => 'myrouter',
                           Community   => 'public',
-                          Version     => 1
-                        )
+                          Version     => 2
+                        ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $router->class();
+ my $class      = $ns->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Generic SonicWALL Firewalls
+Subclass for Citrix Netscaler appliances
 
 =head2 Inherited Classes
 
 =over
 
-=item SNMP::Info::Layer3
+=item SNMP::Info::Layer7
 
 =back
 
@@ -130,9 +139,11 @@ Subclass for Generic SonicWALL Firewalls
 
 =over
 
+=item F<NS-ROOT-MIB>
+
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
+See L<SNMP::Info::Layer7> for its own MIB requirements.
 
 =back
 
@@ -140,50 +151,65 @@ See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
 
 These are methods that return scalar value from SNMP
 
-=head2 Overrides
-
 =over
 
-=item $router->vendor()
+=item $ns->vendor()
 
-Returns C<'SonicWALL'>
+Returns 'citrix'.
 
-=item $router->os()
+=item $ns->os()
 
-Returns C<'SonicOS'>
+Returns 'netscaler'.
 
-=item $router->os_ver()
+=item $ns->os_ver()
 
-Returns '4.2.0.0-10e'
+Release extracted from C<sysBuildVersion>.
 
-=item $router->model()
+=item $ns->model()
 
-Returns C<'PRO 3060 Enhanced'>
+Model extracted from C<sysHardwareVersionDesc>.
 
-=item $router->serial()
+=item $ns->cpu()
 
-Returns the MAC address of the first X0/LAN interface.
+C<resCpuUsage>
+
+=item $ns->build_ver()
+
+C<sysBuildVersion>
+
+=item $ns->sys_hw_desc()
+
+C<sysHardwareVersionDesc>
+
+=item $ns->serial()
+
+Returns ''.
 
 =back
 
-=head2 Globals imported from SNMP::Info::Layer3
+=head2 Globals imported from SNMP::Info::Layer7
 
-See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+See documentation in L<SNMP::Info::Layer7> for details.
 
-=head1 TABLE METHODS
+=head1 TABLE ENTRIES
 
 These are methods that return tables of information in the form of a reference
 to a hash.
 
-=head2 Overrides
-
 =over
+
+=item $ns->ip_index()
+
+C<ipAddr>
+
+=item $ns->ip_netmask()
+
+C<ipNetmask>
 
 =back
 
-=head2 Table Methods imported from SNMP::Info::Layer3
+=head2 Table Methods imported from SNMP::Info::Layer7
 
-See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
+See documentation in L<SNMP::Info::Layer7> for details.
 
 =cut
-

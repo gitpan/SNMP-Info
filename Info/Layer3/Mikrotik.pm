@@ -39,7 +39,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -134,11 +134,11 @@ These are methods that return scalar value from SNMP
 
 =item $mikrotik->vendor()
 
-Returns 'mikrotik'.
+Returns C<'mikrotik'>.
 
 =item $mikrotik->os()
 
-Returns 'routeros'.
+Returns C<'routeros'>.
 
 =item $mikrotik->model()
 

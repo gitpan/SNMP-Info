@@ -1,7 +1,6 @@
-# SNMP::Info::Layer3::PacketFront
-# $Id$
+# SNMP::Info::Layer3::H3C
 #
-# Copyright (c) 2011 Jeroen van Ingen
+# Copyright (c) 2012 Jeroen van Ingen
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,14 +27,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer3::PacketFront;
+package SNMP::Info::Layer3::H3C;
 
 use strict;
 use Exporter;
 use SNMP::Info::Layer3;
+use SNMP::Info::LLDP;
 
-@SNMP::Info::Layer3::PacketFront::ISA       = qw/SNMP::Info::Layer3 Exporter/;
-@SNMP::Info::Layer3::PacketFront::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::H3C::ISA       = qw/SNMP::Info::LLDP SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::H3C::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
@@ -43,52 +43,57 @@ $VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
-    'UCD-SNMP-MIB'             => 'versionTag',
-    'NET-SNMP-TC'              => 'netSnmpAgentOIDs',
-    'HOST-RESOURCES-MIB'       => 'hrSystem',
-    'PACKETFRONT-PRODUCTS-MIB' => 'drg100',
-    'PACKETFRONT-DRG-MIB'      => 'productName',
+    %SNMP::Info::LLDP::MIBS,
+    'HH3C-LswDEVM-MIB'     => 'hh3cDevMFanStatus',
+    'HH3C-LswINF-MIB'      => 'hh3cSlotPortMax',
+    'HH3C-LSW-DEV-ADM-MIB' => 'hh3cLswSysVersion',
+    'HH3C-PRODUCT-ID-MIB'  => 'hh3c-s5500-28C-EI',
+    'HH3C-ENTITY-VENDORTYPE-OID-MIB' => 'hh3cevtOther',
 );
 
 %GLOBALS = (
     %SNMP::Info::Layer3::GLOBALS,
-    'snmpd_vers'     => 'versionTag',
-    'hrSystemUptime' => 'hrSystemUptime',
+    %SNMP::Info::LLDP::GLOBALS,
+    'fan' => 'hh3cDevMFanStatus.1',
+    'ps1_status' => 'hh3cDevMPowerStatus.1',
+    'ps2_status' => 'hh3cDevMPowerStatus.2',
 );
 
-%FUNCS = ( %SNMP::Info::Layer3::FUNCS, );
+%FUNCS = (
+    %SNMP::Info::Layer3::FUNCS,
+    %SNMP::Info::LLDP::FUNCS,
+    i_duplex_admin => 'hh3cifEthernetDuplex',
+);
 
-%MUNGE = ( %SNMP::Info::Layer3::MUNGE, );
+%MUNGE = (
+    %SNMP::Info::Layer3::MUNGE,
+    %SNMP::Info::LLDP::MUNGE,
+);
 
 sub vendor {
-    return 'packetfront';
+    my $h3c = shift;
+    my $mfg = $h3c->entPhysicalMfgName(1) || {};
+    return $mfg->{1};
 }
 
 sub os {
-    # Only DRGOS for now (not tested with other product lines than DRG series)
-    my $pfront = shift;
-    my $descr   = $pfront->description();
-    if ( $descr =~ /drgos/i ) {
-        return 'drgos';
-    } else {
-        return;
-    }
+    my $h3c = shift;
+    my $descr   = $h3c->description();
+
+    return $1 if ( $descr =~ /(\S+)\s+Platform Software/ );
+    return;
 }
 
 sub os_ver {
-    my $pfront = shift;
-    my $descr   = $pfront->description();
+    my $h3c = shift;
+    my $descr   = $h3c->description();
+#    my $version = $h3c->hh3cLswSysVersion(); # Don't use, indicates base version only, no release details
+    my $ver_release = $h3c->entPhysicalSoftwareRev(2) || {};
     my $os_ver  = undef;
 
-    if ( $descr =~ /Version:\sdrgos-(\w+)-([\w\-\.]+)/ ) {
-        $os_ver = $2;
-    }
-    return $os_ver;
-}
+    $os_ver = "$1 $2" if ( $descr =~ /Software Version ([^,]+),.*(Release\s\S+)/i );
 
-sub serial {
-    my $pfront = shift;
-    return $pfront->productSerialNo();
+    return $ver_release->{2} || $os_ver;
 }
 
 sub i_ignore {
@@ -108,22 +113,37 @@ sub i_ignore {
     return \%i_ignore;
 }
 
+# Use Q-BRIDGE-MIB
+
+sub fw_mac {
+    my $l3  = shift;
+    my $partial = shift;
+
+    return $l3->qb_fw_mac($partial);
+}
+
+sub fw_port {
+    my $l3  = shift;
+    my $partial = shift;
+
+    return $l3->qb_fw_port($partial);
+}
+
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::PacketFront - SNMP Interface to PacketFront devices
+SNMP::Info::Layer3::H3C - SNMP Interface to L3 Devices, H3C & HP A-series
 
 =head1 AUTHORS
 
 Jeroen van Ingen
-initial version based on SNMP::Info::Layer3::NetSNMP by Bradley Baetz and Bill Fenner
 
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $pfront = new SNMP::Info(
+ my $h3c = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           DestHost    => 'myrouter',
@@ -132,12 +152,12 @@ initial version based on SNMP::Info::Layer3::NetSNMP by Bradley Baetz and Bill F
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $pfront->class();
+ my $class      = $h3c->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for PacketFront devices
+Subclass for H3C & HP A-series devices
 
 =head2 Inherited Classes
 
@@ -145,25 +165,29 @@ Subclass for PacketFront devices
 
 =item SNMP::Info::Layer3
 
+=item SNMP::Info::LLDP
+
 =back
 
 =head2 Required MIBs
 
 =over
 
-=item F<UCD-SNMP-MIB>
+=item F<HH3C-LswDEVM-MIB>
 
-=item F<NET-SNMP-TC>
+=item F<HH3C-LswINF-MIB>
 
-=item F<HOST-RESOURCES-MIB>
+=item F<HH3C-LSW-DEV-ADM-MIB>
 
-=item F<PACKETFRONT-PRODUCTS-MIB>
+=item F<HH3C-PRODUCT-ID-MIB>
 
-=item F<PACKETFRONT-DRG-MIB>
+=item F<HH3C-ENTITY-VENDORTYPE-OID-MIB>
 
 =item Inherited Classes' MIBs
 
 See L<SNMP::Info::Layer3> for its own MIB requirements.
+
+See L<SNMP::Info::LLDP> for its own MIB requirements.
 
 =back
 
@@ -173,27 +197,28 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $pfront->vendor()
+=item $h3c->vendor()
 
-Returns C<'packetfront'>.
+Returns value for C<entPhysicalMfgName.1>.
 
-=item $pfront->os()
+=item $h3c->os()
 
 Returns the OS extracted from C<sysDescr>.
 
-=item $pfront->os_ver()
+=item $h3c->os_ver()
 
-Returns the software version extracted from C<sysDescr>.
-
-=item $pfront->serial()
-
-Returns the value of C<productSerialNo>. 
+Returns the software version. Either C<entPhysicalSoftwareRev.2> or extracted from 
+C<sysDescr>.
 
 =back
 
 =head2 Globals imported from SNMP::Info::Layer3
 
 See documentation in L<SNMP::Info::Layer3> for details.
+
+=head2 Globals imported from SNMP::Info::LLDP
+
+See documentation in L<SNMP::Info::LLDP> for details.
 
 =head1 TABLE ENTRIES
 
@@ -204,11 +229,19 @@ to a hash.
 
 =over
 
-=item $pfront->i_ignore()
+=item $h3c->i_ignore()
 
 Returns reference to hash.  Increments value of IID if port is to be ignored.
 
 Ignores loopback
+
+=item $h3c->fw_mac()
+
+Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
+
+=item $h3c->fw_port()
+
+Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
 
 =back
 
@@ -216,5 +249,8 @@ Ignores loopback
 
 See documentation in L<SNMP::Info::Layer3> for details.
 
+=head2 Table Methods imported from SNMP::Info::LLDP
+
+See documentation in L<SNMP::Info::LLDP> for details.
 
 =cut

@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE %PORTSTAT/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = ( 'CISCO-STACK-MIB' => 'ciscoStackMIB', );
 
@@ -215,9 +215,8 @@ sub i_speed_admin {
     my $partial = shift;
 
     my %i_speed_admin;
-    my $p_port  = $stack->p_port() || {};
-    my %mapping = reverse %$p_port;
-    my $p_speed = $stack->p_speed( $mapping{$partial} );
+    my $p_port  = $stack->p_port()  || {};
+    my $p_speed = $stack->p_speed() || {};
 
     my %speeds = (
         'autoDetect'      => 'auto',

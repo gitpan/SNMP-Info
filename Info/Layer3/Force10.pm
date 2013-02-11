@@ -43,7 +43,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -183,49 +183,6 @@ sub i_vlan_membership {
     return $i_vlan_membership;
 }
 
-# Use LLDP
-
-sub hasCDP {
-    my $force10 = shift;
-
-    return $force10->hasLLDP();
-}
-
-sub c_ip {
-    my $force10 = shift;
-    my $partial = shift;
-
-    return $force10->lldp_ip($partial);
-}
-
-sub c_if {
-    my $force10 = shift;
-    my $partial = shift;
-
-    return $force10->lldp_if($partial);
-}
-
-sub c_port {
-    my $force10 = shift;
-    my $partial = shift;
-
-    return $force10->lldp_port($partial);
-}
-
-sub c_id {
-    my $force10 = shift;
-    my $partial = shift;
-
-    return $force10->lldp_id($partial);
-}
-
-sub c_platform {
-    my $force10 = shift;
-    my $partial = shift;
-
-    return $force10->lldp_rem_sysdesc($partial);
-}
-
 1;
 
 __END__
@@ -294,11 +251,7 @@ These are methods that return scalar values from SNMP:
 
 =item $force10->vendor()
 
-    Returns 'force10'
-
-=item $force10->hasCDP()
-
-    Returns whether LLDP is enabled.
+Returns C<'force10'>
 
 =item $force10->model()
 
@@ -306,7 +259,7 @@ Tries to reference $force10->id() to the Force10 product MIB listed above.
 
 =item $force10->os()
 
-Returns 'ftos'
+Returns C<'ftos'>.
 
 =item $force10->os_ver()
 
@@ -354,26 +307,6 @@ Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
 =item $force10->fw_port()
 
 Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
-
-=item $force10->c_id()
-
-Returns LLDP information.
-
-=item $force10->c_if()
-
-Returns LLDP information.
-
-=item $force10->c_ip()
-
-Returns LLDP information.
-
-=item $force10->c_platform()
-
-Returns LLDP information.
-
-=item $force10->c_port()
-
-Returns LLDP information.
 
 =item $force10->i_duplex_admin()
 

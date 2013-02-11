@@ -36,7 +36,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '2.11';
+$VERSION = '3.00_003';
 
 %MIBS = (
     %SNMP::Info::Layer2::MIBS, %SNMP::Info::Layer3::MIBS,
@@ -113,7 +113,7 @@ Subclass for Blue Coat SG Series proxy devices
 
 =head2 Required MIBs
 
-BLUECOAT-SG-PROXY-MIB
+ BLUECOAT-SG-PROXY-MIB
 
 =over
 
@@ -141,7 +141,7 @@ Returns C<'sgos'>
 
 =item $router->os_ver()
 
-Tries to resolve version string from "sgProxyVersion"
+Tries to resolve version string from C<"sgProxyVersion">.
 
 =back
 
