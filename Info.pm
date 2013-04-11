@@ -24,7 +24,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '3.00_003';
+$VERSION = '3.00_004';
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ SNMP::Info - Object Oriented Perl5 Interface to Network devices and MIBs through
 
 =head1 VERSION
 
-SNMP::Info - Version 3.00_003
+SNMP::Info - Version 3.00_004
 
 =head1 AUTHOR
 
@@ -689,6 +689,12 @@ See documentation in L<SNMP::Info::Layer3::C6500> for details.
 This is a simple wrapper around Layer3 for IOS devices.  It adds on CiscoVTP.
 
 See documentation in L<SNMP::Info::Layer3::Cisco> for details.
+
+=item SNMP::Info::Layer3::CiscoASA
+
+Subclass for Cisco Adaptive Security Appliances.
+
+See documentation in L<SNMP::Info::Layer3::CiscoASA> for details.
 
 =item SNMP::Info::Layer3::CiscoFWSM
 
@@ -1491,6 +1497,11 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer2::Allied'
             if ( $desc =~ /Allied.*AT-80\d{2}\S*/i );
 
+        # Cisco ASA, newer versions which report layer 3 functionality
+        # version >= 8.2 are known to do this
+        $objtype = 'SNMP::Info::Layer3::CiscoASA'
+            if ( $desc =~ /Cisco Adaptive Security Appliance/i );
+
         # Cisco FWSM
         $objtype = 'SNMP::Info::Layer3::CiscoFWSM'
             if ( $desc =~ /Cisco Firewall Services Module/i );
@@ -1657,8 +1668,8 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Cisco'
             if ( $desc =~ /Cisco PIX Security Appliance/i );
 
-        # Cisco ASA
-        $objtype = 'SNMP::Info::Layer3::Cisco'
+        # Cisco ASA, older version which doesn't report layer 3 functionality
+        $objtype = 'SNMP::Info::Layer3::CiscoASA'
             if ( $desc =~ /Cisco Adaptive Security Appliance/i );
 
         # HP Virtual Connect blade switches

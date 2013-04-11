@@ -1,7 +1,7 @@
-# SNMP::Info::Layer2::Cisco
+# SNMP::Info::Layer3::CiscoASA
 # $Id$
 #
-# Copyright (c) 2008 Max Baker
+# Copyright (c) 2013 Moe Kraus
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -20,7 +20,8 @@
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 # ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-# LIABLE FOR # ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
 # CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
 # SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
@@ -28,7 +29,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer2::Cisco;
+package SNMP::Info::Layer3::CiscoASA;
 
 use strict;
 use Exporter;
@@ -39,62 +40,86 @@ use SNMP::Info::CiscoImage;
 use SNMP::Info::CiscoRTT;
 use SNMP::Info::CiscoQOS;
 use SNMP::Info::CiscoConfig;
-use SNMP::Info::Layer2;
+use SNMP::Info::CiscoPower;
+use SNMP::Info::Layer3;
+use SNMP::Info::Layer3::Cisco;
 
-@SNMP::Info::Layer2::Cisco::ISA = qw/SNMP::Info::CiscoVTP SNMP::Info::CDP
+@SNMP::Info::Layer3::CiscoASA::ISA = qw/SNMP::Info::CiscoVTP SNMP::Info::CDP
     SNMP::Info::CiscoStats SNMP::Info::CiscoImage
-    SNMP::Info::CiscoRTT SNMP::Info::CiscoQOS
-    SNMP::Info::CiscoConfig SNMP::Info::Layer2
+    SNMP::Info::CiscoRTT  SNMP::Info::CiscoQOS
+    SNMP::Info::CiscoConfig SNMP::Info::CiscoPower
+    SNMP::Info::Layer3::Cisco
+    SNMP::Info::Layer3
     Exporter/;
-@SNMP::Info::Layer2::Cisco::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::CiscoASA::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '3.00_004';
 
 %MIBS = (
-    %SNMP::Info::Layer2::MIBS,     %SNMP::Info::CiscoConfig::MIBS,
-    %SNMP::Info::CiscoQOS::MIBS,   %SNMP::Info::CiscoRTT::MIBS,
-    %SNMP::Info::CiscoImage::MIBS, %SNMP::Info::CiscoStats::MIBS,
-    %SNMP::Info::CDP::MIBS,        %SNMP::Info::CiscoVTP::MIBS,
+       %SNMP::Info::Layer3::Cisco::MIBS,
 );
 
 %GLOBALS = (
-    %SNMP::Info::Layer2::GLOBALS,     %SNMP::Info::CiscoConfig::GLOBALS,
-    %SNMP::Info::CiscoQOS::GLOBALS,   %SNMP::Info::CiscoRTT::GLOBALS,
-    %SNMP::Info::CiscoImage::GLOBALS, %SNMP::Info::CiscoStats::GLOBALS,
-    %SNMP::Info::CDP::GLOBALS,        %SNMP::Info::CiscoVTP::GLOBALS,
+       %SNMP::Info::Layer3::Cisco::GLOBALS,
 );
 
 %FUNCS = (
-    %SNMP::Info::Layer2::FUNCS,     %SNMP::Info::CiscoConfig::FUNCS,
-    %SNMP::Info::CiscoQOS::FUNCS,   %SNMP::Info::CiscoRTT::FUNCS,
-    %SNMP::Info::CiscoImage::FUNCS, %SNMP::Info::CiscoStats::FUNCS,
-    %SNMP::Info::CDP::FUNCS,        %SNMP::Info::CiscoVTP::FUNCS,
+       %SNMP::Info::Layer3::Cisco::FUNCS,
+    'mac_table' => 'ifPhysAddress',
 );
 
 %MUNGE = (
-    %SNMP::Info::Layer2::MUNGE,     %SNMP::Info::CiscoConfig::MUNGE,
-    %SNMP::Info::CiscoQOS::MUNGE,   %SNMP::Info::CiscoRTT::MUNGE,
-    %SNMP::Info::CiscoImage::MUNGE, %SNMP::Info::CiscoStats::MUNGE,
-    %SNMP::Info::CDP::MUNGE,        %SNMP::Info::CiscoVTP::MUNGE,
-);
+       %SNMP::Info::Layer3::Cisco::MUNGE,
+    'mac_table'  => \&SNMP::Info::munge_mac, );
+
+sub b_mac {
+       my ($asa) = shift;
+       my $macs = $asa->mac_table();
+       my @macs;
+       # gather physical addresses
+       foreach my $i ( keys %$macs ) {
+               my $mac = $macs->{$i};
+               # don't catch the bad macs with zeroed OUI
+               if ( $mac !~ m/(0{1,2}:){3}/ ) {
+                       push( @macs, $mac);
+               }
+               @macs = sort( @macs );
+       }
+       # return the least mac
+       return $macs[0];
+}
+
+sub i_description {
+    my $self = shift;
+    my $partial   = shift;
+
+    my $i_descr = $self->orig_i_description($partial) || {};
+
+    foreach my $ifindex ( keys %$i_descr ) {
+        $i_descr->{$ifindex} =~ /'(.*)'/;
+        $i_descr->{$ifindex} = $1
+            if defined $1;
+    }
+
+    return $i_descr;
+}
 
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer2::Cisco - SNMP Interface to L3 and L2+L3 IOS Cisco Device
-that are not covered in other classes.
+SNMP::Info::Layer3::CiscoASA - Cisco Adaptive Security Appliance
 
 =head1 AUTHOR
 
-Max Baker
+Moe Kraus
 
 =head1 SYNOPSIS
 
- # Let SNMP::Info determine the correct subclass for you. 
+ # Let SNMP::Info determine the correct subclass for you.
  my $cisco = new SNMP::Info(
                         AutoSpecify => 1,
                         Debug       => 1,
@@ -102,35 +127,21 @@ Max Baker
                         DestHost    => 'myswitch',
                         Community   => 'public',
                         Version     => 2
-                        ) 
+                        )
     or die "Can't connect to DestHost.\n";
 
- my $class      = $cisco->class();
- print "SNMP::Info determined this device to fall under subclass : $class\n";
+ my $class      = $asa->class();
+ print "SNMP::Info determined this device to fall under subclass: $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Generic Cisco Routers running IOS
+Subclass for Cisco ASAs
 
 =head2 Inherited Classes
 
 =over
 
-=item SNMP::Info::CiscoVTP
-
-=item SNMP::Info::CDP
-
-=item SNMP::Info::CiscoStats
-
-=item SNMP::Info::CiscoImage
-
-=item SNMP::Info::CiscoRTT
-
-=item SNMP::Info::CiscoQOS
-
-=item SNMP::Info::CiscoConfig
-
-=item SNMP::Info::Layer2
+=item SNMP::Info::Layer3::Cisco
 
 =back
 
@@ -138,23 +149,11 @@ Subclass for Generic Cisco Routers running IOS
 
 =over
 
+=item F<CISCO-EIGRP-MIB>
+
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::CiscoVTP/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::CiscoStats/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::CDP/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::CiscoImage/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::CiscoRTT/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::CiscoQOS/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::CiscoConfig/"Required MIBs"> for its own MIB requirements.
-
-See L<SNMP::Info::Layer2/"Required MIBs"> for its own MIB requirements.
+See L<SNMP::Info::Layer3::Cisco/"Required MIBs"> for its own MIB requirements.
 
 =back
 
@@ -164,9 +163,16 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $cisco->vendor()
+=item $asa->b_mac()
 
-    Returns 'cisco'
+Returns base mac.
+Overrides base mac function in L<SNMP::Info::Layer3>.
+
+=item $asa->i_description()
+
+Overrides base interface description function in L<SNMP::Info> to return the
+configured interface name instead of "Adaptive Security Appliance
+'$configured interface name' interface".
 
 =back
 
@@ -198,14 +204,22 @@ See documentation in L<SNMP::Info::CiscoQOS/"GLOBALS"> for details.
 
 See documentation in L<SNMP::Info::CiscoConfig/"GLOBALS"> for details.
 
-=head2 Globals imported from SNMP::Info::Layer2
+=head2 Globals imported from SNMP::Info::CiscoPower
 
-See documentation in L<SNMP::Info::Layer2/"GLOBALS"> for details.
+See documentation in L<SNMP::Info::CiscoPower/"GLOBALS"> for details.
+
+=head2 Globals imported from SNMP::Info::Layer3
+
+See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+
+=head2 Globals imported from SNMP::Info::Layer3::Cisco
+
+See documentation in L<SNMP::Info::Layer3::Cisco/"GLOBALS"> for details.
 
 =head1 TABLE METHODS
 
-These are methods that return tables of information in the form of a reference
-to a hash.
+These are methods that return tables of information in the form of a
+reference to a hash.
 
 =head2 Table Methods imported from SNMP::Info::CiscoVTP
 
@@ -231,12 +245,8 @@ See documentation in L<SNMP::Info::CiscoRTT/"TABLE METHODS"> for details.
 
 See documentation in L<SNMP::Info::CiscoQOS/"TABLE METHODS"> for details.
 
-=head2 Table Methods imported from SNMP::Info::CiscoConfig
+=head2 Table Methods imported from SNMP::Info::Layer3::Cisco
 
-See documentation in L<SNMP::Info::CiscoConfig/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::Layer2
-
-See documentation in L<SNMP::Info::Layer2/"TABLE METHODS"> for details.
+See documentation in L<SNMP::Info::Layer3::Cisco/"TABLE METHODS"> for details.
 
 =cut
