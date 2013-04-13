@@ -1,24 +1,24 @@
---- #YAML:1.0
-name:               SNMP-Info
-version:            3.00_004
-abstract:           Object Oriented Perl5 Interface to Network devices and MIBs through SNMP. 
+---
+abstract: 'OO Interface to Network devices and MIBs through SNMP'
 author:
-    - Eric A. Miller <emiller@cpan.org>
-license:            bsd
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
+  - 'Eric A. Miller <emiller@cpan.org>'
 build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    Math::BigInt:  0
-    SNMP:          0
-    Test::More:    0
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.55_02
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.64, CPAN::Meta::Converter version 2.112621'
+license: bsd
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: SNMP-Info
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Math::BigInt: 0
+  SNMP: 0
+  Test::More: 0
+version: 3.01

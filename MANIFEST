@@ -114,4 +114,5 @@ t/run_test
 t/test_class.pl
 t/util/make_snmpdata.pl
 t/util/test_class_mocked.pl
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
