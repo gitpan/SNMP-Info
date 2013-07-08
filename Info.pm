@@ -24,7 +24,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '3.01';
+$VERSION = '3.02';
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ SNMP::Info - OO Interface to Network devices and MIBs through SNMP
 
 =head1 VERSION
 
-SNMP::Info - Version 3.01
+SNMP::Info - Version 3.02
 
 =head1 AUTHOR
 
@@ -1402,6 +1402,7 @@ sub device_type {
         3375  => 'SNMP::Info::Layer3::F5',
         4526  => 'SNMP::Info::Layer2::Netgear',
         5624  => 'SNMP::Info::Layer3::Enterasys',
+        6486  => 'SNMP::Info::Layer3::AlcatelLucent',
         11898 => 'SNMP::Info::Layer2::Orinoco',
         14179 => 'SNMP::Info::Layer2::Airespace',
         14525 => 'SNMP::Info::Layer2::Trapeze',
@@ -1443,16 +1444,20 @@ sub device_type {
         $objtype = 'SNMP::Info::Layer3::Aironet'
             if ( $desc =~ /Aironet/ and $desc =~ /\D(AP4800)\D/ );
 
-	# Cat6k with older SUPs (hybrid CatOS/IOS?)
+        # Cat6k with older SUPs (hybrid CatOS/IOS?)
         $objtype = 'SNMP::Info::Layer3::C6500' if $desc =~ /(c6sup2|c6sup1)/;
 
-	# Cat6k with Sup720, Sup720 or Sup2T (and Sup2 running native IOS?)
+        # Cat6k with Sup720, Sup720 or Sup2T (and Sup2 running native IOS?)
         $objtype = 'SNMP::Info::Layer3::C6500'
             if $desc =~ /(s72033_rp|s3223_rp|s32p3_rp|s222_rp|s2t54)/;
 
         # Next one untested. Reported working by DA
         $objtype = 'SNMP::Info::Layer3::C6500'
             if ( $desc =~ /cisco/i and $desc =~ /3750/ );
+
+        # IOS 15.x on Catalyst 3850
+        $objtype = 'SNMP::Info::Layer3::C6500'
+            if ( $desc =~ /cisco/i and $desc =~ /CAT3K/ );
 
         #   Cisco 2970
         $objtype = 'SNMP::Info::Layer3::C6500'
@@ -1603,7 +1608,7 @@ sub device_type {
 
         #  Aironet - IOS
         $objtype = 'SNMP::Info::Layer2::Aironet'
-            if ($desc =~ /\b(C1100|C1130|AP1200|C350|C1200|C1240|C1250)\b/
+            if ($desc =~ /\b(C1100|C1130|C1140|AP1200|C350|C1200|C1240|C1250)\b/
             and $desc =~ /\bIOS\b/ );
 
         # Aironet - non IOS
