@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 
-$VERSION = '3.02';
+$VERSION = '3.03';
 
 %MIBS = (
     'BRIDGE-MIB'   => 'dot1dBaseBridgeAddress',
@@ -904,5 +904,7 @@ Currently unsupported.  Throws an error and returns.
 =item $bridge->set_remove_i_vlan_tagged(vlan, ifIndex)
 
 Currently unsupported.  Throws an error and returns.
+
+=back
 
 =cut
