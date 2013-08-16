@@ -1,5 +1,21 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
+version 3.04_001 (2013-08-16)
+
+   [ENHANCEMENTS]
+
+    * [#47] Add model info on HP 2530 and HP 2920 series
+    * Add support for Cisco Small Business series
+      Layer2/CiscoSB class
+    * Add proper LLDP support to Netgear.pm
+    * Change $netgear->interfaces() to use ifName rather than ifDescr
+      as the former is unique per interface while the latter is not.  
+      If ifName is not present, concatenate ifDescr and ifIndex
+      to achieve a unique value.
+    * Properly report hardware version, Serial No. and OS Version for
+      Netgear.
+    
+
 version 3.03 (2013-07-11)
 
     [BUG FIXES]

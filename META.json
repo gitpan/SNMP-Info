@@ -38,6 +38,6 @@
          }
       }
    },
-   "release_status" : "stable",
-   "version" : "3.03"
+   "release_status" : "testing",
+   "version" : "3.04_001"
 }
