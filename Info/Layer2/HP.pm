@@ -46,7 +46,7 @@ use SNMP::Info::CDP;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %PORTSTAT %MODEL_MAP %MUNGE/;
 
-$VERSION = '3.05';
+$VERSION = '3.06_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -191,7 +191,7 @@ $VERSION = '3.05';
     'J4900B' => '2626-CR',
     'J4900A' => '2626',
     'J9627A' => '2620-48-PoE+',
-    'J9624A' => '2620-48',
+    'J9626A' => '2620-48',
     'J9625A' => '2620-24-PoE+',
     'J9624A' => '2620-24-PPoE+',
     'J9623A' => '2620-24',
@@ -710,7 +710,7 @@ number and the common model number with this map :
     'J4900C' => '2626C',
     'J4900A' => '2626',
     'J9627A' => '2620-48-PoE+',
-    'J9624A' => '2620-48',
+    'J9626A' => '2620-48',
     'J9624A' => '2620-24-PPoE+',
     'J9625A' => '2620-24-PoE+',
     'J9623A' => '2620-24',

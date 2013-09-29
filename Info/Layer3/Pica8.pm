@@ -1,6 +1,6 @@
-package SNMP::Info::Layer3::BlueCoatSG;
-
-# Copyright (c) 2011 Netdisco Project
+# SNMP::Info::Layer3::Pica8
+#
+# Copyright (c) 2013 Jeroen van Ingen
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,81 +27,113 @@ package SNMP::Info::Layer3::BlueCoatSG;
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+package SNMP::Info::Layer3::Pica8;
+
 use strict;
 use Exporter;
 use SNMP::Info::Layer3;
+use SNMP::Info::LLDP;
 
-@SNMP::Info::Layer3::BlueCoatSG::ISA       = qw/SNMP::Info::Layer3 Exporter/;
-@SNMP::Info::Layer3::BlueCoatSG::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::Pica8::ISA       = qw/SNMP::Info::LLDP SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::Pica8::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 $VERSION = '3.06_001';
 
 %MIBS = (
-    %SNMP::Info::Layer2::MIBS, %SNMP::Info::Layer3::MIBS,
-    'BLUECOAT-SG-PROXY-MIB' => 'sgProxyAdmin',
+    %SNMP::Info::Layer3::MIBS,
+    %SNMP::Info::LLDP::MIBS,
 );
 
 %GLOBALS = (
-    %SNMP::Info::Layer2::GLOBALS, %SNMP::Info::Layer3::GLOBALS,
-    #From BLUECOAT-SG-PROXY-MIB
-    'serial1'=> 'sgProxySerialNumber',
-    'sw_ver' => 'sgProxyVersion',
+    %SNMP::Info::Layer3::GLOBALS,
+    %SNMP::Info::LLDP::GLOBALS,
 );
 
-%FUNCS = ( %SNMP::Info::Layer2::FUNCS, %SNMP::Info::Layer3::FUNCS, );
+%FUNCS = (
+    %SNMP::Info::Layer3::FUNCS,
+    %SNMP::Info::LLDP::FUNCS,
+);
 
-%MUNGE = ( %SNMP::Info::Layer2::MUNGE, %SNMP::Info::Layer3::MUNGE, );
+%MUNGE = (
+    %SNMP::Info::Layer3::MUNGE,
+    %SNMP::Info::LLDP::MUNGE,
+);
 
 sub vendor {
-    return 'Blue Coat';
+    return 'Pica8';
 }
 
 sub os {
-    return 'sgos';
+    my $pica8 = shift;
+    my $descr   = $pica8->description();
+
+    return $1 if ( $descr =~ /(\S+)\s+Platform Software/i );
+    return;
 }
 
 sub os_ver {
-    my $sg = shift;
-    my $os_string = $sg->sw_ver();
-    if ($os_string =~ /^Version:\s(\w+)\s([\d\.]+)/) {
-        return $2;
-    } else {
-        return ''; # perhaps we can try sysDescr or some other object...
-    }
+    my $pica8 = shift;
+    my $descr   = $pica8->description();
+
+    return $1 if ( $descr =~ /Software version ([\d\.]+)/i );
+    return;
+}
+
+sub model {
+    my $pica8 = shift;
+    my $descr   = $pica8->description();
+
+    return $1 if ( $descr =~ /Hardware model (P-\d{4})/i );
+    return;
+}
+
+# Use Q-BRIDGE-MIB
+
+sub fw_mac {
+    my $l3  = shift;
+    my $partial = shift;
+
+    return $l3->qb_fw_mac($partial);
+}
+
+sub fw_port {
+    my $l3  = shift;
+    my $partial = shift;
+
+    return $l3->qb_fw_port($partial);
 }
 
 1;
-
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer3::BlueCoatSG - SNMP Interface to Blue Coat SG Series proxy devices
+SNMP::Info::Layer3::Pica8 - SNMP Interface to L3 Devices, Pica8
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Jeroen van Ingen
 
 =head1 SYNOPSIS
 
- # Let SNMP::Info determine the correct subclass for you.
- my $router = new SNMP::Info(
+ # Let SNMP::Info determine the correct subclass for you. 
+ my $pica8 = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
                           DestHost    => 'myrouter',
                           Community   => 'public',
-                          Version     => 1
-                        )
+                          Version     => 2
+                        ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $router->class();
+ my $class      = $pica8->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Blue Coat SG Series proxy devices
+Subclass for Pica8 devices
 
 =head2 Inherited Classes
 
@@ -109,17 +141,21 @@ Subclass for Blue Coat SG Series proxy devices
 
 =item SNMP::Info::Layer3
 
+=item SNMP::Info::LLDP
+
 =back
 
 =head2 Required MIBs
 
- BLUECOAT-SG-PROXY-MIB
-
 =over
+
+=item F<PICA-PRIVATE-MIB>
 
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
+See L<SNMP::Info::Layer3> for its own MIB requirements.
+
+See L<SNMP::Info::LLDP> for its own MIB requirements.
 
 =back
 
@@ -127,29 +163,35 @@ See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
 
 These are methods that return scalar value from SNMP
 
-=head2 Overrides
-
 =over
 
-=item $router->vendor()
+=item $pica8->vendor()
 
-Returns C<'Blue Coat'>
+Returns 'Pica8'
 
-=item $router->os()
+=item $pica8->model()
 
-Returns C<'sgos'>
+Returns the model name extracted from C<sysDescr>.
 
-=item $router->os_ver()
+=item $pica8->os()
 
-Tries to resolve version string from C<"sgProxyVersion">.
+Returns the OS extracted from C<sysDescr>.
+
+=item $pica8->os_ver()
+
+Returns the OS version extracted from C<sysDescr>.
 
 =back
 
 =head2 Globals imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+See documentation in L<SNMP::Info::Layer3> for details.
 
-=head1 TABLE METHODS
+=head2 Globals imported from SNMP::Info::LLDP
+
+See documentation in L<SNMP::Info::LLDP> for details.
+
+=head1 TABLE ENTRIES
 
 These are methods that return tables of information in the form of a reference
 to a hash.
@@ -158,11 +200,22 @@ to a hash.
 
 =over
 
+=item $pica8->fw_mac()
+
+Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
+
+=item $pica8->fw_port()
+
+Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
+
 =back
 
 =head2 Table Methods imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
+See documentation in L<SNMP::Info::Layer3> for details.
+
+=head2 Table Methods imported from SNMP::Info::LLDP
+
+See documentation in L<SNMP::Info::LLDP> for details.
 
 =cut
-
