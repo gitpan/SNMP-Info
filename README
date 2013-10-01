@@ -4,7 +4,7 @@ NAME
 
 VERSION
 
-    SNMP::Info - Version 3.06_001
+    SNMP::Info - Version 3.07
 
 AUTHOR
 
@@ -710,6 +710,11 @@ SUBCLASSES
             Subclass for FreeBSD-Based Firewalls using Pf /Pf Sense
 
             See documentation in SNMP::Info::Layer3::Pf for details.
+
+        SNMP::Info::Layer3::Pica8
+            Subclass for Pica8 devices.
+
+            See documentation in SNMP::Info::Layer3::Pica8 for details.
 
         SNMP::Info::Layer3::SonicWALL
             Subclass for generic SonicWALL devices. See documentation in
