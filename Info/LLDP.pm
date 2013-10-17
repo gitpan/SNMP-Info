@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.07';
+$VERSION = '3.07_001';
 
 %MIBS = (
     'LLDP-MIB'          => 'lldpLocSysCapEnabled',
@@ -168,10 +168,15 @@ sub lldp_port {
     my %lldp_port;
     foreach my $key ( sort keys %$pid ) {
         my $port = $pdesc->{$key};
+        my $type = $ptype->{$key};
+        if ( $type and $type eq 'interfaceName' ) {
+            # If the pid claims to be an interface name,
+            # believe it.
+            $port = $pid->{$key};
+        }
         unless ($port) {
             $port = $pid->{$key};
             next unless $port;
-            my $type = $ptype->{$key};
             next unless $type;
 
           # May need to format other types in the future, i.e. Network address

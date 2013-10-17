@@ -1,6 +1,39 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
-version 3.07 ()
+version 3.08 ()
+
+   [ENHANCEMENTS]
+
+    * Rewrite of L3::Aruba, now supports pseudo ENTITY-MIB methods to gather
+      module information, more interface information for APs, more
+      wireless information to include client stats, and arpnip information
+      from wireless clients.  WARNING: AP device interfaces are now based on
+      AP MAC and radio versus BSSID to align with other wireless classes.
+    * [#64] Add i_speed_admin() to L2::2900 (psychiatric)
+    * [#66] Support for VSS via CISCO-VIRTUAL-SWITCH-MIB in L3::6500
+    * [#67] Add the possibility to set speed for Layer3::C4000 (psychiatric)
+    * [#69] set speed and duplex on Cisco VSS system (psychiatric)
+    * munge_null() now removes all non-printable control characters
+    * Support Aironet standalone access points (Layer2::Aironet) running IOS15
+    * lldp_port() returns port ID instead of port description if the port ID
+      subtype is "interface name".  This improves the ability to correlate
+      ports by name when a port description is also set.
+    * Add docs note about make_snmpdata.pl under EXTENDING SNMP::Info
+    * [#46] Brocade (Foundry) Module Support
+    * Brocade (Foundry) POE Support
+    * Support peth_port_power() power supplied by PoE ports in L2::Baystack
+    * Update test_class.pl utility to allow ignore of snmp.conf and test
+      summarize more standard class methods
+    * On EOS, the LLDP port ID is a dot1d port
+    * Use LLDP in Layer3::Aruba, for switches
+
+   [BUG FIXES]
+
+    * [#68] Fix device_port entries for switches with non-unique
+      ifDesc (Nic Bernstein)
+    * Don't try to munge undef values
+
+version 3.07 (2013-10-01)
 
    [ENHANCEMENTS]
 

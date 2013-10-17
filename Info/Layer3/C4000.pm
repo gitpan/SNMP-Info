@@ -50,7 +50,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.07';
+$VERSION = '3.07_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -105,6 +105,12 @@ $VERSION = '3.07';
     = \&SNMP::Info::MAU::mau_i_duplex_admin;
 *SNMP::Info::Layer3::C4000::i_speed_admin
     = \&SNMP::Info::MAU::mau_i_speed_admin;
+
+*SNMP::Info::Layer3::C4000::set_i_duplex_admin
+    = \&SNMP::Info::MAU::mau_set_i_duplex_admin;
+*SNMP::Info::Layer3::C4000::set_i_speed_admin
+    = \&SNMP::Info::MAU::mau_set_i_speed_admin;
+
 
 sub fan {
     my $c4000     = shift;
@@ -280,6 +286,18 @@ Returns either (auto,full,half).
 =item $c4000->i_speed_admin()
 
 Returns administrative speed for interfaces.
+
+=item $c4000->set_i_speed_admin(speed, ifIndex)
+
+Sets port speed, must be supplied with speed and port C<ifIndex>.
+
+Speed choices are '10', '100', '1000', 'auto'.
+
+=item $c4000->set_i_duplex_admin(duplex, ifIndex)
+
+Sets port duplex, must be supplied with duplex and port C<ifIndex>.
+
+Duplex choices are 'auto', 'half', 'full'.
 
 =back
 

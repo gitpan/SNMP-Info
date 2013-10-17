@@ -55,7 +55,7 @@ use SNMP::Info::Layer3::Cisco;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.07';
+$VERSION = '3.07_001';
 
 %MIBS = (
        %SNMP::Info::Layer3::Cisco::MIBS,
@@ -135,7 +135,7 @@ Moe Kraus
 
 =head1 DESCRIPTION
 
-Subclass for Cisco ASAs
+Subclass for Cisco ASA Devices
 
 =head2 Inherited Classes
 

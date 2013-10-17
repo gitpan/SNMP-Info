@@ -47,7 +47,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.07';
+$VERSION = '3.07_001';
 
 %GLOBALS = (
     %SNMP::Info::Layer2::GLOBALS,     %SNMP::Info::CiscoConfig::GLOBALS,
@@ -137,6 +137,32 @@ sub i_duplex_admin {
         $i_duplex_admin{$if} = $duplex;
     }
     return \%i_duplex_admin;
+}
+
+sub i_speed_admin {
+    my $c2900   = shift;
+    my $partial = shift;
+
+    my %i_speed_admin;
+    my $p_port        = $c2900->p_port() || {};
+    my $interfaces    = $c2900->interfaces($partial);
+    my $c2900_p_index = $c2900->c2900_p_index() || {};
+
+    my %reverse_2900 = reverse %$c2900_p_index;
+    my $c2900_p_speed
+        = $c2900->c2900_p_speed_admin( $reverse_2900{$partial} );
+
+    my %speeds = (
+        'autoDetect' => 'auto',
+        's10000000'  => '10 Mbps',
+        's100000000' => '100 Mbps',
+    );
+
+    %i_speed_admin
+        = map { $c2900_p_index->{$_} => $speeds{ $c2900_p_speed->{$_} } }
+        keys %$c2900_p_index;
+
+    return \%i_speed_admin;
 }
 
 sub set_i_speed_admin {
@@ -348,6 +374,10 @@ Crosses $c2900->c2900_p_index() with $c2900->c2900_p_duplex()
 Returns reference to hash of IIDs to admin duplex setting
 
 Crosses $c2900->c2900_p_index() with $c2900->c2900_p_duplex_admin()
+
+=item $c2900->i_speed_admin()
+
+Returns reference to hash of IIDs to admin speed setting.
 
 =back
 

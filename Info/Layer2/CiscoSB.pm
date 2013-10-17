@@ -50,7 +50,7 @@ use SNMP::Info::CDP;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.07';
+$VERSION = '3.07_001';
 
 # This will be filled in with the device's index into the EntPhysicalEntry
 # table by the serial() function.
@@ -216,15 +216,16 @@ Returns 'cisco'
 
 =item $ciscosb->os_ver()
 
-Returns software version (entPhysicalSoftwareRev)
+Returns software version (C<entPhysicalSoftwareRev>)
 
 =item $ciscosb->serial()
 
-Returns serial number of unit (entPhysicalSerialNum)
+Returns serial number of unit (C<entPhysicalSerialNum>)
 
 =item $ciscosb->model()
 
-Returns model and hardware revision of unit (entPhysicalModelName+entPhysicalHardwareRev)
+Returns model and hardware revision of unit
+(C<entPhysicalModelName+entPhysicalHardwareRev>)
 
 =back
 
