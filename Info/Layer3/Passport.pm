@@ -43,7 +43,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '3.07_001';
+$VERSION = '3.08';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS, %SNMP::Info::RapidCity::MIBS,
@@ -683,7 +683,7 @@ sub e_descr {
 
     my $model = $passport->model();
     my $rc_ps = $passport->rc_ps_detail() || {};
-    my $rc_ch = $passport->chassis();
+    my $rc_ch = $passport->chassis() || '';
     $rc_ch =~ s/a//;
 
     my %rc_e_descr;

@@ -46,7 +46,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.07_001';
+$VERSION = '3.08';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,    %SNMP::Info::LLDP::MIBS,
@@ -141,6 +141,7 @@ sub model {
     $model =~ s/^sreg-//;
     # Strip ES/ERS/BayStack etc. from those families
     $model =~ s/^(E(R)?S|BayStack|Ethernet(Routing)?Switch)-?//;
+    $model =~ s/-ethSwitchNMM//;
 
     return $model;
 }

@@ -1,6 +1,6 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
-version 3.08 ()
+version 3.08 (2013-10-22)
 
    [ENHANCEMENTS]
 
@@ -26,12 +26,15 @@ version 3.08 ()
       summarize more standard class methods
     * On EOS, the LLDP port ID is a dot1d port
     * Use LLDP in Layer3::Aruba, for switches
+    * Clean up more model names in L2::Baystack
 
    [BUG FIXES]
 
     * [#68] Fix device_port entries for switches with non-unique
       ifDesc (Nic Bernstein)
     * Don't try to munge undef values
+    * [#49] Perl 5.18 UNIVERSAL::can change could cause infinite loop 
+    * Silence warning from uninitialized variable in L3::Passport e_descr()
 
 version 3.07 (2013-10-01)
 
