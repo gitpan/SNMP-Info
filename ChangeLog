@@ -1,5 +1,11 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
+version 3.10 (2013-12-16)
+
+   [BUG FIXES]
+
+    * Data values of zero are now sent to munge method instead of skipped
+
 version 3.09 (2013-12-15)
 
    [NEW FEATURES]

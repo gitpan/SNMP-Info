@@ -24,7 +24,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '3.09';
+$VERSION = '3.10';
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ SNMP::Info - OO Interface to Network devices and MIBs through SNMP
 
 =head1 VERSION
 
-SNMP::Info - Version 3.09
+SNMP::Info - Version 3.10
 
 =head1 AUTHOR
 
@@ -4267,7 +4267,7 @@ sub _munge {
         my %munged;
         foreach my $key ( keys %$data ) {
             my $value = $data->{$key};
-            next unless $value;
+            next unless defined $value;
             $munged{$key} = $subref->($value);
         }
         return \%munged;
