@@ -1,5 +1,43 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
+version 3.09 (2013-12-15)
+
+   [NEW FEATURES]
+
+    * [#45] IBM (Blade Network Technologies) Rackswitch support in new class
+      L3::IBMGbTor
+    * [] set_i_untagged combines both set_i_vlan and set_i_pvid in one method
+    * [#41] Riverbed Steelhead support added in new class L3::Steelhead
+    * New c_cap(), cdp_cap(), and lldp_cap() methods which return a hash of
+      arrays with each array containing the system capabilities reported as
+      supported by the remote system via CDP or LLDP.
+
+   [ENHANCEMENTS]
+
+    * Remove "Switch" from model name in L3::Foundry
+    * [#49] IOS-XR support, add identification of IOS XR and version in
+      CiscoStats
+    * Aruba POE Support
+    * Aruba utilizes Q-BRIDGE-MIB when available for VLAN information to
+      better support wired switches
+    * Add lldp_platform() method which uses lldp_rem_sysdesc() or
+      lldp_rem_sysname() to provide a clue to type of remote LLDP capable
+      device.
+    * [RT#78232] Extend cdpCacheCapabilities to show more CDP bits
+
+   [BUG FIXES]
+
+    * Modify _xos_i_vlan_membership() in L3::Extreme to only include tagged
+      ports
+    * When determining the BSSID in Airespace there is only one hexadecimal
+      digit available so skip if outside the range of 1-16, 17 is reserved
+      for 3rd party AP's
+    * Don't assume entity index 1 is the chassis and has serial in Layer3
+    * Capture serial number on newer Aruba devices
+    * munge_bits() correctly unpacks BITS
+    * Fix for single instance table leafs in test_class_mocked.pl
+    * Fix power module indexing
+
 version 3.08 (2013-10-22)
 
    [ENHANCEMENTS]

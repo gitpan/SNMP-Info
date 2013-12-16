@@ -1,6 +1,6 @@
-# SNMP::Info::Layer7::Netscaler
+# SNMP::Info::Layer3::Steelhead
 #
-# Copyright (c) 2012 Eric Miller
+# Copyright (c) 2013 Eric Miller
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,123 +27,133 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Layer7::Netscaler;
+package SNMP::Info::Layer3::Steelhead;
 
 use strict;
 use Exporter;
-use SNMP::Info::Layer7;
+use SNMP::Info::Layer3;
 
-@SNMP::Info::Layer7::Netscaler::ISA       = qw/SNMP::Info::Layer7 Exporter/;
-@SNMP::Info::Layer7::Netscaler::EXPORT_OK = qw//;
+@SNMP::Info::Layer3::Steelhead::ISA
+    = qw/SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::Steelhead::EXPORT_OK = qw//;
 
-use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
+use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
 $VERSION = '3.09';
 
 %MIBS = (
-    %SNMP::Info::Layer7::MIBS,
-    'NS-ROOT-MIB' => 'sysBuildVersion',
+    %SNMP::Info::Layer3::MIBS,
+    'STEELHEAD-MIB' => 'serialNumber',
 );
 
 %GLOBALS = (
-    %SNMP::Info::Layer7::GLOBALS,
-    'build_ver'   => 'sysBuildVersion',
-    'sys_hw_desc' => 'sysHardwareVersionDesc',
-    'cpu'         => 'resCpuUsage',
+    %SNMP::Info::Layer3::GLOBALS,
+    # Fully qualified to remove ambiguity of 'model'
+    'rb_model' => 'STEELHEAD-MIB::model',
 );
 
 %FUNCS = (
-    %SNMP::Info::Layer7::FUNCS,
-    # IP Address Table - NS-ROOT-MIB::nsIpAddrTable
-    'ip_index'    => 'ipAddr',
-    'ip_netmask'  => 'ipNetmask',
-    # TODO VLAN - NS-ROOT-MIB::vlanTable
-    'ns_vid'      =>'vlanId',
-    'ns_vlan_mem' => 'vlanMemberInterfaces',
-    'ns_vtag_int' => 'vlanTaggedInterfaces',
-    );
+    %SNMP::Info::Layer3::FUNCS,
+);
 
-%MUNGE = ( %SNMP::Info::Layer7::MUNGE, );
+%MUNGE = (
+    %SNMP::Info::Layer3::MUNGE,
+);
+
+sub layers {
+    return '01001100';
+}
 
 sub vendor {
-    return 'citrix';
-}
-
-sub os {
-    return 'netscaler';
-}
-
-sub serial {
-    return '';
+    return 'riverbed';
 }
 
 sub model {
-    my $ns    = shift;
-    my $desc  = $ns->sys_hw_desc() || '';
-   
-    $desc =~ s/^.+\bNS//i;
+    my $riverbed = shift;
 
-    return $desc;
+    my $model = $riverbed->rb_model() || '';
+    
+    if ($model =~ /^(\d+)/) {
+        return $1;
+    }
+    return $model;
+}
+
+sub os {
+    return 'steelhead';
 }
 
 sub os_ver {
-    my $ns    = shift;
-    my $ver  = $ns->build_ver() || '';
+    my $riverbed = shift;
     
-    if ($ver =~ /^.+\bNS(\d+\.\d+)/) {
-        $ver = $1;
+    my $ver = $riverbed->systemVersion() || '';
+
+    if ( $ver =~ /(\d+[\.\d]+)/ ) {
+        return $1;
     }
+    
     return $ver;
 }
 
+sub serial {
+    my $riverbed = shift;
+    
+    return $riverbed->serialNumber();
+}
 
 1;
 __END__
 
 =head1 NAME
 
-SNMP::Info::Layer7::Netscaler - SNMP Interface to Citrix Netscaler appliances
+SNMP::Info::Layer3::Steelhead - SNMP Interface to Riverbed Steelhead WAN
+optimization appliances.
 
-=head1 AUTHORS
+=head1 AUTHOR
 
 Eric Miller
 
 =head1 SYNOPSIS
 
  # Let SNMP::Info determine the correct subclass for you. 
- my $ns = new SNMP::Info(
+ my $riverbed = new SNMP::Info(
                           AutoSpecify => 1,
                           Debug       => 1,
-                          DestHost    => 'myrouter',
+                          DestHost    => 'myswitch',
                           Community   => 'public',
                           Version     => 2
                         ) 
     or die "Can't connect to DestHost.\n";
 
- my $class      = $ns->class();
+ my $class = $riverbed->class();
  print "SNMP::Info determined this device to fall under subclass : $class\n";
 
 =head1 DESCRIPTION
 
-Subclass for Citrix Netscaler appliances
+Abstraction subclass for Riverbed Steelhead WAN optimization appliances.
+
+For speed or debugging purposes you can call the subclass directly, but not
+after determining a more specific class using the method above. 
+
+ my $riverbed = new SNMP::Info::Layer3::Steelhead(...);
 
 =head2 Inherited Classes
 
 =over
 
-=item SNMP::Info::Layer7
+=item SNMP::Info::Layer3
 
 =back
 
 =head2 Required MIBs
 
-=over
+F<STEELHEAD-MIB>
 
-=item F<NS-ROOT-MIB>
+=over
 
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::Layer7> for its own MIB requirements.
+See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
 
 =back
 
@@ -153,63 +163,54 @@ These are methods that return scalar value from SNMP
 
 =over
 
-=item $ns->vendor()
+=item $riverbed->vendor()
 
-Returns 'citrix'.
+Returns 'riverbed'
 
-=item $ns->os()
+=item $riverbed->model()
 
-Returns 'netscaler'.
+Returns the chassis model.
 
-=item $ns->os_ver()
+(C<STEELHEAD-MIB::model>)
 
-Release extracted from C<sysBuildVersion>.
+=item $riverbed->os()
 
-=item $ns->model()
+Returns 'steelhead'
 
-Model extracted from C<sysHardwareVersionDesc>.
+=item $riverbed->os_ver()
 
-=item $ns->cpu()
+Returns the software version extracted from (C<systemVersion>).
 
-C<resCpuUsage>
+=item $riverbed->serial()
 
-=item $ns->build_ver()
+Returns the chassis serial number.
 
-C<sysBuildVersion>
-
-=item $ns->sys_hw_desc()
-
-C<sysHardwareVersionDesc>
-
-=item $ns->serial()
-
-Returns ''.
+(C<serialNumber>)
 
 =back
 
-=head2 Globals imported from SNMP::Info::Layer7
+=head2 Overrides
 
-See documentation in L<SNMP::Info::Layer7> for details.
+=over
 
-=head1 TABLE ENTRIES
+=item $riverbed->layers()
+
+Returns 01001100.  Steelhead does not support bridge MIB, so override reported
+layers.
+
+=back
+
+=head2 Globals imported from SNMP::Info::Layer3
+
+See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
+
+=head1 TABLE METHODS
 
 These are methods that return tables of information in the form of a reference
 to a hash.
 
-=over
+=head2 Table Methods imported from SNMP::Info::Layer3
 
-=item $ns->ip_index()
-
-C<ipAddr>
-
-=item $ns->ip_netmask()
-
-C<ipNetmask>
-
-=back
-
-=head2 Table Methods imported from SNMP::Info::Layer7
-
-See documentation in L<SNMP::Info::Layer7> for details.
+See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
 
 =cut

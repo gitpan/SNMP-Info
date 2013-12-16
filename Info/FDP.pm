@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.08';
+$VERSION = '3.09';
 
 %MIBS = ( 'FOUNDRY-SN-SWITCH-GROUP-MIB' => 'snFdpGlobalRun' );
 
@@ -68,7 +68,7 @@ $VERSION = '3.08';
 );
 
 %MUNGE = (
-    'fdp_capabilities' => \&SNMP::Info::munge_caps,
+    'fdp_capabilities' => \&SNMP::Info::munge_bits,
     'fdp_ip'           => \&SNMP::Info::munge_ip
 );
 
@@ -289,8 +289,7 @@ CDP compatibility
 =item $fdp->fdp_capabilities()
 
 Returns Device Functional Capabilities.  Results are munged into an ascii
-binary string, 7 digits long, MSB.  Each digit represents a bit from the
-table below.
+binary string, MSB.  Each digit represents a bit from the table below.
 
 From L<http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm#18843>:
 
@@ -320,8 +319,7 @@ protocol.
 
 =back
 
-Thanks to Martin Lorensen C<martin -at- lorensen.dk> for a pointer to
-this information.
+Thanks to Martin Lorensen for a pointer to this information.
 
 (C<fdpCacheCapabilities>)
 

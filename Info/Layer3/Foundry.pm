@@ -44,7 +44,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '3.08';
+$VERSION = '3.09';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -163,6 +163,7 @@ sub model {
     return $id unless defined $model;
 
     $model =~ s/^sn//;
+    $model =~ s/Switch//;
 
     return $model;
 }
@@ -866,7 +867,8 @@ These are methods that return scalar value from SNMP
 =item $foundry->model()
 
 Returns model type.  Checks $foundry->id() against the F<FOUNDRY-SN-ROOT-MIB>
-and removes 'C<sn>'.  EdgeIron models determined through F<ENTITY-MIB>.  
+and removes 'C<sn>' and 'C<Switch>'.  EdgeIron models determined
+through F<ENTITY-MIB>.  
 
 =item $foundry->vendor()
 

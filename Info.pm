@@ -24,7 +24,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '3.08';
+$VERSION = '3.09';
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ SNMP::Info - OO Interface to Network devices and MIBs through SNMP
 
 =head1 VERSION
 
-SNMP::Info - Version 3.08
+SNMP::Info - Version 3.09
 
 =head1 AUTHOR
 
@@ -766,6 +766,13 @@ Original Equipment Manufacturer (OEM) such as the HP ProCurve 9300 and 6300 seri
 
 See documentation in L<SNMP::Info::Layer3::HP9300> for details.
 
+=item SNMP::Info::Layer3::IBMGbTor
+
+SNMP Interface to IBM Rackswitch (formerly Blade Network Technologies)
+network devices.
+
+See documentation in L<SNMP::Info::Layer3::IBMGbTor> for details.
+
 =item SNMP::Info::Layer3::Juniper
 
 Subclass for Juniper devices
@@ -843,6 +850,11 @@ See documentation in L<SNMP::Info::Layer3::Pica8> for details.
 
 Subclass for generic SonicWALL devices. See documentation in
 L<SNMP::Info::Layer3::SonicWALL> for details.
+
+=item SNMP::Info::Layer3::Steelhead
+
+Subclass for  Riverbed Steelhead WAN optimization appliances. See
+documentation in L<SNMP::Info::Layer3::Steelhead> for details.
 
 =item SNMP::Info::Layer3::Sun
 
@@ -1396,7 +1408,9 @@ sub device_type {
         12325 => 'SNMP::Info::Layer3::Pf',
         14525 => 'SNMP::Info::Layer2::Trapeze',
         14988 => 'SNMP::Info::Layer3::Mikrotik',
+        17163 => 'SNMP::Info::Layer3::Steelhead',
         25506 => 'SNMP::Info::Layer3::H3C',
+        26543 => 'SNMP::Info::Layer3::IBMGbTor',
         30065 => 'SNMP::Info::Layer3::Arista',
         35098 => 'SNMP::Info::Layer3::Pica8',
     );
@@ -1422,6 +1436,8 @@ sub device_type {
         14179 => 'SNMP::Info::Layer2::Airespace',
         14525 => 'SNMP::Info::Layer2::Trapeze',
         14823 => 'SNMP::Info::Layer3::Aruba',
+        17163 => 'SNMP::Info::Layer3::Steelhead',
+        26543 => 'SNMP::Info::Layer3::IBMGbTor',
     );
 
     my %l7sysoidmap = (
@@ -2461,7 +2477,7 @@ sub _get_topo_data {
     my $topo_cap = shift;
     my $method   = shift;
 
-    return unless $method =~ /(ip|if|port|id|platform)/;
+    return unless $method =~ /(ip|if|port|id|platform|cap)/;
 
     my %t_data;
     foreach my $proto (@$topo_cap) {
@@ -2616,7 +2632,8 @@ sub c_id {
 
 Returns reference to hash.  Key: iid, Value: Remote Device Type
 
-Note:  LLDP and EDP do not provide this information.
+Note:  EDP does not provide this information.  LLDP uses (C<lldpRemSysDesc>)
+or C<lldp_rem_sysname> as the closest match.
 
 =cut
 
@@ -2636,6 +2653,34 @@ sub c_platform {
         }
     }
     return _get_topo_data ($self, $partial, $topo_cap, 'platform');
+}
+
+=item $info->c_cap(partial, topology_protocol_arrayref)
+
+Returns reference to hash of arrays.  Key: iid, Value: Array of capabilities 
+supported by the device.  See the specific protocol class for string values
+which could be elements within the array. 
+
+Note:  Only CDP and LLDP support this method.
+
+=cut
+
+sub c_cap {
+    my $self     = shift;
+    my $partial  = shift;
+    my $topo_cap = shift;
+
+    # Default to old behavior if not called with topo_cap
+    if ( !$topo_cap ) {
+        my $topo_test = $self->has_topo();
+        if ($topo_test) {
+            $topo_cap = $topo_test;
+        }
+        else {
+            return;
+        }
+    }
+    return _get_topo_data ($self, $partial, $topo_cap, 'cap');
 }
 
 =back
@@ -3263,21 +3308,7 @@ sub munge_bits {
     my $bits = shift;
     return unless defined $bits;
 
-    return unpack( "b*", $bits );
-}
-
-=item munge_caps
-
-Takes an octet string and returns an ascii binary string, 7 digits long, MSB.
-
-=cut
-
-sub munge_caps {
-    my $caps = shift;
-    return unless defined $caps;
-
-    my $bits = substr( unpack( "B*", $caps ), -7 );
-    return $bits;
+    return unpack( "B*", $bits );
 }
 
 =item munge_counter64
