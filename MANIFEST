@@ -4,6 +4,11 @@ DEVELOP
 DeviceMatrix.txt
 Info.pm
 Info/AdslLine.pm
+Info/Aggregate.pm
+Info/Aggregate/Arista.pm
+Info/Aggregate/Cisco.pm
+Info/Aggregate/Foundry.pm
+Info/Aggregate/IEEE802dot3.pm
 Info/Airespace.pm
 Info/AMAP.pm
 Info/Bridge.pm

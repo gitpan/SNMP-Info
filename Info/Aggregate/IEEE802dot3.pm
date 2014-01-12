@@ -1,6 +1,6 @@
-# SNMP::Info::AdslLine
+# SNMP::Info::Aggregate::IEEE802dot3
 #
-# Copyright (c) 2009 Alexander Hartmaier
+# Copyright (c) 2014 SNMP::Info Developers
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,49 +27,70 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::AdslLine;
+package SNMP::Info::Aggregate::IEEE802dot3;
 
 use strict;
 use Exporter;
-use SNMP::Info;
+use SNMP::Info::Aggregate;
 
-@SNMP::Info::AdslLine::ISA       = qw/SNMP::Info Exporter/;
-@SNMP::Info::AdslLine::EXPORT_OK = qw//;
+@SNMP::Info::Aggregate::IEEE802dot3::ISA = qw/
+  SNMP::Info::Aggregate
+  Exporter
+/;
+@SNMP::Info::Aggregate::IEEE802dot3::EXPORT_OK = qw/
+  agg_ports_lag
+/;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
 $VERSION = '3.10_001';
 
-%MIBS = ( 'ADSL-LINE-MIB' => 'adslLineType' );
+%MIBS = (
+  %SNMP::Info::Aggregate::MIBS,
+  'IEEE8023-LAG-MIB' => 'dot3adAggPortSelectedAggID',
+);
 
 %GLOBALS = ();
 
-%FUNCS = (
-    # ADSL-LINE-MIB::adslAtucChanTable
-    'adsl_atuc_interleave_delay'    => 'adslAtucChanInterleaveDelay',
-    'adsl_atuc_curr_tx_rate'        => 'adslAtucChanCurrTxRate',
-    'adsl_atuc_prev_tx_rate'        => 'adslAtucChanPrevTxRate',
-    'adsl_atuc_crc_block_len'       => 'adslAtucChanCrcBlockLength',
-    
-    # ADSL-LINE-MIB::adslAturChanTable
-    'adsl_atur_interleave_delay'    => 'adslAturChanInterleaveDelay',
-    'adsl_atur_curr_tx_rate'        => 'adslAturChanCurrTxRate',
-    'adsl_atur_prev_tx_rate'        => 'adslAturChanPrevTxRate',
-    'adsl_atur_crc_block_len'       => 'adslAturChanCrcBlockLength',
-);
+%FUNCS = ();
 
 %MUNGE = ();
 
+sub agg_ports_lag {
+  my $dev = shift;
+
+  # TODO: implement partial
+  my $masters = $dev->dot3adAggActorOperKey;
+  my $slaves  = $dev->dot3adAggPortActorOperKey;
+
+  return {} unless
+    ref {} eq ref $masters and scalar keys %$masters
+    and ref {} eq ref $slaves and scalar keys %$slaves;
+
+  my $ret = {};
+  foreach my $s (keys %$slaves) {
+      next if $slaves->{$s} == 0;
+      foreach my $m (keys %$masters) {
+          next unless $masters->{$m} == $slaves->{$s};
+          $ret->{$s} = $m;
+          last;
+      }
+  }
+
+  return $ret;
+}
+
 1;
+
 __END__
 
 =head1 NAME
 
-SNMP::Info::AdslLine - SNMP Interface to the F<ADSL-LINE-MIB>
+SNMP::Info::Aggregate::IEEE802dot3 - SNMP Interface to IEEE Aggregated Links
 
 =head1 AUTHOR
 
-Alexander Hartmaier
+SNMP::Info Developers
 
 =head1 SYNOPSIS
 
@@ -88,84 +109,32 @@ Alexander Hartmaier
 
 =head1 DESCRIPTION
 
-SNMP::Info::AdslLine is a subclass of SNMP::Info that provides 
-information about the adsl interfaces of a device.
+This class provides access to Aggregated Links configuration on devices
+implementing C<IEEE8023-LAG-MIB>.
 
 Use or create in a subclass of SNMP::Info.  Do not use directly.
 
 =head2 Inherited Classes
 
-none.
+L<SNMP::Info::Aggregate>
 
 =head2 Required MIBs
 
 =over
 
-=item F<ADSL-LINE-MIB>
+=item F<IEEE8023-LAG-MIB>
 
 =back
 
-MIBs can be found at ftp://ftp.cisco.com/pub/mibs/v2/v2.tar.gz
+=head1 METHODS
 
-=head1 GLOBALS
+=over 4
 
-=over
+=item C<agg_ports_lag>
 
-=item none
-
-=back
-
-=head1 TABLE METHODS
-
-=head2 ATUC channel table (C<adslAtucChanTable>)
-
-This table provides one row for each ATUC channel.
-ADSL channel interfaces are those C<ifEntries> where C<ifType>
-is equal to adslInterleave(124) or adslFast(125).
-
-=over
-
-=item $info->adsl_atuc_interleave_delay()
-
-(C<adslAtucChanInterleaveDelay>)
-
-=item $info->adsl_atuc_curr_tx_rate()
-
-(C<adslAtucChanCurrTxRate>)
-
-=item $info->adsl_atuc_prev_tx_rate()
-
-(C<adslAtucChanPrevTxRate>)
-
-=item $info->adsl_atuc_crc_block_len()
-
-(C<adslAtucChanCrcBlockLength>)
-
-=back
-
-=head2 ATUR channel table (C<adslAturChanTable>)
-
-This table provides one row for each ATUR channel.
-ADSL channel interfaces are those C<ifEntries> where C<ifType>
-is equal to adslInterleave(124) or adslFast(125).
-
-=over
-
-=item $info->adsl_atur_interleave_delay()
-
-(C<adslAturChanInterleaveDelay>)
-
-=item $info->adsl_atur_curr_tx_rate()
-
-(C<adslAturChanCurrTxRate>)
-
-=item $info->adsl_atur_prev_tx_rate()
-
-(C<adslAturChanPrevTxRate>)
-
-=item $info->adsl_atur_crc_block_len()
-
-(C<adslAturChanCrcBlockLength>)
+Returns a HASH reference mapping from slave to master port for each member of
+a port bundle on the device. Keys are ifIndex of the slave ports, Values are
+ifIndex of the corresponding master ports.
 
 =back
 

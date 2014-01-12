@@ -46,7 +46,7 @@ use SNMP::Info::EDP;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '3.10';
+$VERSION = '3.10_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -290,9 +290,6 @@ sub fw_mac {
     my $b = $extreme->SUPER::fw_mac();
     return $b if (keys %$b);
 
-    my $qb = $extreme->qb_fw_mac();
-    return $qb if (keys %$qb);
-    
     return $extreme->ex_fw_mac();
 }
 
@@ -301,9 +298,6 @@ sub fw_port {
     
     my $b = $extreme->SUPER::fw_port();
     return $b if (keys %$b);
-
-    my $qb = $extreme->qb_fw_port();
-    return $qb if (keys %$qb);
     
     return $extreme->ex_fw_port();
 }
@@ -313,9 +307,6 @@ sub fw_status {
 
     my $b = $extreme->SUPER::fw_status();
     return $b if (keys %$b);
-
-    my $qb = $extreme->qb_fw_status();
-    return $qb if (keys %$qb);
 
     return $extreme->ex_fw_status();
 }
@@ -485,21 +476,26 @@ sub _xos_i_vlan_membership {
     my $index   = $extreme->i_index();
     my $vlans   = $extreme->ex_vlan_id();
     my $slotx   = $extreme->_slot_factor() || 1000;
+    my $u_ports = $extreme->ex_vlan_untagged() || {};
     my $t_ports = $extreme->ex_vlan_tagged() || {};
 
     my $i_vlan_membership = {};
-    foreach my $idx ( keys %$t_ports ) {
-        next unless ( defined $t_ports->{$idx} );
+    foreach my $idx ( keys %$u_ports ) {
+        next unless ( defined $u_ports->{$idx} );
+        my $u_portlist = $u_ports->{$idx};
         my $t_portlist = $t_ports->{$idx};
         my $ret        = [];
 
         my ( $vlan_if, $slot ) = $idx =~ /^(\d+)\.(\d+)/;
         my $vlan = $vlans->{$vlan_if} || '';
 
-        # Convert portlist bit array to bp_index array
-        for ( my $i = 0; $i <= $#$t_portlist; $i++ ) {
-            push( @{$ret}, ( $slotx * $slot + $i + 1 ) )
-                if ( @$t_portlist[$i] );
+        foreach my $portlist ( $u_portlist, $t_portlist ) {
+
+            # Convert portlist bit array to bp_index array
+            for ( my $i = 0; $i <= $#$portlist; $i++ ) {
+                push( @{$ret}, ( $slotx * $slot + $i + 1 ) )
+                    if ( @$portlist[$i] );
+            }
         }
 
         #Create HoA ifIndex -> VLAN array

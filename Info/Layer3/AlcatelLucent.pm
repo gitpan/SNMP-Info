@@ -49,7 +49,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.10';
+$VERSION = '3.10_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -196,21 +196,6 @@ sub interfaces {
     my $partial = shift;
 
     return $alu->orig_i_name($partial);
-}
-
-# Use Q-BRIDGE-MIB
-sub fw_mac {
-    my $alu     = shift;
-    my $partial = shift;
-
-    return $alu->qb_fw_mac($partial);
-}
-
-sub fw_port {
-    my $alu     = shift;
-    my $partial = shift;
-
-    return $alu->qb_fw_port($partial);
 }
 
 # Work around buggy bp_index in 6.3.1.871.R01 and 6.3.1.975.R01
@@ -444,14 +429,6 @@ to a hash.
 
 Returns interface name from C<ifName>, since the default return value
 of C<ifDescr> includes the OS version.
-
-=item $alu->fw_mac()
-
-Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
-
-=item $alu->fw_port()
-
-Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
 
 =item $alu->bp_index()
 

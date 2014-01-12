@@ -40,7 +40,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '3.10';
+$VERSION = '3.10_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -191,25 +191,6 @@ sub i_duplex_admin {
         $i_duplex_admin{$if} = $duplex;
     }
     return \%i_duplex_admin;
-}
-
-# Use same methods as netgear.  Some device didn't implement the bridge MIB
-# forwarding table and some don't return MACs for VLANs other than default yet
-# don't support community indexing, so we use the Q-BRIDGE-MIB forwarding
-# table.  Fall back to the orig functions if the qb versions don't
-# return anything.
-sub fw_mac {
-    my $dell = shift;
-    my $ret  = $dell->qb_fw_mac();
-    $ret = $dell->orig_fw_mac() if ( !defined($ret) );
-    return $ret;
-}
-
-sub fw_port {
-    my $dell = shift;
-    my $ret  = $dell->qb_fw_port();
-    $ret = $dell->orig_fw_port() if ( !defined($ret) );
-    return $ret;
 }
 
 sub _vendor {
@@ -405,23 +386,6 @@ sometimes not unique.
 
 Returns reference to hash of iid to current link administrative duplex
 setting.
-
-=item $dell->fw_mac()
-
-Returns reference to hash of forwarding table MAC Addresses.
-
-Some devices don't implement the C<BRIDGE-MIB> forwarding table, so we use
-the C<Q-BRIDGE-MIB> forwarding table.  Fall back to the C<BRIDGE-MIB> if
-C<Q-BRIDGE-MIB> doesn't return anything.
-
-=item $dell->fw_port()
-
-Returns reference to hash of forwarding table entries port interface
-identifier (iid)
-
-Some devices don't implement the C<BRIDGE-MIB> forwarding table, so we use
-the C<Q-BRIDGE-MIB> forwarding table.  Fall back to the C<BRIDGE-MIB> if
-C<Q-BRIDGE-MIB> doesn't return anything.
 
 =back
 

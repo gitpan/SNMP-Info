@@ -42,7 +42,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION $DEBUG %MIBS %FUNCS %GLOBALS %MUNGE $INIT/;
 
-$VERSION = '3.10';
+$VERSION = '3.10_001';
 
 %MIBS = (
     'BRIDGE-MIB'   => 'dot1dBaseBridgeAddress',
@@ -187,6 +187,35 @@ sub qb_i_vlan_t {
         $i_vlan->{$if} = $tagged eq 'admitOnlyVlanTagged' ? 'trunk' : $vlan;
     }
     return $i_vlan;
+}
+
+# Most devices now support Q-BRIDGE-MIB, fall back to 
+# BRIDGE-MIB for those that don't.
+sub fw_mac {
+    my $bridge = shift;
+
+    my $qb = $bridge->qb_fw_mac();
+    return $qb if (ref {} eq ref $qb and scalar keys %$qb);
+
+    return $bridge->SUPER::fw_mac();
+}
+
+sub fw_port {
+    my $bridge = shift;
+
+    my $qb = $bridge->qb_fw_port();
+    return $qb if (ref {} eq ref $qb and scalar keys %$qb);
+
+    return $bridge->SUPER::fw_port();
+}
+
+sub fw_status {
+    my $bridge = shift;
+
+    my $qb = $bridge->qb_fw_status();
+    return $qb if (ref {} eq ref $qb and scalar keys %$qb);
+    
+    return $bridge->SUPER::fw_status();
 }
 
 sub i_stp_state {

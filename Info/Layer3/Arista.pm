@@ -36,19 +36,25 @@ use Exporter;
 use SNMP::Info::Layer3;
 use SNMP::Info::MAU;
 use SNMP::Info::LLDP;
+use SNMP::Info::Aggregate::Arista;
 
-@SNMP::Info::Layer3::Arista::ISA = qw/SNMP::Info::LLDP SNMP::Info::MAU
-    SNMP::Info::Layer3 Exporter/;
+@SNMP::Info::Layer3::Arista::ISA = qw/
+    SNMP::Info::Aggregate::Arista
+    SNMP::Info::LLDP
+    SNMP::Info::MAU
+    SNMP::Info::Layer3 Exporter
+/;
 @SNMP::Info::Layer3::Arista::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.10';
+$VERSION = '3.10_001';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
     %SNMP::Info::MAU::MIBS,
     %SNMP::Info::LLDP::MIBS,
+    %SNMP::Info::Aggregate::Arista::MIBS,
     'ARISTA-PRODUCTS-MIB' => 'aristaProducts',
 );
 
@@ -102,22 +108,6 @@ sub model {
 
     $model =~ s/^arista//;
     return $model;
-}
-
-# Use Q-BRIDGE-MIB
-
-sub fw_mac {
-    my $arista  = shift;
-    my $partial = shift;
-
-    return $arista->qb_fw_mac($partial);
-}
-
-sub fw_port {
-    my $arista  = shift;
-    my $partial = shift;
-
-    return $arista->qb_fw_port($partial);
 }
 
 # The LLDP MIB leaves it up in the air what the index means.
@@ -244,14 +234,6 @@ These are methods that return tables of information in the form of a reference
 to a hash.
 
 =over
-
-=item $arista->fw_mac()
-
-Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
-
-=item $arista->fw_port()
-
-Use the F<Q-BRIDGE-MIB> instead of F<BRIDGE-MIB>
 
 =item $arista->i_duplex_admin()
 

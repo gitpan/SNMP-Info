@@ -1,5 +1,22 @@
 SNMP::Info - Friendly OO-style interface to Network devices using SNMP.
 
+version 3.11 
+
+   [ENHANCEMENTS]
+
+    * Use Q-BRIDGE-MIB as default with fallback to BRIDGE-MIB across all
+      classes for the fw_mac, fw_port, and fw_status methods
+
+   [BUG FIXES]
+
+    * Modify cdp_cap() to handle devices which return space delimited strings
+      for cdpCacheCapabilities rather than hex strings
+    * [#51] Netdisco shows broken topology for devices with no alias entry
+      for primary IP - Collect nsIfMngIp when getting IP interfaces in
+      L3::Netscreen
+    * Fix Extreme XOS i_vlan_membership - Revert [28bbe0], fix bug with
+      untagged being added to @ret twice (Robert Kerr)
+
 version 3.10 (2013-12-16)
 
    [BUG FIXES]
