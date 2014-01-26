@@ -43,7 +43,7 @@ use SNMP::Info::SONMP;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.10_001';
+$VERSION = '3.11';
 
 %MIBS = (
     %SNMP::Info::MIBS,
@@ -244,6 +244,20 @@ sub index_factor {
 
 sub slot_offset {
     return 0;
+}
+
+sub fw_mac {
+    my $centillion = shift;
+    my $partial   = shift;
+
+    return $centillion->SUPER::fw_mac($partial);
+}
+
+sub fw_port {
+    my $centillion = shift;
+    my $partial   = shift;
+
+    return $centillion->SUPER::fw_port($partial);
 }
 
 1;

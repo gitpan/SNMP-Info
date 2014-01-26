@@ -1,4 +1,4 @@
-# SNMP::Info::Aggregate::Arista
+# SNMP::Info::IEEE802dot3ad
 #
 # Copyright (c) 2014 SNMP::Info Developers
 # All rights reserved.
@@ -27,26 +27,27 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-package SNMP::Info::Aggregate::Arista;
+package SNMP::Info::IEEE802dot3ad;
 
 use strict;
 use Exporter;
-use SNMP::Info::Aggregate 'agg_ports_ifstack';
+use SNMP::Info::Aggregate;
 
-@SNMP::Info::Aggregate::Arista::ISA = qw/
+@SNMP::Info::IEEE802dot3ad::ISA = qw/
   SNMP::Info::Aggregate
   Exporter
 /;
-@SNMP::Info::Aggregate::Arista::EXPORT_OK = qw/
-  agg_ports
+@SNMP::Info::IEEE802dot3ad::EXPORT_OK = qw/
+  agg_ports_lag
 /;
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '3.10_001';
+$VERSION = '3.11';
 
 %MIBS = (
   %SNMP::Info::Aggregate::MIBS,
+  'IEEE8023-LAG-MIB' => 'dot3adAggPortSelectedAggID',
 );
 
 %GLOBALS = ();
@@ -55,7 +56,29 @@ $VERSION = '3.10_001';
 
 %MUNGE = ();
 
-sub agg_ports { return agg_ports_ifstack(@_) }
+sub agg_ports_lag {
+  my $dev = shift;
+
+  # TODO: implement partial
+  my $masters = $dev->dot3adAggActorOperKey;
+  my $slaves  = $dev->dot3adAggPortActorOperKey;
+
+  return {} unless
+    ref {} eq ref $masters and scalar keys %$masters
+    and ref {} eq ref $slaves and scalar keys %$slaves;
+
+  my $ret = {};
+  foreach my $s (keys %$slaves) {
+      next if $slaves->{$s} == 0;
+      foreach my $m (keys %$masters) {
+          next unless $masters->{$m} == $slaves->{$s};
+          $ret->{$s} = $m;
+          last;
+      }
+  }
+
+  return $ret;
+}
 
 1;
 
@@ -63,7 +86,7 @@ __END__
 
 =head1 NAME
 
-SNMP::Info::Aggregate::Arista - SNMP Interface to Arista Aggregated Links
+SNMP::Info::IEEE802dot3ad - SNMP Interface to IEEE Aggregated Links
 
 =head1 AUTHOR
 
@@ -86,29 +109,28 @@ SNMP::Info Developers
 
 =head1 DESCRIPTION
 
-This class provides access to Aggregated Links configuration on Arista devices.
+This class provides access to Aggregated Links configuration on devices
+implementing C<IEEE8023-LAG-MIB>.
 
 Use or create in a subclass of SNMP::Info.  Do not use directly.
 
 =head2 Inherited Classes
 
-L<SNMP::Info::Aggregate::IEEE802dot3>
+L<SNMP::Info::Aggregate>
 
 =head2 Required MIBs
 
 =over
 
-=item F<CISCO-PAGP-MIB>
+=item F<IEEE8023-LAG-MIB>
 
 =back
-
-MIBs can be found at ftp://ftp.cisco.com/pub/mibs/v2/v2.tar.gz
 
 =head1 METHODS
 
 =over 4
 
-=item C<agg_ports>
+=item C<agg_ports_lag>
 
 Returns a HASH reference mapping from slave to master port for each member of
 a port bundle on the device. Keys are ifIndex of the slave ports, Values are

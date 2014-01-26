@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.10_001';
+$VERSION = '3.11';
 
 %MIBS = (
     %SNMP::Info::MIBS,
@@ -575,6 +575,13 @@ sub bp_index {
     }
 
     return \%bp_index;
+}
+
+sub fw_mac {
+    my $airespace = shift;
+    my $partial   = shift;
+
+    return $airespace->SUPER::fw_mac($partial);
 }
 
 sub fw_port {

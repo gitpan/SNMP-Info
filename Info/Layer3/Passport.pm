@@ -43,7 +43,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '3.10_001';
+$VERSION = '3.11';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS, %SNMP::Info::RapidCity::MIBS,
@@ -127,8 +127,8 @@ sub i_index {
     # Get VLAN Virtual Router Interfaces
     if (!defined $partial
         || (defined $model
-            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
-                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
+            && (  ( $partial > 2000 && $model =~ /^8[8631]|16|VSP/ )
+                || ( $partial > 256 && $model =~ /^1[012][05]0/ ) )
         )
         )
     {
@@ -145,7 +145,7 @@ sub i_index {
         }
     }
 
-    if ( defined $model and $model =~ /(86)/ ) {
+    if ( defined $model and $model =~ /^8[86]/ ) {
 
         my $cpu_index = $passport->rc_cpu_ifindex($partial) || {};
         my $virt_ip = $passport->rc_virt_ip();
@@ -183,8 +183,8 @@ sub interfaces {
 
     if (!defined $partial
         || (defined $model
-            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
-                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
+            && (  ( $partial > 2000 && $model =~ /^8[8631]|16|VSP/ )
+                || ( $partial > 256 && $model =~ /^1[012][05]0/ ) )
         )
         )
     {
@@ -198,24 +198,24 @@ sub interfaces {
         my $index = $i_index->{$iid};
         next unless defined $index;
 
-        if ( ( $index == 1 ) and ( $model =~ /(86)/ ) ) {
+        if ( ( $index == 1 ) and ( $model =~ /^8[86]/ ) ) {
             $if{$index} = 'Cpu.Virtual';
         }
 
-        elsif ( ( $index == 192 ) and ( $model eq '8603' ) ) {
+        elsif ( ( $index == 192 ) and ( $model =~ /^8[86]03/ ) ) {
             $if{$index} = 'Cpu.3';
         }
 
-        elsif ( ( $index == 320 ) and ( $model =~ /(8606|8610|8610co)/ ) ) {
+        elsif ( ( $index == 320 ) and ( $model =~ /^8[86][10][06]/ ) ) {
             $if{$index} = 'Cpu.5';
         }
 
-        elsif ( ( $index == 384 ) and ( $model =~ /(8606|8610|8610co)/ ) ) {
+        elsif ( ( $index == 384 ) and ( $model =~ /^8[86][10][06]/ ) ) {
             $if{$index} = 'Cpu.6';
         }
 
-        elsif (( $index > 2000 and $model =~ /(86|83|81|16|VSP)/ )
-            or ( $index > 256 and $model =~ /(105|11[05]0|12[05])/ ) )
+        elsif (( $index > 2000 and $model =~ /^8[8631]|16|VSP/ )
+            or ( $index > 256 and $model =~ /^1[012][05]0/ ) )
         {
 
             my $v_index = $reverse_vlan{$iid};
@@ -256,8 +256,8 @@ sub i_mac {
     # Get VLAN Virtual Router Interfaces
     if (!defined $partial
         || (defined $model
-            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
-                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
+            && (  ( $partial > 2000 && $model =~ /^8[8631]|16|VSP/ )
+                || ( $partial > 256 && $model =~ /^1[012][05]0/ ) )
         )
         )
     {
@@ -276,7 +276,7 @@ sub i_mac {
         }
     }
 
-    if ( defined $model and $model =~ /(86)/ ) {
+    if ( defined $model and $model =~ /^8[86]/ ) {
 
         my $cpu_mac = $passport->rc_cpu_mac($partial) || {};
         my $virt_ip = $passport->rc_virt_ip()         || '0.0.0.0';
@@ -330,8 +330,8 @@ sub i_description {
     # Get VLAN Virtual Router Interfaces
     if (!defined $partial
         || (defined $model
-            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
-                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
+            && (  ( $partial > 2000 && $model =~ /^8[8631]|16|VSP/ )
+                || ( $partial > 256 && $model =~ /^1[012][05]0/ ) )
         )
         )
     {
@@ -366,8 +366,8 @@ sub i_name {
 
     if (!defined $partial
         || (defined $model
-            && (  ( $partial > 2000 && $model =~ /(86|83|81|16|VSP)/ )
-                || ( $partial > 256 && $model =~ /(105|11[05]0|12[05])/ ) )
+            && (  ( $partial > 2000 && $model =~ /^8[8631]|16|VSP/ )
+                || ( $partial > 256 && $model =~ /^1[012][05]0/ ) )
         )
         )
     {
@@ -379,27 +379,27 @@ sub i_name {
     my %i_name;
     foreach my $iid ( keys %$i_index ) {
 
-        if ( ( $iid == 1 ) and ( $model =~ /(86)/ ) ) {
+        if ( ( $iid == 1 ) and ( $model =~ /^8[86]/ ) ) {
             $i_name{$iid} = 'CPU Virtual Management IP';
         }
 
-        elsif ( ( $iid == 192 ) and ( $model eq '8603' ) ) {
+        elsif ( ( $iid == 192 ) and ( $model =~ /^8[86]03/ ) ) {
             $i_name{$iid} = 'CPU 3 Ethernet Port';
         }
 
-        elsif ( ( $iid == 320 ) and ( $model =~ /(8606|8610|8610co)/ ) ) {
+        elsif ( ( $iid == 320 ) and ( $model =~ /^8[86][10][06]/ ) ) {
             $i_name{$iid} = 'CPU 5 Ethernet Port';
         }
 
-        elsif ( ( $iid == 384 ) and ( $model =~ /(8606|8610|8610co)/ ) ) {
+        elsif ( ( $iid == 384 ) and ( $model =~ /^8[86][10][06]/ ) ) {
             $i_name{$iid} = 'CPU 6 Ethernet Port';
         }
 
         elsif (
-            ( $iid > 2000 and defined $model and $model =~ /(86|83|81|16)/ )
+            ( $iid > 2000 and defined $model and $model =~ /^8[8631]|16|VSP/ )
             or (    $iid > 256
                 and defined $model
-                and $model =~ /(105|11[05]0|12[05])/ )
+                and $model =~ /^1[012][05]0/ )
             )
         {
             my $vlan_idx = $reverse_vlan{$iid};
@@ -433,12 +433,16 @@ sub ip_index {
     foreach my $ip ( keys %$ip_index ) {
         my $iid = $ip_index->{$ip};
         next unless defined $iid;
+        # Skip VSP default CPU addresses
+        next if ($ip =~ /^192\.168\.1\.1/);
+        # Skip default CPU addresses
+        next if ($ip =~ /^192\.168\.168\.16[89]/);
 
         $ip_index{$ip} = $iid;
     }
 
     # Only 8600 has CPU and Virtual Management IP
-    if ( defined $model and $model =~ /(86)/ ) {
+    if ( defined $model and $model =~ /^8[86]/ ) {
 
         my $cpu_ip = $passport->rc_cpu_ip($partial) || {};
         my $virt_ip = $passport->rc_virt_ip($partial);
@@ -447,6 +451,8 @@ sub ip_index {
         foreach my $cid ( keys %$cpu_ip ) {
             my $c_ip = $cpu_ip->{$cid};
             next unless defined $c_ip;
+            # Skip default CPU addresses
+            next if ($c_ip =~ /192\.168\.168\.16[89]/);
 
             $ip_index{$c_ip} = $cid;
         }
@@ -467,6 +473,10 @@ sub ip_netmask {
 
     my %ip_index;
     foreach my $iid ( keys %$ip_mask ) {
+        # Skip VSP default CPU addresses
+        next if ($iid =~ /^192\.168\.1\./);
+        # Skip default CPU addresses
+        next if ($iid =~ /^192\.168\.168\.16[89]/);
         my $mask = $ip_mask->{$iid};
         next unless defined $mask;
 
@@ -474,7 +484,7 @@ sub ip_netmask {
     }
 
     # Only 8600 has CPU and Virtual Management IP
-    if ( defined $model and $model =~ /(86)/ ) {
+    if ( defined $model and $model =~ /^8[86]/ ) {
 
         my $cpu_ip    = $passport->rc_cpu_ip($partial)    || {};
         my $cpu_mask  = $passport->rc_cpu_mask($partial)  || {};
@@ -485,6 +495,8 @@ sub ip_netmask {
         foreach my $iid ( keys %$cpu_mask ) {
             my $c_ip = $cpu_ip->{$iid};
             next unless defined $c_ip;
+            # Skip default CPU addresses
+            next if ($c_ip =~ /192\.168\.168\.16[89]/);
             my $c_mask = $cpu_mask->{$iid};
             next unless defined $c_mask;
 
@@ -510,7 +522,7 @@ sub root_ip {
     my $sonmp_topo_ip   = $passport->sonmp_topo_ip();
 
     # Only 8600 and 1600 have CLIP or Management Virtual IP
-    if ( defined $model and $model =~ /(86|16|VSP)/ ) {
+    if ( defined $model and $model =~ /^8[86]|16|VSP/ ) {
 
         # Return CLIP (CircuitLess IP)
         foreach my $iid ( keys %$rc_ip_type ) {
@@ -560,7 +572,7 @@ sub index_factor {
 
     # Older Accelar models use base 16 instead of 64
     $index_factor = 16
-        if ( defined $model and $model =~ /(105|11[05]0|12[05])/ );
+        if ( defined $model and $model =~ /^1[012][05]0/ );
     return $index_factor;
 }
 
@@ -583,6 +595,20 @@ sub bp_index {
     foreach my $iid ( keys %$if_index ) {
         $bp_index{$iid} = $iid;
     }
+
+    # If we have MLT's map them to the designated port
+    my $trunks = $passport->rc_mlt_index;
+    my $dps    = $passport->rc_mlt_dp || {};
+
+    if ( ref {} eq ref $trunks and scalar keys %$trunks ) {
+        foreach my $m ( keys %$trunks ) {
+            my $m_idx = $trunks->{$m};
+            next unless $m_idx;
+            my $i_idx = $dps->{$m} ? $dps->{$m} : $m_idx;
+            $bp_index{$m_idx} = $i_idx;
+        }
+    }
+
     return \%bp_index;
 }
 
@@ -613,7 +639,7 @@ sub e_index {
     }
 
     # Older Accelars use RAPID-CITY::rcCardTable
-    if ( defined $model and $model =~ /(105|11[05]0|12[05])/ ) {
+    if ( defined $model and $model =~ /^1[012][05]0/ ) {
         my $rc_c_t = $passport->rc_c_type() || {};
         foreach my $idx ( keys %$rc_c_t ) {
             next unless $idx;
@@ -701,7 +727,7 @@ sub e_descr {
     }
 
     # Older Accelars use RAPID-CITY::rcCardTable
-    if ( defined $model and $model =~ /(105|11[05]0|12[05])/ ) {
+    if ( defined $model and $model =~ /^1[012][05]0/ ) {
         my $rc_c_t = $passport->rc_c_type() || {};
         foreach my $idx ( keys %$rc_c_t ) {
             next unless $idx;
@@ -769,7 +795,7 @@ sub e_type {
     }
 
     # Older Accelars use RAPID-CITY::rcCardTable
-    if ( defined $model and $model =~ /(105|11[05]0|12[05])/ ) {
+    if ( defined $model and $model =~ /^1[012][05]0/ ) {
         my $rc_c_t = $passport->rc_c_type() || {};
         foreach my $idx ( keys %$rc_c_t ) {
             next unless $idx;
@@ -842,7 +868,7 @@ sub e_name {
             $rc_e_name{$iid} = "Card $slot, MDA $mod";
         }
         elsif ( defined $model
-            and $model =~ /(105|11[05]0|12[05])/
+            and $model =~ /^1[012][05]0/
             and $iid   =~ /1$/ )
         {
             $rc_e_name{$iid} = "Card $slot";
@@ -878,7 +904,7 @@ sub e_hwver {
     }
 
     # Older Accelars use RAPID-CITY::rcCardTable
-    if ( defined $model and $model =~ /(105|11[05]0|12[05])/ ) {
+    if ( defined $model and $model =~ /^1[012][05]0/ ) {
         my $rc_c_t = $passport->rc_c_rev() || {};
         foreach my $idx ( keys %$rc_c_t ) {
             next unless $idx;
@@ -953,7 +979,7 @@ sub e_serial {
     }
 
     # Older Accelars use RAPID-CITY::rcCardTable
-    if ( defined $model and $model =~ /(105|11[05]0|12[05])/ ) {
+    if ( defined $model and $model =~ /^1[012][05]0/ ) {
         my $rc_c_t = $passport->rc_c_serial() || {};
         foreach my $idx ( keys %$rc_c_t ) {
             next unless $idx;

@@ -24,7 +24,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '3.10_001';
+$VERSION = '3.11';
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ SNMP::Info - OO Interface to Network devices and MIBs through SNMP
 
 =head1 VERSION
 
-SNMP::Info - Version 3.10_001
+SNMP::Info - Version 3.11
 
 =head1 AUTHOR
 
@@ -235,6 +235,12 @@ Requires the F<ADSL-LINE-MIB>, down loadable from Cisco.
 
 See documentation in L<SNMP::Info::AdslLine> for details.
 
+=item SNMP::Info::Aggregate
+
+SNMP Interface to F<IF-MIB> C<ifStackTable> Aggregated Links
+
+See documentation in L<SNMP::Info::Aggregate> for details.
+
 =item SNMP::Info::Airespace
 
 F<AIRESPACE-WIRELESS-MIB> and F<AIRESPACE-SWITCHING-MIB>.  Inherited by
@@ -255,6 +261,12 @@ F<BRIDGE-MIB> (RFC1286).  F<QBRIDGE-MIB>. Inherited by devices with Layer2
 support.
 
 See documentation in L<SNMP::Info::Bridge> for details.
+
+=item SNMP::Info::CiscoAgg
+
+SNMP Interface to Cisco Aggregated Links
+
+See documentation in L<SNMP::Info::CiscoAgg> for details.
 
 =item SNMP::Info::CDP
 
@@ -368,6 +380,12 @@ F<IEEE802dot11-MIB>.  A collection of OIDs providing information about
 standards based 802.11 wireless devices.  
 
 See documentation in L<SNMP::Info::IEEE802dot11> for details.
+
+=item SNMP::Info::IEEE802dot3ad
+
+SNMP Interface to IEEE Aggregated Links.  F<IEEE8023-LAG-MIB>
+
+See documentation in L<SNMP::Info::IEEE802dot3ad> for details.
 
 =item SNMP::Info::LLDP
 

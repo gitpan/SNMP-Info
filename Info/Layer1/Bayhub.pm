@@ -42,7 +42,7 @@ use SNMP::Info::Layer2;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.10_001';
+$VERSION = '3.11';
 
 %MIBS = (
     %SNMP::Info::Layer2::MIBS,
@@ -332,6 +332,13 @@ sub bp_index {
         $bp_index{$index} = $index;
     }
     return \%bp_index;
+}
+
+sub fw_mac {
+    my $bayhub = shift;
+    my $partial   = shift;
+
+    return $bayhub->SUPER::fw_mac($partial);
 }
 
 sub fw_port {
