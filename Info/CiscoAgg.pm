@@ -43,7 +43,7 @@ use SNMP::Info::IEEE802dot3ad 'agg_ports_lag';
 
 use vars qw/$VERSION %MIBS %FUNCS %GLOBALS %MUNGE/;
 
-$VERSION = '3.12';
+$VERSION = '3.13';
 
 %MIBS = (
   %SNMP::Info::IEEE802dot3ad::MIBS,
@@ -56,11 +56,31 @@ $VERSION = '3.12';
 
 %MUNGE = ();
 
-# until someone using PAgP sends us a patch
-sub agg_ports_pagp { {} }
+sub agg_ports_pagp {
+  my $dev = shift;
+
+  # Note that this mapping will miss any interfaces that are down during
+  # polling. If one of the members is up, we could use
+  # pagpAdminGroupCapability to figure things out, but if they're all
+  # down, we're hosed. Since we could be hosed anyway, we skip the fancy
+  # stuff.
+  my $mapping = {};
+  my $group = $dev->pagpGroupIfIndex;
+  for my $slave (keys %$group) {
+    my $master = $group->{$slave};
+    next if($master == 0 || $slave == $master);
+
+    $mapping->{$slave} = $master;
+  }
+
+  return $mapping;
+}
 
 # until we have PAgP data and need to combine with LAG data
-sub agg_ports { return agg_ports_lag(@_) }
+sub agg_ports {
+  my $ret = {%{agg_ports_pagp(@_)}, %{agg_ports_lag(@_)}};
+  return $ret;
+}
 
 1;
 
@@ -122,7 +142,8 @@ ifIndex of the corresponding master ports.
 
 =item C<agg_ports_pagp>
 
-Unimplemented. Returns an empty HASH reference.
+Implements the PAgP LAG info retrieval. Merged into C<agg_ports> data
+automatically.
 
 =back
 
