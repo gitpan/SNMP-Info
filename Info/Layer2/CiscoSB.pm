@@ -50,7 +50,7 @@ use SNMP::Info::CDP;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.14';
+$VERSION = '3.15';
 
 # This will be filled in with the device's index into the EntPhysicalEntry
 # table by the serial() function.
@@ -98,21 +98,17 @@ sub vendor {
     return 'cisco';
 }
 
-# Walk the entPhysicalSerialNum table and return both the first serial
-# number found as well as the index of that entry.
+# Walk the entPhysicalSerialNum table and return the first serial found
 sub serial {
     my $ciscosb  = shift;
-    my $serial   = undef;  
     my $e_serial = $ciscosb->e_serial();
 
     # Find entity table entry for this unit
-    foreach my $e ( keys %$e_serial ) {
-        if (defined ($e_serial->{$e}) and $e_serial->{$e} !~ /^\s*$/) {
-            $index = $e;
-            last;
+    foreach my $e ( sort keys %$e_serial ) {
+        if (defined $e_serial->{$e} and $e_serial->{$e} !~ /^\s*$/) {
+            return $e_serial->{$e};
         }
     }
-    return $e_serial->{$index} if defined $index;
 }
 
 sub os_ver {

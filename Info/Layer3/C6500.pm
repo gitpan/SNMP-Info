@@ -70,7 +70,7 @@ use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.14';
+$VERSION = '3.15';
 
 # NOTE: Order creates precedence
 #       Example: v_name exists in Bridge.pm and CiscoVTP.pm
@@ -133,6 +133,23 @@ sub vendor {
 }
 
 sub cisco_comm_indexing { return 1; }
+
+sub serial {
+    my $c6500 = shift;
+
+    my $serial = $c6500->SUPER::serial();
+    return $serial if defined $serial and $serial;
+
+    # now grab the table only if SUPER cannot find it
+    my $e_serial = $c6500->e_serial();
+
+    # Find entity table entry for this unit
+    foreach my $e ( sort keys %$e_serial ) {
+        if (defined $e_serial->{$e} and $e_serial->{$e} !~ /^\s*$/) {
+            return $e_serial->{$e};
+        }
+    }
+}
 
 #  Newer versions use the ETHERLIKE-MIB to report operational duplex.
 
@@ -388,6 +405,10 @@ Returns the Switch status: multiNode or standalone.
 =item $c6500->is_virtual_switch()
 
 Return 1 if the switch (C<cvsSwitchMode>) is in multimode (VSS).
+
+=item $c6500->serial()
+
+Returns serial number of unit (falls back to C<entPhysicalSerialNum>).
 
 =back
 
