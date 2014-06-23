@@ -32,68 +32,61 @@
 package SNMP::Info::Layer3::CiscoASA;
 
 use strict;
+use warnings;
 use Exporter;
-use SNMP::Info::CiscoVTP;
-use SNMP::Info::CDP;
-use SNMP::Info::CiscoStats;
-use SNMP::Info::CiscoImage;
-use SNMP::Info::CiscoRTT;
-use SNMP::Info::CiscoQOS;
-use SNMP::Info::CiscoConfig;
-use SNMP::Info::CiscoPower;
+use SNMP::Info::CiscoStack;
 use SNMP::Info::Layer3;
-use SNMP::Info::Layer3::Cisco;
 
-@SNMP::Info::Layer3::CiscoASA::ISA = qw/SNMP::Info::CiscoVTP SNMP::Info::CDP
-    SNMP::Info::CiscoStats SNMP::Info::CiscoImage
-    SNMP::Info::CiscoRTT  SNMP::Info::CiscoQOS
-    SNMP::Info::CiscoConfig SNMP::Info::CiscoPower
-    SNMP::Info::Layer3::Cisco
+@SNMP::Info::Layer3::CiscoASA::ISA = qw/
+    SNMP::Info::CiscoStats
     SNMP::Info::Layer3
     Exporter/;
 @SNMP::Info::Layer3::CiscoASA::EXPORT_OK = qw//;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.15';
+$VERSION = '3.16';
 
-%MIBS = (
-       %SNMP::Info::Layer3::Cisco::MIBS,
-);
+%MIBS = ( %SNMP::Info::Layer3::MIBS, %SNMP::Info::CiscoStack::MIBS, );
 
-%GLOBALS = (
-       %SNMP::Info::Layer3::Cisco::GLOBALS,
-);
+%GLOBALS
+    = ( %SNMP::Info::Layer3::GLOBALS, %SNMP::Info::CiscoStack::GLOBALS, );
 
 %FUNCS = (
-       %SNMP::Info::Layer3::Cisco::FUNCS,
+    %SNMP::Info::Layer3::FUNCS,
+    %SNMP::Info::CiscoStack::FUNCS,
     'mac_table' => 'ifPhysAddress',
 );
 
 %MUNGE = (
-       %SNMP::Info::Layer3::Cisco::MUNGE,
-    'mac_table'  => \&SNMP::Info::munge_mac, );
+    %SNMP::Info::Layer3::MUNGE,
+    %SNMP::Info::CiscoStack::MUNGE,
+    'mac_table' => \&SNMP::Info::munge_mac,
+);
 
 sub b_mac {
-       my ($asa) = shift;
-       my $macs = $asa->mac_table();
-       my @macs;
-       # gather physical addresses
-       foreach my $i ( keys %$macs ) {
-               my $mac = $macs->{$i};
-               # don't catch the bad macs with zeroed OUI
-               if ( $mac !~ m/(0{1,2}:){3}/ ) {
-                       push( @macs, $mac);
-               }
-               @macs = sort( @macs );
-       }
-       # return the least mac
-       return $macs[0];
+    my ($asa) = shift;
+    my $macs = $asa->mac_table();
+    my @macs;
+
+    # gather physical addresses
+    foreach my $i ( keys %$macs ) {
+        my $mac = $macs->{$i};
+
+        # don't catch the bad macs with zeroed OUI
+        if ( $mac !~ m/(0{1,2}:){3}/ ) {
+            push( @macs, $mac );
+        }
+        @macs = sort(@macs);
+    }
+
+    # return the least mac
+    return $macs[0];
 }
 
 sub i_description {
-    my $self = shift;
-    my $partial   = shift;
+    my $self    = shift;
+    my $partial = shift;
 
     my $i_descr = $self->orig_i_description($partial) || {};
 
@@ -141,7 +134,9 @@ Subclass for Cisco ASA Devices
 
 =over
 
-=item SNMP::Info::Layer3::Cisco
+=item SNMP::Info::CiscoStack
+
+=item SNMP::Info::Layer3
 
 =back
 
@@ -149,11 +144,11 @@ Subclass for Cisco ASA Devices
 
 =over
 
-=item F<CISCO-EIGRP-MIB>
-
 =item Inherited Classes' MIBs
 
-See L<SNMP::Info::Layer3::Cisco/"Required MIBs"> for its own MIB requirements.
+See L<SNMP::Info::CiscoStack/"Required MIBs"> for its own MIB requirements.
+
+See L<SNMP::Info::Layer3/"Required MIBs"> for its own MIB requirements.
 
 =back
 
@@ -176,77 +171,25 @@ configured interface name instead of "Adaptive Security Appliance
 
 =back
 
-=head2 Global Methods imported from SNMP::Info::CiscoVTP
+=head2 Globals imported from SNMP::Info::CiscoStack
 
-See documentation in L<SNMP::Info::CiscoVTP/"GLOBALS"> for details.
+See documentation in L<SNMP::Info::CiscoStack/"GLOBALS"> for details.
 
-=head2 Globals imported from SNMP::Info::CDP
-
-See documentation in L<SNMP::Info::CDP/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::CiscoStats
-
-See documentation in L<SNMP::Info::CiscoStats/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::CiscoImage
-
-See documentation in L<SNMP::Info::CiscoImage/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::CiscoRTT
-
-See documentation in L<SNMP::Info::CiscoRTT/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::CiscoQOS
-
-See documentation in L<SNMP::Info::CiscoQOS/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::CiscoConfig
-
-See documentation in L<SNMP::Info::CiscoConfig/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::CiscoPower
-
-See documentation in L<SNMP::Info::CiscoPower/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::Layer3
+=head2 Global Methods imported from SNMP::Info::Layer3
 
 See documentation in L<SNMP::Info::Layer3/"GLOBALS"> for details.
-
-=head2 Globals imported from SNMP::Info::Layer3::Cisco
-
-See documentation in L<SNMP::Info::Layer3::Cisco/"GLOBALS"> for details.
 
 =head1 TABLE METHODS
 
 These are methods that return tables of information in the form of a
 reference to a hash.
 
-=head2 Table Methods imported from SNMP::Info::CiscoVTP
+=head2 Table Methods imported from SNMP::Info::CiscoStack
 
-See documentation in L<SNMP::Info::CiscoVTP/"TABLE METHODS"> for details.
+See documentation in L<SNMP::Info::CiscoStack/"TABLE METHODS"> for details.
 
-=head2 Table Methods imported from SNMP::Info::CDP
+=head2 Table Methods imported from SNMP::Info::Layer3
 
-See documentation in L<SNMP::Info::CDP/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::CiscoStats
-
-See documentation in L<SNMP::Info::CiscoStats/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::CiscoImage
-
-See documentation in L<SNMP::Info::CiscoImage/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::CiscoRTT
-
-See documentation in L<SNMP::Info::CiscoRTT/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::CiscoQOS
-
-See documentation in L<SNMP::Info::CiscoQOS/"TABLE METHODS"> for details.
-
-=head2 Table Methods imported from SNMP::Info::Layer3::Cisco
-
-See documentation in L<SNMP::Info::Layer3::Cisco/"TABLE METHODS"> for details.
+See documentation in L<SNMP::Info::Layer3/"TABLE METHODS"> for details.
 
 =cut
