@@ -43,7 +43,7 @@ use SNMP::Info::SONMP;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.17';
+$VERSION = '3.18';
 
 %MIBS = (
     %SNMP::Info::MIBS,
@@ -384,11 +384,6 @@ Returns 'Centillion'
 =head2 Overrides
 
 =over
-
-=item $centillion->layers()
-
-Returns 00000011.  Class emulates Layer 2 functionality through proprietary
-MIBs.
 
 =item  $centillion->index_factor()
 

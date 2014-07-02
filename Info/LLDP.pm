@@ -39,7 +39,7 @@ use SNMP::Info;
 
 use vars qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE/;
 
-$VERSION = '3.17';
+$VERSION = '3.18';
 
 %MIBS = (
     'LLDP-MIB'          => 'lldpLocSysCapEnabled',
@@ -121,9 +121,9 @@ sub lldp_if {
         my $lldp_desc = $lldp->lldpLocPortDesc($port);
         my $desc = $lldp_desc->{$port};
         # If cross reference is successful use it, otherwise stick with lldpRemLocalPortNum
-        if ( exists $r_i_descr{$desc} ) {
+        if ( $desc && exists $r_i_descr{$desc} ) {
             $port = $r_i_descr{$desc};
-        } elsif ( exists $r_i_alias{$desc} ) {
+        } elsif ( $desc && exists $r_i_alias{$desc} ) {
             $port = $r_i_alias{$desc};
         }
         
@@ -170,6 +170,7 @@ sub lldp_port {
     my $pdesc = $lldp->lldp_rem_desc($partial)     || {};
     my $pid   = $lldp->lldp_rem_pid($partial)      || {};
     my $ptype = $lldp->lldp_rem_pid_type($partial) || {};
+    my $vendor = $lldp->vendor();
 
     my %lldp_port;
     foreach my $key ( sort keys %$pid ) {
@@ -194,7 +195,7 @@ sub lldp_port {
 
         # Avaya/Nortel lldpRemPortDesc doesn't match ifDescr, but we can still
         # figure out slot.port based upon lldpRemPortDesc
-        if ( $port =~ /^(Unit\s+(\d+)\s+)?Port\s+(\d+)$/ ) {
+        if ( $vendor eq 'avaya' && $port =~ /^(Unit\s+(\d+)\s+)?Port\s+(\d+)$/ ) {
             $port = defined $1 ? "$2.$3" : "$3";
         }
 
