@@ -55,7 +55,7 @@ use SNMP::Info::Layer3;
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.18';
+$VERSION = '3.19';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -124,6 +124,7 @@ sub i_vlan {
     my $i_vlan  = $cisco->SUPER::i_vlan($partial);
 
     foreach my $idx ( keys %$i_descr ) {
+        next unless $i_type->{$idx};
         if (   $i_type->{$idx} eq 'l2vlan'
             || $i_type->{$idx} eq '135' && !defined $i_vlan->{$idx} )
         {

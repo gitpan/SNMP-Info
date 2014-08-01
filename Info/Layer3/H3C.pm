@@ -47,7 +47,7 @@ use SNMP::Info::IEEE802dot3ad 'agg_ports_lag';
 
 use vars qw/$VERSION %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.18';
+$VERSION = '3.19';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -82,7 +82,7 @@ $VERSION = '3.18';
 sub vendor {
     my $h3c = shift;
     my $mfg = $h3c->entPhysicalMfgName(1) || {};
-    return $mfg->{1};
+    return $mfg->{1} || "H3C";
 }
 
 sub os {
@@ -90,7 +90,7 @@ sub os {
     my $descr   = $h3c->description();
 
     return $1 if ( $descr =~ /(\S+)\s+Platform Software/ );
-    return;
+    return "H3C";
 }
 
 sub os_ver {
@@ -101,6 +101,7 @@ sub os_ver {
     my $os_ver  = undef;
 
     $os_ver = "$1 $2" if ( $descr =~ /Software Version ([^,]+),.*(Release\s\S+)/i );
+    $os_ver = "$1" if ( $descr =~ /Product Version ([0-9.]+)/i );
 
     return $ver_release->{2} || $os_ver;
 }

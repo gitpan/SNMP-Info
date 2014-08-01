@@ -24,7 +24,7 @@ use vars
     qw/$VERSION %FUNCS %GLOBALS %MIBS %MUNGE $AUTOLOAD $INIT $DEBUG %SPEED_MAP
     $NOSUCH $BIGINT $REPEATERS/;
 
-$VERSION = '3.18';
+$VERSION = '3.19';
 
 =head1 NAME
 
@@ -32,7 +32,7 @@ SNMP::Info - OO Interface to Network devices and MIBs through SNMP
 
 =head1 VERSION
 
-SNMP::Info - Version 3.18
+SNMP::Info - Version 3.19
 
 =head1 AUTHOR
 
@@ -487,6 +487,12 @@ See documentation in L<SNMP::Info::Layer2> for details.
 
 =over
 
+=item SNMP::Info::Layer2::3Com
+
+SNMP::Info::Layer2::3Com - SNMP Interface to L2 3Com Switches
+
+See documentation in L<SNMP::Info::Layer2::3Com> for details.
+
 =item SNMP::Info::Layer2::Airespace
 
 Subclass for Cisco (Airespace) wireless controllers.
@@ -617,6 +623,12 @@ See documentation in L<SNMP::Info::Layer2::Orinoco> for details.
 SNMP Interface to Juniper (Trapeze) Wireless Controllers
 
 See documentation in L<SNMP::Info::Layer2::Trapeze> for details.
+
+=item SNMP::Info::Layer2::Ubiquiti
+
+SNMP Interface to Ubiquiti Access Points
+
+See documentation in L<SNMP::Info::Layer2::Ubiquiti> for details.
 
 =item SNMP::Info::Layer2::ZyXEL_DSLAM
 
@@ -1472,6 +1484,7 @@ sub device_type {
         11   => 'SNMP::Info::Layer2::HP',
         18   => 'SNMP::Info::Layer3::BayRS',
         42   => 'SNMP::Info::Layer3::Sun',
+        43   => 'SNMP::Info::Layer2::3Com',
         45   => 'SNMP::Info::Layer2::Baystack',
         171  => 'SNMP::Info::Layer3::Dell',
         244  => 'SNMP::Info::Layer3::Lantronix',
@@ -1495,6 +1508,7 @@ sub device_type {
         6527 => 'SNMP::Info::Layer3::Timetra',
         8072 => 'SNMP::Info::Layer3::NetSNMP',
         9303 => 'SNMP::Info::Layer3::PacketFront',
+        10002 => 'SNMP::Info::Layer2::Ubiquiti',
         12325 => 'SNMP::Info::Layer3::Pf',
         14179 => 'SNMP::Info::Layer2::Airespace',
         14525 => 'SNMP::Info::Layer2::Trapeze',
@@ -1510,11 +1524,11 @@ sub device_type {
     my %l2sysoidmap = (
         9     => 'SNMP::Info::Layer2::Cisco',
         11    => 'SNMP::Info::Layer2::HP',
+        43    => 'SNMP::Info::Layer2::3Com',
         45    => 'SNMP::Info::Layer2::Baystack',
         171   => 'SNMP::Info::Layer3::Dell',
         207   => 'SNMP::Info::Layer2::Allied',
         674   => 'SNMP::Info::Layer3::Dell',
-        890   => 'SNMP::Info::Layer2::ZyXEL_DSLAM',
         1872  => 'SNMP::Info::Layer3::AlteonAD',
         1916  => 'SNMP::Info::Layer3::Extreme',
         1991  => 'SNMP::Info::Layer3::Foundry',
@@ -1793,6 +1807,9 @@ sub device_type {
         # HP Virtual Connect blade switches
         $objtype = 'SNMP::Info::Layer2::HPVC'
             if ( $desc =~ /HP\sVC\s/ );
+
+        $objtype = 'SNMP::Info::Layer2::ZyXEL_DSLAM'
+            if ( $desc =~ /8-port .DSL Module\(Annex .\)/i );
 
         # Generic device classification based upon sysObjectID
         if (    ( $objtype eq 'SNMP::Info::Layer2' )
