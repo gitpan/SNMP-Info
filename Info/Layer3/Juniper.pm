@@ -40,7 +40,7 @@ use SNMP::Info::LLDP;
 
 use vars qw/$VERSION $DEBUG %GLOBALS %MIBS %FUNCS %MUNGE/;
 
-$VERSION = '3.19';
+$VERSION = '3.20';
 
 %MIBS = (
     %SNMP::Info::Layer3::MIBS,
@@ -87,6 +87,20 @@ sub vendor {
 
 sub os {
     return 'junos';
+}
+
+sub layers {
+    my $juniper = shift;
+    
+    my $layers = $juniper->SUPER::layers();
+    # Some models don't report L2 properly 
+    my $macs   = $juniper->fw_mac();
+    
+    if (keys %$macs) {
+        my $l = substr $layers, 6, 1, "1";
+    }
+
+    return $layers;
 }
 
 sub os_ver {
@@ -589,6 +603,11 @@ Returns 'juniper'
 =item $juniper->os()
 
 Returns 'junos'
+
+=item $juniper->layers()
+
+Checks forwarding table for Layer 2 support since some routers with switches
+do not report layers properly.
 
 =item $juniper->os_ver()
 
