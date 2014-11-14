@@ -51,7 +51,7 @@ use SNMP::Info::AdslLine;
 
 use vars qw/$VERSION %GLOBALS %FUNCS %MIBS %MUNGE/;
 
-$VERSION = '3.20';
+$VERSION = '3.21_001';
 
 %MIBS = (
     %SNMP::Info::MIBS,
@@ -183,23 +183,6 @@ sub root_ip {
     }
 
     return;
-}
-
-sub i_ignore {
-    my $l3      = shift;
-    my $partial = shift;
-
-    my $interfaces = $l3->interfaces($partial) || {};
-
-    my %i_ignore;
-    foreach my $if ( keys %$interfaces ) {
-
-        # lo -> cisco aironet 350 loopback
-        if ( $interfaces->{$if} =~ /(tunnel|loopback|\blo\b|null)/i ) {
-            $i_ignore{$if}++;
-        }
-    }
-    return \%i_ignore;
 }
 
 sub serial {
@@ -543,12 +526,6 @@ Returns the map between SNMP Interface Identifier (iid) and physical port
 name. 
 
 Only returns those iids that have a description listed in $l3->i_description()
-
-=item $l3->i_ignore()
-
-Returns reference to hash.  Creates a key for each IID that should be ignored.
-
-Currently looks for tunnel,loopback,lo,null from $l3->interfaces()
 
 =item $l3->i_name()
 
